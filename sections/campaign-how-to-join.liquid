@@ -1,0 +1,210 @@
+{% comment %}
+  Holiday Hair Vote - 如何参与区块
+{% endcomment %}
+
+<div class="campaign-container how-to-join-section">
+  <div class="how-to-join-card">
+    <h2 class="how-to-join__title">{{ section.settings.title }}</h2>
+    
+    <div class="how-to-join__grid">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'step_item' -%}
+            <div class="step-item{% if block.settings.show_border %} step-item--border{% endif %}" {{ block.shopify_attributes }}>
+              <div class="step-item__icon">
+                {%- if block.settings.icon_svg != blank -%}
+                  {{ block.settings.icon_svg }}
+                {%- else -%}
+                  <svg class="icon-placeholder" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.432 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                {%- endif -%}
+              </div>
+              <p class="step-item__text">{{ block.settings.description }}</p>
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+<style>
+  .how-to-join-section {
+    max-width: 1200px;
+    margin: 56px auto;
+    padding: 0 20px;
+  }
+
+  .how-to-join-card {
+    background: white;
+    border-radius: 12px;
+    padding: 48px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .how-to-join__title {
+    text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    color: #333;
+    margin: 0 0 40px 0;
+  }
+
+  .how-to-join__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    text-align: center;
+  }
+
+  .step-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 16px;
+  }
+
+  .step-item--border {
+    border-right: 1px dashed #A28969;
+  }
+
+  .step-item:last-child {
+    border-right: none;
+  }
+
+  .step-item__icon {
+    width: 96px;
+    height: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #A28969;
+    border-radius: 50%;
+    margin-bottom: 16px;
+  }
+
+  .step-item__icon svg {
+    width: 48px;
+    height: 48px;
+    color: white;
+  }
+
+  .step-item__text {
+    font-size: 15px;
+    color: #333;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  @media screen and (max-width: 989px) {
+    .how-to-join__grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px 0;
+    }
+
+    .step-item:nth-child(2n) {
+      border-right: none;
+    }
+
+    .step-item:nth-child(2n+1):not(:last-child) {
+      border-right: 1px dashed #A28969;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .how-to-join-card {
+      padding: 24px 16px;
+    }
+
+    .how-to-join__title {
+      font-size: 24px;
+      margin-bottom: 24px;
+    }
+
+    .step-item__icon {
+      width: 72px;
+      height: 72px;
+    }
+
+    .step-item__icon svg {
+      width: 40px;
+      height: 40px;
+    }
+
+    .step-item__text {
+      font-size: 14px;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "How to Join",
+  "tag": "section",
+  "class": "section-how-to-join",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "标题",
+      "default": "How to Join"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "step_item",
+      "name": "Step",
+      "settings": [
+        {
+          "type": "html",
+          "id": "icon_svg",
+          "label": "图标 SVG",
+          "info": "粘贴完整的 SVG 代码"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "步骤说明",
+          "default": "Browse the hairstyle options below and vote for your favorite"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_border",
+          "label": "显示右侧边框",
+          "default": true
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "How to Join",
+      "blocks": [
+        {
+          "type": "step_item",
+          "settings": {
+            "description": "Browse the hairstyle options below and vote for your favorite",
+            "show_border": true
+          }
+        },
+        {
+          "type": "step_item",
+          "settings": {
+            "description": "Or upload your recommended hairstyle photo/style name",
+            "show_border": true
+          }
+        },
+        {
+          "type": "step_item",
+          "settings": {
+            "description": "Submit your email to enter & you're in the giveaway!",
+            "show_border": false
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+

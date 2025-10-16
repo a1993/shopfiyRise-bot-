@@ -1,0 +1,240 @@
+{% comment %}
+  Holiday Hair Vote - 奖品信息区块
+{% endcomment %}
+
+<div class="campaign-container prize-section">
+  {%- comment -%} 标题区 {%- endcomment -%}
+  <div class="prize-section__header">
+    {%- if section.settings.stage_text_1 != blank -%}
+      <p class="stage-text">{{ section.settings.stage_text_1 }}</p>
+    {%- endif -%}
+    
+    {%- if section.settings.stage_text_2 != blank -%}
+      <p class="stage-text stage-text--highlight">
+        {{ section.settings.stage_text_2 }}
+      </p>
+    {%- endif -%}
+    
+    {%- if section.settings.stage_text_3 != blank -%}
+      <p class="stage-text">
+        {%- assign text_with_bold = section.settings.stage_text_3 | replace: "[bold]", "<strong>" | replace: "[/bold]", "</strong>" -%}
+        {{ text_with_bold }}
+      </p>
+    {%- endif -%}
+  </div>
+
+  {%- comment -%} 奖品卡片 {%- endcomment -%}
+  <div class="prize-card">
+    <div class="prize-card__header">
+      <h2 class="prize-card__title">{{ section.settings.card_title }}</h2>
+    </div>
+
+    <div class="prize-card__content">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'prize_item' -%}
+            <div class="prize-item" {{ block.shopify_attributes }}>
+              <span class="prize-item__number">{{ block.settings.number }}</span>
+              <p class="prize-item__text">
+                {%- assign item_text = block.settings.text | replace: "[bold]", "<strong>" | replace: "[/bold]", "</strong>" -%}
+                {{ item_text }}
+              </p>
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+<style>
+  .prize-section {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+
+  .prize-section__header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .stage-text {
+    font-size: 18px;
+    margin: 16px 0;
+    color: #333;
+  }
+
+  .stage-text--highlight {
+    max-width: 800px;
+    margin: 16px auto;
+    background: linear-gradient(to right, #E9D8BD, #F0EADF);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .stage-text strong {
+    font-weight: 700;
+  }
+
+  .prize-card {
+    background: white;
+    border-radius: 12px;
+    padding: 48px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .prize-card__header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .prize-card__title {
+    font-size: 32px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+  }
+
+  .prize-card__content {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .prize-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .prize-item__number {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #A28969;
+    color: white;
+    border-radius: 50%;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .prize-item__text {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+  }
+
+  .prize-item__text strong {
+    font-weight: 700;
+  }
+
+  @media screen and (max-width: 749px) {
+    .prize-card {
+      padding: 24px 16px;
+    }
+
+    .prize-card__title {
+      font-size: 24px;
+    }
+
+    .stage-text {
+      font-size: 16px;
+    }
+
+    .stage-text--highlight {
+      font-size: 18px;
+      max-width: 90vw;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Prize Info",
+  "tag": "section",
+  "class": "section-prize-info",
+  "settings": [
+    {
+      "type": "header",
+      "content": "顶部文字"
+    },
+    {
+      "type": "text",
+      "id": "stage_text_1",
+      "label": "第一行文字",
+      "default": "The holiday season is around the corner — and we want to know:"
+    },
+    {
+      "type": "text",
+      "id": "stage_text_2",
+      "label": "第二行文字（高亮）",
+      "default": "What hairstyle are YOU rocking this fall?"
+    },
+    {
+      "type": "textarea",
+      "id": "stage_text_3",
+      "label": "第三行文字",
+      "info": "使用 [bold]文字[/bold] 来加粗",
+      "default": "Vote for your favorite look or upload your recommended hairstyle, and you'll be entered to [bold]win a free hair system[/bold] from Lavivid."
+    },
+    {
+      "type": "header",
+      "content": "奖品卡片"
+    },
+    {
+      "type": "text",
+      "id": "card_title",
+      "label": "卡片标题",
+      "default": "Prize Alert!"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "prize_item",
+      "name": "Prize Item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "number",
+          "label": "编号",
+          "default": "1"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "奖品说明",
+          "info": "使用 [bold]文字[/bold] 来加粗",
+          "default": "[bold]1 Free Hair System[/bold] Winner will be announced on Oct. 31st"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Prize Info",
+      "blocks": [
+        {
+          "type": "prize_item",
+          "settings": {
+            "number": "1",
+            "text": "[bold]1 Free Hair System[/bold] Winner will be announced on Oct. 31st"
+          }
+        },
+        {
+          "type": "prize_item",
+          "settings": {
+            "number": "2",
+            "text": "Every entry also earns [bold]2,000 points[/bold]"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+

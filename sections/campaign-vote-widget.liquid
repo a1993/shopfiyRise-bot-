@@ -1,0 +1,293 @@
+{% comment %}
+  Holiday Hair Vote - 投票组件区块
+  这个区块需要配合 JavaScript 实现投票功能
+{% endcomment %}
+
+<div class="campaign-container vote-section">
+  <h2 class="vote-section__title">{{ section.settings.title }}</h2>
+  
+  <div id="vote-widget" class="vote-widget" data-campaign-id="{{ section.settings.campaign_id }}">
+    <div class="vote-grid">
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'vote_option' -%}
+            <div class="vote-card" {{ block.shopify_attributes }}>
+              {%- if block.settings.image != blank -%}
+                <div class="vote-card__image">
+                  {{
+                    block.settings.image
+                    | image_url: width: 600
+                    | image_tag:
+                      loading: 'lazy',
+                      alt: block.settings.title,
+                      class: 'vote-image'
+                  }}
+                </div>
+              {%- endif -%}
+              
+              <div class="vote-card__content">
+                <h3 class="vote-card__title">{{ block.settings.title }}</h3>
+                {%- if block.settings.description != blank -%}
+                  <p class="vote-card__description">{{ block.settings.description }}</p>
+                {%- endif -%}
+                
+                <label class="vote-checkbox">
+                  <input 
+                    type="checkbox" 
+                    name="vote" 
+                    value="{{ block.settings.vote_value | default: block.settings.title }}"
+                    class="vote-checkbox__input"
+                  >
+                  <span class="vote-checkbox__label">Vote for this style</span>
+                </label>
+              </div>
+            </div>
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+
+    <button type="button" class="vote-submit-btn" onclick="handleVoteSubmit()">
+      {{ section.settings.submit_button_text }}
+    </button>
+  </div>
+</div>
+
+<script>
+  function handleVoteSubmit() {
+    const checkboxes = document.querySelectorAll('.vote-checkbox__input:checked');
+    const votes = Array.from(checkboxes).map(cb => cb.value);
+    
+    if (votes.length === 0) {
+      alert('Please select at least one hairstyle to vote!');
+      return;
+    }
+
+    // 获取或检查用户登录状态
+    if (!window.ShopifyCustomer || !window.ShopifyCustomer.email) {
+      alert('Please log in to submit your vote');
+      // 可以跳转到登录页面
+      // window.location.href = '/account/login';
+      return;
+    }
+
+    // 提交投票数据
+    const voteData = {
+      campaign_id: document.getElementById('vote-widget').dataset.campaignId,
+      votes: votes.join(','),
+      customer_email: window.ShopifyCustomer.email,
+      customer_id: window.ShopifyCustomer.id
+    };
+
+    console.log('Submitting vote:', voteData);
+
+    // 这里需要调用后端 API 来保存投票数据
+    // 可以使用 Shopify App Proxy 或自定义后端
+    fetch('/apps/campaign/vote', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(voteData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('Thank you for participating!');
+        // 可以禁用投票按钮或显示成功消息
+      } else {
+        alert('Failed to submit. Please try again.');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again.');
+    });
+  }
+
+  // 获取当前客户信息（如果已登录）
+  {% if customer %}
+    window.ShopifyCustomer = {
+      id: {{ customer.id | json }},
+      email: {{ customer.email | json }},
+      firstName: {{ customer.first_name | json }},
+      lastName: {{ customer.last_name | json }}
+    };
+  {% endif %}
+</script>
+
+<style>
+  .vote-section {
+    max-width: 1200px;
+    margin: 56px auto;
+    padding: 0 20px;
+  }
+
+  .vote-section__title {
+    text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    color: #333;
+    margin: 0 0 40px 0;
+  }
+
+  .vote-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+
+  .vote-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .vote-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .vote-card__image {
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+  }
+
+  .vote-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .vote-card__content {
+    padding: 20px;
+  }
+
+  .vote-card__title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 8px 0;
+  }
+
+  .vote-card__description {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 16px 0;
+    line-height: 1.5;
+  }
+
+  .vote-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .vote-checkbox__input {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    cursor: pointer;
+  }
+
+  .vote-checkbox__label {
+    font-size: 15px;
+    color: #333;
+  }
+
+  .vote-submit-btn {
+    display: block;
+    margin: 0 auto;
+    padding: 12px 40px;
+    background-color: #0A0A0A;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .vote-submit-btn:hover {
+    background-color: #333;
+  }
+
+  @media screen and (max-width: 749px) {
+    .vote-section__title {
+      font-size: 24px;
+    }
+
+    .vote-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Vote Widget",
+  "tag": "section",
+  "class": "section-vote-widget",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "标题",
+      "default": "Don't Miss Your Chance — Vote Today!"
+    },
+    {
+      "type": "text",
+      "id": "campaign_id",
+      "label": "活动ID",
+      "default": "lv-holiday-hair-vote-new"
+    },
+    {
+      "type": "text",
+      "id": "submit_button_text",
+      "label": "提交按钮文字",
+      "default": "Vote Now"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "vote_option",
+      "name": "Vote Option",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "发型图片"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "发型名称",
+          "default": "Classic Cut"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "描述"
+        },
+        {
+          "type": "text",
+          "id": "vote_value",
+          "label": "投票值",
+          "info": "用于后端统计，留空则使用标题"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Vote Widget"
+    }
+  ]
+}
+{% endschema %}
+

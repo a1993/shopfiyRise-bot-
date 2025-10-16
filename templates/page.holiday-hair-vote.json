@@ -1,0 +1,54 @@
+{
+  "sections": {
+    "campaign_banner": {
+      "type": "campaign-holiday-banner",
+      "settings": {
+        "banner_alt": "Holiday Hair Vote Campaign",
+        "bg_color": "#F0EADF"
+      }
+    },
+    "prize_info": {
+      "type": "campaign-prize-info",
+      "settings": {
+        "stage_text_1": "The holiday season is around the corner — and we want to know:",
+        "stage_text_2": "What hairstyle are YOU rocking this fall?",
+        "stage_text_3": "Vote for your favorite look or upload your recommended hairstyle, and you'll be entered to [bold]win a free hair system[/bold] from Lavivid.",
+        "card_title": "Prize Alert!"
+      }
+    },
+    "how_to_join": {
+      "type": "campaign-how-to-join",
+      "settings": {
+        "title": "How to Join"
+      }
+    },
+    "vote_section": {
+      "type": "campaign-vote-widget",
+      "settings": {
+        "title": "Don't Miss Your Chance — Vote Today!",
+        "campaign_id": "lv-holiday-hair-vote-new",
+        "submit_button_text": "Vote Now"
+      }
+    },
+    "email_submit": {
+      "type": "campaign-email-submit",
+      "settings": {
+        "bg_color": "#F0EADF",
+        "show_upload": true,
+        "upload_title": "Upload Your Recommended Hairstyle",
+        "upload_description": "Share your favorite hairstyle photo or style name",
+        "email_title": "Enter Your Email to Complete Entry",
+        "email_placeholder": "Enter your email address",
+        "submit_button_text": "Submit Entry",
+        "disclaimer": "By submitting, you agree to our terms and conditions."
+      }
+    }
+  },
+  "order": [
+    "campaign_banner",
+    "prize_info",
+    "how_to_join",
+    "vote_section",
+    "email_submit"
+  ]
+}

@@ -1,0 +1,381 @@
+{% comment %}
+  Holiday Hair Vote - 邮件提交和上传区块
+{% endcomment %}
+
+<div class="campaign-container email-submit-section" style="background-color: {{ section.settings.bg_color }};">
+  {%- comment -%} 上传区域 {%- endcomment -%}
+  {%- if section.settings.show_upload -%}
+    <div class="upload-section">
+      <h3 class="upload-section__title">{{ section.settings.upload_title }}</h3>
+      <p class="upload-section__description">{{ section.settings.upload_description }}</p>
+      
+      <div class="upload-box">
+        <input 
+          type="file" 
+          id="hairstyle-upload" 
+          accept="image/*"
+          class="upload-input"
+          onchange="handleFileUpload(this)"
+        >
+        <label for="hairstyle-upload" class="upload-label">
+          <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" />
+          </svg>
+          <span class="upload-label-text">Click to upload your hairstyle photo</span>
+        </label>
+        <div id="upload-preview" class="upload-preview"></div>
+      </div>
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} 邮箱输入区域 {%- endcomment -%}
+  <div class="email-input-section">
+    <h3 class="email-input-section__title">{{ section.settings.email_title }}</h3>
+    
+    <div class="email-form">
+      <input 
+        type="email" 
+        id="campaign-email" 
+        placeholder="{{ section.settings.email_placeholder }}"
+        class="email-input"
+        value="{% if customer %}{{ customer.email }}{% endif %}"
+      >
+      <button type="button" class="email-submit-btn" onclick="handleEmailSubmit()">
+        {{ section.settings.submit_button_text }}
+      </button>
+    </div>
+    
+    {%- if section.settings.disclaimer != blank -%}
+      <p class="email-disclaimer">{{ section.settings.disclaimer }}</p>
+    {%- endif -%}
+  </div>
+</div>
+
+<script>
+  let uploadedFile = null;
+
+  function handleFileUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    uploadedFile = file;
+
+    // 显示预览
+    const preview = document.getElementById('upload-preview');
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+      preview.innerHTML = `
+        <img src="${e.target.result}" alt="Preview" class="upload-preview-image">
+        <button onclick="clearUpload()" class="upload-clear-btn">×</button>
+      `;
+    };
+    
+    reader.readAsDataURL(file);
+  }
+
+  function clearUpload() {
+    uploadedFile = null;
+    document.getElementById('hairstyle-upload').value = '';
+    document.getElementById('upload-preview').innerHTML = '';
+  }
+
+  function handleEmailSubmit() {
+    const emailInput = document.getElementById('campaign-email');
+    const email = emailInput.value.trim();
+
+    if (!email) {
+      alert('Please enter your email address');
+      return;
+    }
+
+    // 验证邮箱格式
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert('Please enter a valid email address');
+      return;
+    }
+
+    // 准备提交数据
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('campaign_id', 'lv-holiday-hair-vote-new');
+    
+    if (uploadedFile) {
+      formData.append('hairstyle_photo', uploadedFile);
+    }
+
+    // 如果用户已登录，添加客户信息
+    {% if customer %}
+      formData.append('customer_id', {{ customer.id | json }});
+      formData.append('first_name', {{ customer.first_name | json }});
+      formData.append('last_name', {{ customer.last_name | json }});
+    {% endif %}
+
+    console.log('Submitting campaign entry:', email);
+
+    // 提交到后端 API
+    fetch('/apps/campaign/submit', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('Thank you for participating! You have earned 2,000 points!');
+        clearUpload();
+        // 可以显示成功消息或跳转
+      } else {
+        alert(data.message || 'Submission failed. Please try again.');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred. Please try again.');
+    });
+  }
+</script>
+
+<style>
+  .email-submit-section {
+    padding: 60px 20px;
+    margin: 40px 0;
+  }
+
+  .upload-section {
+    max-width: 800px;
+    margin: 0 auto 40px;
+    background: white;
+    border-radius: 15px;
+    padding: 40px;
+  }
+
+  .upload-section__title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+    margin: 0 0 12px 0;
+  }
+
+  .upload-section__description {
+    font-size: 16px;
+    color: #666;
+    text-align: center;
+    margin: 0 0 24px 0;
+  }
+
+  .upload-box {
+    position: relative;
+  }
+
+  .upload-input {
+    display: none;
+  }
+
+  .upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    border: 2px dashed #A28969;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .upload-label:hover {
+    background-color: #f9f9f9;
+    border-color: #8B7355;
+  }
+
+  .upload-icon {
+    width: 48px;
+    height: 48px;
+    color: #A28969;
+    margin-bottom: 12px;
+  }
+
+  .upload-label-text {
+    font-size: 16px;
+    color: #666;
+  }
+
+  .upload-preview {
+    margin-top: 20px;
+    text-align: center;
+    position: relative;
+  }
+
+  .upload-preview-image {
+    max-width: 300px;
+    max-height: 300px;
+    border-radius: 8px;
+  }
+
+  .upload-clear-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .email-input-section {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .email-input-section__title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 20px 0;
+  }
+
+  .email-form {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .email-input {
+    flex: 1;
+    height: 64px;
+    padding: 0 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 20px;
+    background: white;
+    outline: none;
+    transition: box-shadow 0.3s ease;
+  }
+
+  .email-input:focus {
+    box-shadow: 0 0 0 2px #A28969;
+  }
+
+  .email-submit-btn {
+    padding: 0 40px;
+    height: 64px;
+    background-color: #0A0A0A;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .email-submit-btn:hover {
+    background-color: #333;
+  }
+
+  .email-disclaimer {
+    font-size: 12px;
+    color: #999;
+    margin: 0;
+  }
+
+  @media screen and (max-width: 749px) {
+    .email-submit-section {
+      padding: 40px 20px;
+    }
+
+    .upload-section {
+      padding: 24px;
+    }
+
+    .email-form {
+      flex-direction: column;
+    }
+
+    .email-input,
+    .email-submit-btn {
+      width: 100%;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Email Submit",
+  "tag": "section",
+  "class": "section-email-submit",
+  "settings": [
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "背景颜色",
+      "default": "#F0EADF"
+    },
+    {
+      "type": "header",
+      "content": "上传区域"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_upload",
+      "label": "显示上传功能",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "upload_title",
+      "label": "上传标题",
+      "default": "Upload Your Recommended Hairstyle"
+    },
+    {
+      "type": "textarea",
+      "id": "upload_description",
+      "label": "上传说明",
+      "default": "Share your favorite hairstyle photo or style name"
+    },
+    {
+      "type": "header",
+      "content": "邮箱区域"
+    },
+    {
+      "type": "text",
+      "id": "email_title",
+      "label": "邮箱标题",
+      "default": "Enter Your Email to Complete Entry"
+    },
+    {
+      "type": "text",
+      "id": "email_placeholder",
+      "label": "邮箱占位符",
+      "default": "Enter your email address"
+    },
+    {
+      "type": "text",
+      "id": "submit_button_text",
+      "label": "提交按钮文字",
+      "default": "Submit Entry"
+    },
+    {
+      "type": "textarea",
+      "id": "disclaimer",
+      "label": "免责声明",
+      "default": "By submitting, you agree to our terms and conditions."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Email Submit"
+    }
+  ]
+}
+{% endschema %}
+
