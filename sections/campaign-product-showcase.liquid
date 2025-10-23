@@ -49,14 +49,14 @@
               <div class="campaign-product-showcase-item__product">
                 <a href="{{ product.url }}" class="campaign-product-showcase-link">
                   <div class="campaign-product-showcase-image">
-                    {%- if product.featured_image -%}
-                      {{
-                        product.featured_image
-                        | image_url: width: 400
-                        | image_tag:
-                          loading: 'lazy',
-                          alt: product.title
-                      }}
+                    {%- if product.featured_image.src -%}
+                      <img 
+                        src="{{ product.featured_image | image_url: width: 400 }}"
+                        alt="{{ product.title | escape }}"
+                        loading="lazy"
+                        width="400"
+                        height="auto"
+                      >
                     {%- endif -%}
                     
                     {%- if has_discount -%}
