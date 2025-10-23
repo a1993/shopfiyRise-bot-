@@ -1,0 +1,99 @@
+{% comment %}
+  Campaign Banner Snippet
+  可复用的横幅组件，支持桌面端和移动端不同图片
+  
+  参数说明:
+  - desktop_image: 桌面端图片对象 (required)
+  - mobile_image: 移动端图片对象 (required)
+  - alt_text: 图片描述文本 (optional)
+  - sticky: 是否使用固定宽度容器 (optional, default: false)
+  - loading: 图片加载方式 'eager' | 'lazy' (optional, default: 'eager')
+  
+  使用示例:
+  {% render 'campaign-banner',
+    desktop_image: section.settings.banner_desktop,
+    mobile_image: section.settings.banner_mobile,
+    alt_text: 'Campaign Banner',
+    sticky: true
+  %}
+{% endcomment %}
+
+{%- liquid
+  assign alt = alt_text | default: 'Campaign Banner'
+  assign is_sticky = sticky | default: false
+  assign img_loading = loading | default: 'eager'
+-%}
+
+<div class="campaign-banner{% if is_sticky %} campaign-banner--sticky{% endif %}">
+  {%- if desktop_image != blank -%}
+    <div class="campaign-banner__desktop">
+      {{
+        desktop_image
+        | image_url: width: 1920
+        | image_tag:
+          loading: img_loading,
+          width: desktop_image.width,
+          height: desktop_image.height,
+          alt: alt,
+          class: 'campaign-banner__image'
+      }}
+    </div>
+  {%- endif -%}
+
+  {%- if mobile_image != blank -%}
+    <div class="campaign-banner__mobile">
+      {{
+        mobile_image
+        | image_url: width: 750
+        | image_tag:
+          loading: img_loading,
+          width: mobile_image.width,
+          height: mobile_image.height,
+          alt: alt,
+          class: 'campaign-banner__image'
+      }}
+    </div>
+  {%- endif -%}
+</div>
+
+<style>
+  .campaign-banner {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .campaign-banner__image {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .campaign-banner__desktop {
+    display: block;
+  }
+
+  .campaign-banner__mobile {
+    display: none;
+  }
+
+  .campaign-banner--sticky {
+    max-width: 1400px;
+    margin: 1rem auto;
+  }
+
+  @media screen and (max-width: 768px) {
+    .campaign-banner__desktop {
+      display: none;
+    }
+
+    .campaign-banner__mobile {
+      display: block;
+    }
+
+    .campaign-banner--sticky {
+      margin: 0;
+    }
+  }
+</style>
+

@@ -1,0 +1,407 @@
+/**
+ * Campaign Common Styles
+ * 活动页面公共样式
+ */
+
+/* ============================================
+   CSS 变量定义
+   ============================================ */
+:root {
+  --campaign-primary-color: #000;
+  --campaign-secondary-color: #666;
+  --campaign-accent-color: #e31c1c;
+  --campaign-bg-light: #f5f5f5;
+  --campaign-bg-white: #fff;
+  --campaign-border-radius: 15px;
+  --campaign-container-width: 1400px;
+  --campaign-spacing-xs: 0.5rem;
+  --campaign-spacing-sm: 1rem;
+  --campaign-spacing-md: 1.5rem;
+  --campaign-spacing-lg: 2rem;
+  --campaign-spacing-xl: 3rem;
+  --campaign-transition: 0.3s ease;
+}
+
+/* ============================================
+   容器布局
+   ============================================ */
+.campaign-container,
+.lv-container {
+  max-width: var(--campaign-container-width);
+  margin: 0 auto;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+.campaign-page-width {
+  max-width: var(--campaign-container-width);
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* ============================================
+   视频弹窗样式
+   ============================================ */
+.campaign-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--campaign-transition), visibility var(--campaign-transition);
+}
+
+.campaign-modal--visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.campaign-modal__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  cursor: pointer;
+}
+
+.campaign-modal__content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 900px;
+  z-index: 10000;
+}
+
+.campaign-modal__video-wrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 */
+  background: #000;
+  border-radius: var(--campaign-border-radius);
+  overflow: hidden;
+}
+
+.campaign-modal__video-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.campaign-modal__close {
+  position: absolute;
+  top: -50px;
+  right: 0;
+  background: var(--campaign-bg-white);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--campaign-primary-color);
+  transition: transform var(--campaign-transition), background-color var(--campaign-transition);
+}
+
+.campaign-modal__close:hover {
+  transform: scale(1.1);
+  background-color: #f0f0f0;
+}
+
+.campaign-modal__close svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ============================================
+   产品网格布局
+   ============================================ */
+.campaign-product-grid {
+  display: grid;
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.campaign-product-grid--2-col {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.campaign-product-grid--3-col {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.campaign-product-grid--4-col {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* ============================================
+   特性列表样式
+   ============================================ */
+.campaign-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+}
+
+.campaign-feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.campaign-feature-item__icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  margin-top: 2px;
+}
+
+.campaign-feature-item__content {
+  flex: 1;
+  line-height: 1.6;
+}
+
+.campaign-feature-item__content strong {
+  font-weight: 700;
+  color: var(--campaign-primary-color);
+}
+
+/* ============================================
+   图文区块
+   ============================================ */
+.campaign-text-image {
+  display: grid;
+  gap: 2rem;
+  align-items: center;
+  margin: 2rem 0;
+}
+
+.campaign-text-image--image-right {
+  grid-template-columns: 1fr 1fr;
+}
+
+.campaign-text-image--image-left {
+  grid-template-columns: 1fr 1fr;
+}
+
+.campaign-text-image--image-left .campaign-text-image__image {
+  order: -1;
+}
+
+.campaign-text-image__content {
+  padding: 1rem;
+}
+
+.campaign-text-image__image {
+  width: 100%;
+  border-radius: var(--campaign-border-radius);
+  overflow: hidden;
+}
+
+.campaign-text-image__image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ============================================
+   卡片样式
+   ============================================ */
+.campaign-card {
+  background: var(--campaign-bg-white);
+  border-radius: var(--campaign-border-radius);
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: transform var(--campaign-transition), box-shadow var(--campaign-transition);
+}
+
+.campaign-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.campaign-card--light {
+  background: var(--campaign-bg-light);
+}
+
+/* ============================================
+   按钮样式
+   ============================================ */
+.campaign-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--campaign-transition);
+  text-decoration: none;
+  text-align: center;
+}
+
+.campaign-btn--primary {
+  background: var(--campaign-primary-color);
+  color: var(--campaign-bg-white);
+}
+
+.campaign-btn--primary:hover {
+  background: #333;
+}
+
+.campaign-btn--secondary {
+  background: var(--campaign-bg-light);
+  color: var(--campaign-primary-color);
+}
+
+.campaign-btn--secondary:hover {
+  background: #e0e0e0;
+}
+
+/* ============================================
+   懒加载效果
+   ============================================ */
+[data-lazy] {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+[data-lazy].campaign-lazy-loaded {
+  opacity: 1;
+}
+
+/* ============================================
+   工具类
+   ============================================ */
+.campaign-text-center {
+  text-align: center;
+}
+
+.campaign-text-left {
+  text-align: left;
+}
+
+.campaign-text-right {
+  text-align: right;
+}
+
+.campaign-mt-sm { margin-top: var(--campaign-spacing-sm); }
+.campaign-mt-md { margin-top: var(--campaign-spacing-md); }
+.campaign-mt-lg { margin-top: var(--campaign-spacing-lg); }
+.campaign-mt-xl { margin-top: var(--campaign-spacing-xl); }
+
+.campaign-mb-sm { margin-bottom: var(--campaign-spacing-sm); }
+.campaign-mb-md { margin-bottom: var(--campaign-spacing-md); }
+.campaign-mb-lg { margin-bottom: var(--campaign-spacing-lg); }
+.campaign-mb-xl { margin-bottom: var(--campaign-spacing-xl); }
+
+.campaign-rounded {
+  border-radius: var(--campaign-border-radius);
+}
+
+.campaign-shadow {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   响应式布局
+   ============================================ */
+@media screen and (max-width: 1024px) {
+  .campaign-product-grid--4-col {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .campaign-text-image--image-right,
+  .campaign-text-image--image-left {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .campaign-text-image--image-left .campaign-text-image__image {
+    order: 0;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  :root {
+    --campaign-container-width: 100%;
+    --campaign-spacing-lg: 1.5rem;
+    --campaign-spacing-xl: 2rem;
+  }
+
+  .campaign-container,
+  .lv-container,
+  .campaign-page-width {
+    padding: 0 1rem;
+  }
+
+  .campaign-product-grid {
+    gap: 1rem;
+  }
+
+  .campaign-product-grid--2-col,
+  .campaign-product-grid--3-col,
+  .campaign-product-grid--4-col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .campaign-modal__content {
+    width: 95%;
+  }
+
+  .campaign-modal__close {
+    top: -45px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .campaign-feature-item {
+    margin-bottom: 1rem;
+  }
+
+  .campaign-card {
+    padding: 1rem;
+  }
+
+  .campaign-btn {
+    padding: 0.625rem 1.5rem;
+    font-size: 0.875rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .campaign-product-grid--2-col,
+  .campaign-product-grid--3-col,
+  .campaign-product-grid--4-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   打印样式
+   ============================================ */
+@media print {
+  .campaign-modal,
+  .campaign-btn {
+    display: none;
+  }
+}
+
+/* ============================================
+   暗色模式支持（可选）
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+  /* 如果需要支持暗色模式，在这里添加样式 */
+}
+

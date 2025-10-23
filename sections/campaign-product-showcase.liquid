@@ -1,0 +1,308 @@
+{% comment %}
+  Campaign Product Showcase Section
+  产品展示区块 - 支持产品+视频的组合展示
+{% endcomment %}
+
+<div class="campaign-product-showcase-section" style="padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;">
+  <div class="campaign-container">
+    {%- if section.settings.title != blank -%}
+      {% render 'campaign-title',
+        title: section.settings.title,
+        tag: 'h2',
+        align: 'center'
+      %}
+    {%- endif -%}
+
+    {%- for block in section.blocks -%}
+      {%- case block.type -%}
+        {%- when 'product_with_video' -%}
+          {%- liquid
+            # 获取产品
+            if block.settings.product != blank
+              assign product = block.settings.product
+            elsif block.settings.product_sku != blank
+              assign sku_handle = block.settings.product_sku | handleize
+              assign product = all_products[sku_handle]
+            endif
+            
+            # 计算折扣价格
+            assign has_discount = false
+            if block.settings.discount_percent and block.settings.discount_percent > 0
+              assign has_discount = true
+              assign discount_decimal = block.settings.discount_percent | times: 0.01
+              assign price_after_discount = product.price | times: 1.0 | minus: discount_decimal | times: product.price | divided_by: 100
+            endif
+            
+            # 判断布局方向
+            assign is_reverse = false
+            if block.settings.layout == 'image_right'
+              assign is_reverse = true
+            endif
+          -%}
+
+          {%- if product.id -%}
+            <div 
+              class="campaign-product-showcase-item {% if is_reverse %}campaign-product-showcase-item--reverse{% endif %}"
+              {{ block.shopify_attributes }}
+            >
+              {%- comment -%} 产品信息 {%- endcomment -%}
+              <div class="campaign-product-showcase-item__product">
+                <a href="{{ product.url }}" class="campaign-product-showcase-link">
+                  <div class="campaign-product-showcase-image">
+                    {%- if product.featured_image -%}
+                      {{
+                        product.featured_image
+                        | image_url: width: 400
+                        | image_tag:
+                          loading: 'lazy',
+                          alt: product.title
+                      }}
+                    {%- endif -%}
+                    
+                    {%- if has_discount -%}
+                      <span class="campaign-product-showcase-badge">
+                        {{ block.settings.discount_percent }}% OFF
+                      </span>
+                    {%- endif -%}
+                  </div>
+                  
+                  <div class="campaign-product-showcase-info">
+                    <h3 class="campaign-product-showcase-title">
+                      {{ product.title }}
+                    </h3>
+                    
+                    {%- if block.settings.custom_desc != blank -%}
+                      <p class="campaign-product-showcase-desc">
+                        {{ block.settings.custom_desc }}
+                      </p>
+                    {%- endif -%}
+                    
+                    <div class="campaign-product-showcase-price">
+                      {%- if has_discount -%}
+                        <span class="price--old">{{ product.price | money }}</span>
+                        <span class="price--sale">{{ price_after_discount | money }}</span>
+                      {%- else -%}
+                        <span class="price--regular">{{ product.price | money }}</span>
+                      {%- endif -%}
+                    </div>
+                  </div>
+                </a>
+              </div>
+
+              {%- comment -%} 视频展示 {%- endcomment -%}
+              {%- if block.settings.video_cover != blank and block.settings.video_url != blank -%}
+                <div class="campaign-product-showcase-item__video">
+                  {% render 'campaign-video-card',
+                    video_cover: block.settings.video_cover,
+                    video_url: block.settings.video_url,
+                    alt_text: product.title
+                  %}
+                </div>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+      {%- endcase -%}
+    {%- endfor -%}
+  </div>
+</div>
+
+<style>
+  .campaign-product-showcase-item {
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+    margin: 3rem 0;
+  }
+
+  @media screen and (min-width: 769px) {
+    .campaign-product-showcase-item {
+      grid-template-columns: 1fr 1fr;
+    }
+    
+    .campaign-product-showcase-item--reverse .campaign-product-showcase-item__product {
+      order: 2;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .campaign-product-showcase-item {
+      grid-template-columns: 1fr;
+      margin: 2rem 0;
+    }
+  }
+
+  .campaign-product-showcase-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .campaign-product-showcase-image {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+
+  .campaign-product-showcase-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.3s ease;
+  }
+
+  .campaign-product-showcase-link:hover .campaign-product-showcase-image img {
+    transform: scale(1.05);
+  }
+
+  .campaign-product-showcase-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #e31c1c;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+
+  .campaign-product-showcase-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+  }
+
+  .campaign-product-showcase-desc {
+    color: #666;
+    margin: 0 0 1rem;
+    line-height: 1.6;
+  }
+
+  .campaign-product-showcase-price {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .campaign-product-showcase-price .price--old {
+    color: #999;
+    text-decoration: line-through;
+    font-size: 1rem;
+    font-weight: 400;
+  }
+
+  .campaign-product-showcase-price .price--sale {
+    color: #e31c1c;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Campaign Product Showcase",
+  "tag": "section",
+  "class": "section-campaign-product-showcase",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "区块标题",
+      "default": "Featured Products"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "上边距",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "下边距",
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product_with_video",
+      "name": "产品+视频",
+      "settings": [
+        {
+          "type": "header",
+          "content": "产品设置"
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "选择产品"
+        },
+        {
+          "type": "text",
+          "id": "product_sku",
+          "label": "或输入产品 SKU",
+          "info": "如果上面没有选择产品，可以通过 SKU 查找"
+        },
+        {
+          "type": "textarea",
+          "id": "custom_desc",
+          "label": "自定义描述"
+        },
+        {
+          "type": "range",
+          "id": "discount_percent",
+          "min": 0,
+          "max": 90,
+          "step": 5,
+          "unit": "%",
+          "label": "折扣百分比",
+          "default": 0
+        },
+        {
+          "type": "header",
+          "content": "视频设置"
+        },
+        {
+          "type": "image_picker",
+          "id": "video_cover",
+          "label": "视频封面"
+        },
+        {
+          "type": "url",
+          "id": "video_url",
+          "label": "视频 URL"
+        },
+        {
+          "type": "header",
+          "content": "布局设置"
+        },
+        {
+          "type": "select",
+          "id": "layout",
+          "label": "布局方向",
+          "options": [
+            { "value": "image_left", "label": "产品在左" },
+            { "value": "image_right", "label": "产品在右" }
+          ],
+          "default": "image_left"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Campaign Product Showcase"
+    }
+  ]
+}
+{% endschema %}
+

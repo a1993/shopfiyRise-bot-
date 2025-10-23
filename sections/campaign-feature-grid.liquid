@@ -1,0 +1,249 @@
+{% comment %}
+  Campaign Feature Grid Section
+  特性网格区块 - 用于展示"为什么选择我们"类型的内容
+{% endcomment %}
+
+<div 
+  class="campaign-feature-grid-section"
+  style="background-color: {{ section.settings.bg_color }}; padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;"
+>
+  <div class="{% if section.settings.full_width %}campaign-page-width{% else %}campaign-container{% endif %}">
+    {%- if section.settings.title != blank -%}
+      {% render 'campaign-title',
+        title: section.settings.title,
+        tag: section.settings.title_tag,
+        align: section.settings.title_align
+      %}
+    {%- endif -%}
+
+    <div class="campaign-feature-grid-content">
+      {%- comment -%} 特性列表 {%- endcomment -%}
+      <div class="campaign-feature-list-wrapper">
+        <ul class="campaign-feature-list">
+          {%- for block in section.blocks -%}
+            {%- case block.type -%}
+              {%- when 'feature_item' -%}
+                <li class="campaign-feature-item" {{ block.shopify_attributes }}>
+                  {%- if block.settings.icon_svg != blank -%}
+                    <div class="campaign-feature-item__icon">
+                      {{ block.settings.icon_svg }}
+                    </div>
+                  {%- endif -%}
+                  
+                  <div class="campaign-feature-item__content">
+                    {%- if block.settings.label != blank -%}
+                      <strong>{{ block.settings.label }}:</strong>
+                    {%- endif -%}
+                    {{ block.settings.description }}
+                  </div>
+                </li>
+            {%- endcase -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+
+      {%- comment -%} 视频展示 {%- endcomment -%}
+      {%- if section.settings.show_video and section.settings.video_cover != blank -%}
+        <div class="campaign-feature-video">
+          {% render 'campaign-video-card',
+            video_cover: section.settings.video_cover,
+            video_url: section.settings.video_url,
+            alt_text: section.settings.video_alt
+          %}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+<style>
+  .campaign-feature-grid-content {
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  @media screen and (min-width: 769px) {
+    .campaign-feature-grid-content {
+      grid-template-columns: 1fr 1fr;
+    }
+    
+    .campaign-feature-grid-section--video-left .campaign-feature-video {
+      order: -1;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .campaign-feature-grid-content {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .campaign-feature-list-wrapper {
+    padding: 1rem;
+  }
+
+  .campaign-feature-video {
+    width: 100%;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Campaign Feature Grid",
+  "tag": "section",
+  "class": "section-campaign-feature",
+  "settings": [
+    {
+      "type": "header",
+      "content": "标题设置"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "标题",
+      "default": "Why Choose Us?"
+    },
+    {
+      "type": "select",
+      "id": "title_tag",
+      "label": "标题标签",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" }
+      ],
+      "default": "h2"
+    },
+    {
+      "type": "select",
+      "id": "title_align",
+      "label": "标题对齐",
+      "options": [
+        { "value": "left", "label": "左对齐" },
+        { "value": "center", "label": "居中" },
+        { "value": "right", "label": "右对齐" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "布局设置"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "背景颜色",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "全宽布局",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "上边距",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "下边距",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "视频设置"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_video",
+      "label": "显示视频",
+      "default": true
+    },
+    {
+      "type": "image_picker",
+      "id": "video_cover",
+      "label": "视频封面图"
+    },
+    {
+      "type": "url",
+      "id": "video_url",
+      "label": "视频 URL",
+      "info": "YouTube 或 Vimeo 嵌入链接"
+    },
+    {
+      "type": "text",
+      "id": "video_alt",
+      "label": "视频描述",
+      "default": "Product Video"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature_item",
+      "name": "特性项",
+      "settings": [
+        {
+          "type": "html",
+          "id": "icon_svg",
+          "label": "图标 SVG",
+          "info": "粘贴 SVG 代码（可选）"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "标签文字",
+          "default": "Feature Label"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "描述内容",
+          "default": "Feature description goes here"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Campaign Feature Grid",
+      "blocks": [
+        {
+          "type": "feature_item",
+          "settings": {
+            "label": "For Busy People",
+            "description": "Less Maintenance & Fewer Replacements = More Time Saved."
+          }
+        },
+        {
+          "type": "feature_item",
+          "settings": {
+            "label": "For Budget-Conscious Buyers",
+            "description": "Saves money by reducing replacements and repairs."
+          }
+        },
+        {
+          "type": "feature_item",
+          "settings": {
+            "label": "For Quality Seekers",
+            "description": "Longer lifespan means better quality and reliability."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+

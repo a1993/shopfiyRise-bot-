@@ -1,0 +1,60 @@
+{% comment %}
+  Campaign Title Snippet
+  统一的标题组件
+  
+  参数说明:
+  - title: 标题文本 (required)
+  - tag: HTML 标签 'h1' | 'h2' | 'h3' (optional, default: 'h2')
+  - align: 对齐方式 'left' | 'center' | 'right' (optional, default: 'center')
+  - class: 额外的 CSS 类 (optional)
+  
+  使用示例:
+  {% render 'campaign-title',
+    title: 'Why Choose Us?',
+    tag: 'h2',
+    align: 'center'
+  %}
+{% endcomment %}
+
+{%- liquid
+  assign heading_tag = tag | default: 'h2'
+  assign text_align = align | default: 'center'
+  assign extra_class = class | default: ''
+-%}
+
+<{{ heading_tag }} 
+  class="campaign-title campaign-title--{{ text_align }} {{ extra_class }}"
+  style="text-align: {{ text_align }};"
+>
+  {{ title }}
+</{{ heading_tag }}>
+
+<style>
+  .campaign-title {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 2rem 0;
+    color: #000;
+  }
+
+  .campaign-title--left {
+    text-align: left;
+  }
+
+  .campaign-title--center {
+    text-align: center;
+  }
+
+  .campaign-title--right {
+    text-align: right;
+  }
+
+  @media screen and (max-width: 768px) {
+    .campaign-title {
+      font-size: 1.5rem;
+      margin: 1.5rem 0;
+    }
+  }
+</style>
+

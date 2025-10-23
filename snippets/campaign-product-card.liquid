@@ -1,0 +1,187 @@
+{% comment %}
+  Campaign Product Card Snippet
+  产品卡片组件，支持折扣显示和自定义描述
+  
+  参数说明:
+  - product: Shopify 产品对象 (required)
+  - discount_percent: 折扣百分比，如 15 表示 15% OFF (optional)
+  - custom_desc: 自定义产品描述 (optional)
+  - show_badge: 是否显示折扣徽章 (optional, default: true)
+  - image_width: 图片宽度 (optional, default: 300)
+  
+  使用示例:
+  {% render 'campaign-product-card',
+    product: all_products['sku-tu2308'],
+    discount_percent: 15,
+    custom_desc: 'Long-lasting for Up to a Year'
+  %}
+{% endcomment %}
+
+{%- liquid
+  assign show_badge_default = show_badge | default: true
+  assign img_width = image_width | default: 300
+  assign has_discount = false
+  
+  if discount_percent and discount_percent > 0
+    assign has_discount = true
+    assign discount_decimal = discount_percent | times: 0.01
+    assign price_after_discount = product.price | times: 1.0 | minus: discount_decimal | times: product.price | divided_by: 100
+  endif
+-%}
+
+<div class="campaign-product-card">
+  <a href="{{ product.url }}" class="campaign-product-card__link">
+    <div class="campaign-product-card__image-wrapper">
+      {%- if product.featured_image -%}
+        {{
+          product.featured_image
+          | image_url: width: img_width
+          | image_tag:
+            loading: 'lazy',
+            alt: product.title,
+            class: 'campaign-product-card__image'
+        }}
+      {%- else -%}
+        <div class="campaign-product-card__image-placeholder">
+          {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+        </div>
+      {%- endif -%}
+
+      {%- if has_discount and show_badge_default -%}
+        <span class="campaign-product-card__badge">
+          {{ discount_percent }}% OFF
+        </span>
+      {%- endif -%}
+    </div>
+
+    <div class="campaign-product-card__info">
+      <h3 class="campaign-product-card__title">
+        {{ product.title }}
+      </h3>
+
+      {%- if custom_desc != blank -%}
+        <p class="campaign-product-card__desc">
+          {{ custom_desc }}
+        </p>
+      {%- endif -%}
+
+      <div class="campaign-product-card__price">
+        {%- if has_discount -%}
+          <span class="campaign-product-card__price--old">
+            {{ product.price | money }}
+          </span>
+          <span class="campaign-product-card__price--sale">
+            {{ price_after_discount | money }}
+          </span>
+        {%- else -%}
+          <span class="campaign-product-card__price--regular">
+            {{ product.price | money }}
+          </span>
+        {%- endif -%}
+      </div>
+    </div>
+  </a>
+</div>
+
+<style>
+  .campaign-product-card {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    background: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .campaign-product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .campaign-product-card__link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .campaign-product-card__image-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+
+  .campaign-product-card__image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .campaign-product-card__badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #e31c1c;
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+
+  .campaign-product-card__info {
+    padding: 1rem;
+  }
+
+  .campaign-product-card__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    color: #000;
+    line-height: 1.4;
+  }
+
+  .campaign-product-card__desc {
+    font-size: 0.875rem;
+    color: #666;
+    margin: 0 0 0.75rem;
+    line-height: 1.5;
+  }
+
+  .campaign-product-card__price {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+  }
+
+  .campaign-product-card__price--old {
+    color: #999;
+    text-decoration: line-through;
+    font-size: 0.875rem;
+    font-weight: 400;
+  }
+
+  .campaign-product-card__price--sale {
+    color: #e31c1c;
+  }
+
+  .campaign-product-card__price--regular {
+    color: #000;
+  }
+
+  @media screen and (max-width: 768px) {
+    .campaign-product-card__title {
+      font-size: 0.875rem;
+    }
+
+    .campaign-product-card__price {
+      font-size: 1rem;
+    }
+  }
+</style>
+

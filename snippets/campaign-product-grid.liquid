@@ -1,0 +1,99 @@
+{% comment %}
+  Campaign Product Grid Snippet
+  产品网格布局组件，支持多列显示
+  
+  参数说明:
+  - products: 产品数组 (required) - 可以是产品对象数组或 SKU 字符串数组
+  - columns: 列数 2|3|4 (optional, default: 3)
+  - discount_percent: 统一折扣百分比 (optional)
+  - custom_descriptions: 自定义描述对象 {sku: description} (optional)
+  
+  使用示例:
+  {% assign product_list = 'TU2308,TU2401,TP1808' | split: ',' %}
+  {% render 'campaign-product-grid',
+    products: product_list,
+    columns: 3,
+    discount_percent: 15
+  %}
+{% endcomment %}
+
+{%- liquid
+  assign cols = columns | default: 3
+  assign has_discount = false
+  
+  if discount_percent and discount_percent > 0
+    assign has_discount = true
+  endif
+-%}
+
+<div class="campaign-product-grid campaign-product-grid--{{ cols }}-col">
+  {%- for item in products -%}
+    {%- liquid
+      # 判断是产品对象还是 SKU 字符串
+      if item.id
+        assign product = item
+      else
+        # 尝试通过 SKU 查找产品
+        assign sku_handle = item | handleize
+        assign product = all_products[sku_handle]
+        
+        # 如果找不到，尝试直接用作 handle
+        if product.id == blank
+          assign product = all_products[item]
+        endif
+      endif
+      
+      # 获取自定义描述
+      assign custom_desc = ''
+      if custom_descriptions and product.id
+        assign desc_key = product.variants.first.sku | default: product.handle
+        assign custom_desc = custom_descriptions[desc_key]
+      endif
+    -%}
+    
+    {%- if product.id -%}
+      {% render 'campaign-product-card',
+        product: product,
+        discount_percent: discount_percent,
+        custom_desc: custom_desc
+      %}
+    {%- else -%}
+      {%- comment -%} 产品未找到的降级显示 {%- endcomment -%}
+      <div class="campaign-product-card campaign-product-card--not-found">
+        <div class="campaign-product-card__image-wrapper">
+          <div class="campaign-product-card__placeholder">
+            {{ 'product-1' | placeholder_svg_tag }}
+          </div>
+        </div>
+        <div class="campaign-product-card__info">
+          <p class="campaign-product-card__title">Product not found: {{ item }}</p>
+        </div>
+      </div>
+    {%- endif -%}
+  {%- endfor -%}
+</div>
+
+<style>
+  .campaign-product-card--not-found {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  
+  .campaign-product-card__placeholder {
+    width: 100%;
+    padding-bottom: 100%;
+    background: #f5f5f5;
+    position: relative;
+  }
+  
+  .campaign-product-card__placeholder svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    height: 60%;
+    opacity: 0.3;
+  }
+</style>
+

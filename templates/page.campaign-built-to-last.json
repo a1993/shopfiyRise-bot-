@@ -1,0 +1,95 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "disabled": true
+    },
+    "campaign_banner": {
+      "type": "campaign-holiday-banner",
+      "settings": {
+        "banner_alt": "Built to Last: Durable Hair Systems"
+      }
+    },
+    "campaign_features": {
+      "type": "campaign-feature-grid",
+      "blocks": {
+        "feature_1": {
+          "type": "feature_item",
+          "settings": {
+            "label": "For Busy People",
+            "description": "Less Maintenance & Fewer Replacements = More Time Saved."
+          }
+        },
+        "feature_2": {
+          "type": "feature_item",
+          "settings": {
+            "label": "For Budget-Conscious Buyers",
+            "description": "Saves money by reducing replacements and repairs."
+          }
+        },
+        "feature_3": {
+          "type": "feature_item",
+          "settings": {
+            "label": "For Quality Seekers",
+            "description": "Longer lifespan means better quality and reliability."
+          }
+        }
+      },
+      "block_order": [
+        "feature_1",
+        "feature_2",
+        "feature_3"
+      ],
+      "settings": {
+        "title": "Why Should We Choose Hair System with Longer Life Span?",
+        "title_tag": "h2",
+        "title_align": "center",
+        "bg_color": "#f5f5f5",
+        "full_width": false,
+        "padding_top": 40,
+        "padding_bottom": 40,
+        "show_video": true,
+        "video_alt": "Why Choose Durable Hair Systems"
+      }
+    },
+    "campaign_products": {
+      "type": "campaign-product-showcase",
+      "blocks": {
+        "product_1": {
+          "type": "product_with_video",
+          "settings": {
+            "product_sku": "TU2308",
+            "custom_desc": "Long-lasting for Up to a Year",
+            "discount_percent": 15,
+            "layout": "image_left"
+          }
+        },
+        "product_2": {
+          "type": "product_with_video",
+          "settings": {
+            "product_sku": "TU2401",
+            "custom_desc": "Easily Manageable",
+            "discount_percent": 15,
+            "layout": "image_right"
+          }
+        }
+      },
+      "block_order": [
+        "product_1",
+        "product_2"
+      ],
+      "settings": {
+        "title": "Up to 6–12 Months Lifespan",
+        "padding_top": 40,
+        "padding_bottom": 40
+      }
+    }
+  },
+  "order": [
+    "main",
+    "campaign_banner",
+    "campaign_features",
+    "campaign_products"
+  ]
+}
+
