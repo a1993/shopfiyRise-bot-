@@ -1,0 +1,29 @@
+{
+  "name": "Holiday Hair Vote (Section版本)",
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "disabled": true,
+      "settings": {}
+    },
+    "campaign_vue_loader": {
+      "type": "campaign-vue-loader",
+      "settings": {
+        "campaign_id": "holiday-hair-vote-2024",
+        "js_url": "https://your-cdn.com/assets/index.js",
+        "css_url": "https://your-cdn.com/assets/index.css",
+        "show_loading": true,
+        "loading_text": "Loading Campaign...",
+        "loading_color": "#A28969",
+        "loading_text_color": "#666666",
+        "timeout": 10,
+        "error_text": "Failed to load campaign. Please refresh the page."
+      }
+    }
+  },
+  "order": [
+    "main",
+    "campaign_vue_loader"
+  ]
+}
+

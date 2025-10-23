@@ -1,0 +1,123 @@
+{% comment %}
+  Holiday Hair Vote - App Proxy 方式集成
+  这个模板加载外部 Vue 应用
+  
+  使用方法：
+  1. 在 Shopify 后台创建页面 (Online Store > Pages > Add page)
+  2. 选择此模板 (page.holiday-hair-vote-proxy)
+  3. 将下面的 CDN URL 替换为你的实际部署地址
+  
+  注意：
+  - Page Template 不支持 {% schema %} 标签
+  - 如需可视化配置，请使用 Section 文件
+  - CDN URL 需要替换为实际部署后的地址
+{% endcomment %}
+
+<div id="campaign-vue-app-container">
+  <!-- Vue 应用挂载点 -->
+  <div id="app"></div>
+  
+  <!-- 加载提示 -->
+  <div id="campaign-loading" style="text-align: center; padding: 100px 20px;">
+    <div style="display: inline-block; width: 50px; height: 50px; border: 3px solid #f3f3f3; border-top: 3px solid #A28969; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+    <p style="margin-top: 20px; color: #666;">Loading Campaign...</p>
+  </div>
+</div>
+
+<!-- 传递 Shopify 客户信息到 Vue 应用 -->
+{% if customer %}
+<script>
+  window.SHOPIFY_CUSTOMER = {
+    id: {{ customer.id | json }},
+    email: {{ customer.email | json }},
+    first_name: {{ customer.first_name | json }},
+    last_name: {{ customer.last_name | json }},
+    tags: {{ customer.tags | json }}
+  };
+</script>
+{% else %}
+<script>
+  window.SHOPIFY_CUSTOMER = null;
+</script>
+{% endif %}
+
+<!-- 传递 Shopify 配置 -->
+<script>
+  window.SHOPIFY_CONFIG = {
+    shop: {{ shop.permanent_domain | json }},
+    currency: {{ shop.currency | json }},
+    money_format: {{ shop.money_format | json }},
+    locale: {{ request.locale.iso_code | json }}
+  };
+</script>
+
+<!-- 加载 Vue 应用 -->
+{% comment %} 
+  ⚠️ 重要：替换为你的实际 CDN URL
+  
+  开发环境示例: http://localhost:3000/assets/index.js
+  
+  生产环境示例:
+  - Vercel: https://your-app.vercel.app/assets/index.[hash].js
+  - Netlify: https://your-app.netlify.app/assets/index.[hash].js
+  - 自建 CDN: https://cdn.yourdomain.com/campaign/assets/index.[hash].js
+  
+  构建后查看实际文件名:
+  1. 运行 npm run build
+  2. 查看 dist/assets/ 目录
+  3. 复制带 hash 的实际文件名
+{% endcomment %}
+<script type="module" crossorigin src="https://your-cdn.com/assets/index.js"></script>
+<link rel="stylesheet" href="https://your-cdn.com/assets/index.css">
+
+<style>
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Vue 应用加载后隐藏加载提示 */
+  #app:not(:empty) ~ #campaign-loading {
+    display: none;
+  }
+  
+  /* 确保 Vue 应用容器全宽 */
+  #campaign-vue-app-container {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+</style>
+
+<script>
+  // 监听 Vue 应用加载
+  document.addEventListener('DOMContentLoaded', function() {
+    // 等待 Vue 应用挂载
+    const checkMount = setInterval(function() {
+      const app = document.getElementById('app');
+      if (app && app.children.length > 0) {
+        // 隐藏加载提示
+        const loading = document.getElementById('campaign-loading');
+        if (loading) {
+          loading.style.display = 'none';
+        }
+        clearInterval(checkMount);
+        
+        // 如果有客户信息，传递给 Vue 应用
+        if (window.SHOPIFY_CUSTOMER && window.vueApp) {
+          window.vueApp.setCustomer(window.SHOPIFY_CUSTOMER);
+        }
+      }
+    }, 100);
+    
+    // 10秒后超时
+    setTimeout(function() {
+      clearInterval(checkMount);
+      const loading = document.getElementById('campaign-loading');
+      if (loading && loading.style.display !== 'none') {
+        loading.innerHTML = '<p style="color: #e31c1c;">Failed to load campaign. Please refresh the page.</p>';
+      }
+    }, 10000);
+  });
+</script>
+

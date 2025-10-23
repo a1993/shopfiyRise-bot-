@@ -1,0 +1,241 @@
+{% comment %}
+  Campaign Vue App Loader Section
+  用于加载外部 Vue 应用的可配置 Section
+  支持在 Theme Customizer 中可视化配置
+{% endcomment %}
+
+<div id="campaign-vue-app-container" data-campaign="{{ section.settings.campaign_id }}">
+  <!-- Vue 应用挂载点 -->
+  <div id="app"></div>
+  
+  <!-- 加载提示 -->
+  {% if section.settings.show_loading %}
+  <div id="campaign-loading" class="campaign-loading">
+    <div class="loading-spinner" style="border-top-color: {{ section.settings.loading_color }};"></div>
+    <p class="loading-text">{{ section.settings.loading_text }}</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- 传递 Shopify 客户信息到 Vue 应用 -->
+{% if customer %}
+<script>
+  window.SHOPIFY_CUSTOMER = {
+    id: {{ customer.id | json }},
+    email: {{ customer.email | json }},
+    first_name: {{ customer.first_name | json }},
+    last_name: {{ customer.last_name | json }},
+    tags: {{ customer.tags | json }}
+  };
+</script>
+{% else %}
+<script>
+  window.SHOPIFY_CUSTOMER = null;
+</script>
+{% endif %}
+
+<!-- 传递 Shopify 配置 -->
+<script>
+  window.SHOPIFY_CONFIG = {
+    shop: {{ shop.permanent_domain | json }},
+    currency: {{ shop.currency | json }},
+    money_format: {{ shop.money_format | json }},
+    locale: {{ request.locale.iso_code | json }},
+    campaign_id: {{ section.settings.campaign_id | json }}
+  };
+</script>
+
+<!-- 加载 Vue 应用 -->
+{% if section.settings.js_url != blank %}
+  <script type="module" crossorigin src="{{ section.settings.js_url }}"></script>
+{% endif %}
+
+{% if section.settings.css_url != blank %}
+  <link rel="stylesheet" href="{{ section.settings.css_url }}">
+{% endif %}
+
+<style>
+  #campaign-vue-app-container {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .campaign-loading {
+    text-align: center;
+    padding: 100px 20px;
+  }
+  
+  .loading-spinner {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid {{ section.settings.loading_color }};
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  .loading-text {
+    margin-top: 20px;
+    color: {{ section.settings.loading_text_color }};
+    font-size: 16px;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Vue 应用加载后隐藏加载提示 */
+  #app:not(:empty) ~ .campaign-loading {
+    display: none;
+  }
+</style>
+
+<script>
+  // 监听 Vue 应用加载
+  (function() {
+    // 等待 DOM 加载完成
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initCampaignLoader);
+    } else {
+      initCampaignLoader();
+    }
+
+    function initCampaignLoader() {
+      const app = document.getElementById('app');
+      const loading = document.getElementById('campaign-loading');
+      
+      if (!app) return;
+
+      // 等待 Vue 应用挂载
+      const checkMount = setInterval(function() {
+        if (app.children.length > 0) {
+          // 隐藏加载提示
+          if (loading) {
+            loading.style.display = 'none';
+          }
+          clearInterval(checkMount);
+          
+          // 如果有客户信息，传递给 Vue 应用
+          if (window.SHOPIFY_CUSTOMER && window.vueApp) {
+            window.vueApp.setCustomer(window.SHOPIFY_CUSTOMER);
+          }
+
+          // 触发自定义事件
+          window.dispatchEvent(new CustomEvent('campaignVueLoaded', {
+            detail: {
+              campaignId: {{ section.settings.campaign_id | json }},
+              customer: window.SHOPIFY_CUSTOMER
+            }
+          }));
+        }
+      }, 100);
+      
+      // {{ section.settings.timeout }}秒后超时
+      setTimeout(function() {
+        clearInterval(checkMount);
+        if (loading && loading.style.display !== 'none') {
+          loading.innerHTML = '<p style="color: #e31c1c;">{{ section.settings.error_text }}</p>';
+        }
+      }, {{ section.settings.timeout | times: 1000 }});
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Campaign Vue Loader",
+  "tag": "section",
+  "class": "section-campaign-vue-loader",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Vue App Configuration"
+    },
+    {
+      "type": "text",
+      "id": "campaign_id",
+      "label": "Campaign ID",
+      "default": "holiday-hair-vote-2024",
+      "info": "用于识别不同的活动"
+    },
+    {
+      "type": "url",
+      "id": "js_url",
+      "label": "JavaScript URL",
+      "info": "Vue 应用的 JS 文件 URL (例如: https://your-cdn.com/assets/index.js)"
+    },
+    {
+      "type": "url",
+      "id": "css_url",
+      "label": "CSS URL",
+      "info": "Vue 应用的 CSS 文件 URL (例如: https://your-cdn.com/assets/index.css)"
+    },
+    {
+      "type": "header",
+      "content": "Loading Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_loading",
+      "label": "Show Loading Animation",
+      "default": true,
+      "info": "显示加载动画直到 Vue 应用完全加载"
+    },
+    {
+      "type": "text",
+      "id": "loading_text",
+      "label": "Loading Text",
+      "default": "Loading Campaign...",
+      "info": "加载时显示的文字"
+    },
+    {
+      "type": "color",
+      "id": "loading_color",
+      "label": "Loading Spinner Color",
+      "default": "#A28969"
+    },
+    {
+      "type": "color",
+      "id": "loading_text_color",
+      "label": "Loading Text Color",
+      "default": "#666666"
+    },
+    {
+      "type": "range",
+      "id": "timeout",
+      "min": 5,
+      "max": 30,
+      "step": 1,
+      "unit": "s",
+      "label": "Loading Timeout",
+      "default": 10,
+      "info": "超时时间（秒）"
+    },
+    {
+      "type": "text",
+      "id": "error_text",
+      "label": "Error Message",
+      "default": "Failed to load campaign. Please refresh the page.",
+      "info": "加载失败时显示的错误信息"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Campaign Vue Loader",
+      "settings": {
+        "campaign_id": "holiday-hair-vote-2024",
+        "show_loading": true,
+        "loading_text": "Loading Campaign...",
+        "loading_color": "#A28969",
+        "loading_text_color": "#666666",
+        "timeout": 10,
+        "error_text": "Failed to load campaign. Please refresh the page."
+      }
+    }
+  ]
+}
+{% endschema %}
+
