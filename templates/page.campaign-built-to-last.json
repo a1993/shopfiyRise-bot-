@@ -1,13 +1,27 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "main": {
       "type": "main-page",
-      "disabled": true
+      "disabled": true,
+      "settings": {
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
     },
     "campaign_banner": {
       "type": "campaign-holiday-banner",
       "settings": {
-        "banner_alt": "Built to Last: Durable Hair Systems"
+        "banner_alt": "Built to Last: Durable Hair Systems",
+        "bg_color": "#f0eadf"
       }
     },
     "campaign_features": {
@@ -16,6 +30,7 @@
         "feature_1": {
           "type": "feature_item",
           "settings": {
+            "icon_svg": "",
             "label": "For Busy People",
             "description": "Less Maintenance & Fewer Replacements = More Time Saved."
           }
@@ -23,6 +38,7 @@
         "feature_2": {
           "type": "feature_item",
           "settings": {
+            "icon_svg": "",
             "label": "For Budget-Conscious Buyers",
             "description": "Saves money by reducing replacements and repairs."
           }
@@ -30,6 +46,7 @@
         "feature_3": {
           "type": "feature_item",
           "settings": {
+            "icon_svg": "",
             "label": "For Quality Seekers",
             "description": "Longer lifespan means better quality and reliability."
           }
@@ -49,6 +66,8 @@
         "padding_top": 40,
         "padding_bottom": 40,
         "show_video": true,
+        "video_cover": "shopify://shop_images/download.webp",
+        "video_url": "",
         "video_alt": "Why Choose Durable Hair Systems"
       }
     },
@@ -58,18 +77,23 @@
         "product_1": {
           "type": "product_with_video",
           "settings": {
+            "product": "",
             "product_sku": "TU2308",
             "custom_desc": "Long-lasting for Up to a Year",
             "discount_percent": 15,
-            "layout": "image_left"
+            "video_cover": "shopify://shop_images/download.webp",
+            "video_url": "",
+            "layout": "image_right"
           }
         },
         "product_2": {
           "type": "product_with_video",
           "settings": {
+            "product": "",
             "product_sku": "TU2401",
             "custom_desc": "Easily Manageable",
             "discount_percent": 15,
+            "video_url": "",
             "layout": "image_right"
           }
         }
@@ -92,4 +116,3 @@
     "campaign_products"
   ]
 }
-
