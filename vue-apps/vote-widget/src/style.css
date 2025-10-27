@@ -1,0 +1,371 @@
+/* Vote Widget Styles */
+
+:root {
+  --primary-color: #A28969;
+  --success-color: #10B981;
+  --error-color: #EF4444;
+  --text-color: #333333;
+  --text-light: #666666;
+  --border-color: #E5E7EB;
+  --bg-light: #F9FAFB;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.vote-widget {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: var(--text-color);
+}
+
+/* 标题区 */
+.vote-widget__header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.vote-widget__title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  color: var(--text-color);
+}
+
+.vote-widget__subtitle {
+  font-size: 1.125rem;
+  color: var(--text-light);
+  margin: 0;
+}
+
+/* 加载状态 */
+.vote-widget__loading {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.spinner {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 错误状态 */
+.vote-widget__error {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: #FEF2F2;
+  border-radius: 12px;
+  color: var(--error-color);
+}
+
+/* 投票选项网格 */
+.vote-widget__options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.vote-option {
+  background: white;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.vote-option:hover:not(.vote-option--voted) {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+  border-color: var(--primary-color);
+}
+
+.vote-option--selected {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(162, 137, 105, 0.1);
+}
+
+.vote-option--voted {
+  cursor: default;
+}
+
+.vote-option__image {
+  position: relative;
+  width: 100%;
+  padding-top: 100%; /* 1:1 aspect ratio */
+  overflow: hidden;
+  background: var(--bg-light);
+}
+
+.vote-option__image img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vote-option__checkmark {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  animation: scaleIn 0.3s ease;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.vote-option__checkmark svg {
+  width: 24px;
+  height: 24px;
+}
+
+.vote-option__info {
+  padding: 1rem;
+}
+
+.vote-option__name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.vote-option__description {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  margin: 0;
+}
+
+/* 投票统计 */
+.vote-option__stats {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.vote-bar {
+  height: 8px;
+  background: var(--bg-light);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.vote-bar__fill {
+  height: 100%;
+  background: var(--primary-color);
+  transition: width 0.5s ease;
+}
+
+.vote-count {
+  font-size: 0.875rem;
+  color: var(--text-light);
+}
+
+/* 邮箱输入 */
+.vote-widget__email {
+  max-width: 500px;
+  margin: 2rem auto;
+  text-align: center;
+}
+
+.vote-widget__email label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.vote-widget__email input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.vote-widget__email input:focus {
+  border-color: var(--primary-color);
+}
+
+.error-message {
+  color: var(--error-color);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+/* 按钮 */
+.vote-widget__actions {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.btn--primary {
+  background: var(--primary-color);
+  color: white;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: #8C7554;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.btn--primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn--secondary {
+  background: white;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+  margin-top: 1rem;
+}
+
+.btn--secondary:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+.btn--retry {
+  background: var(--error-color);
+  color: white;
+  margin-top: 1rem;
+}
+
+.btn--large {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+}
+
+/* 成功状态 */
+.vote-widget__success {
+  text-align: center;
+  padding: 2rem;
+  background: #F0FDF4;
+  border-radius: 12px;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.success-icon {
+  width: 64px;
+  height: 64px;
+  color: var(--success-color);
+  margin-bottom: 1rem;
+}
+
+.vote-widget__success p {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--success-color);
+  margin: 0;
+}
+
+/* 调试信息 */
+.vote-widget__debug {
+  margin-top: 3rem;
+  padding: 1rem;
+  background: var(--bg-light);
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+.vote-widget__debug details {
+  cursor: pointer;
+}
+
+.vote-widget__debug pre {
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .vote-widget {
+    padding: 1rem;
+  }
+
+  .vote-widget__title {
+    font-size: 1.75rem;
+  }
+
+  .vote-widget__subtitle {
+    font-size: 1rem;
+  }
+
+  .vote-widget__options {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+
+  .vote-option__info {
+    padding: 0.75rem;
+  }
+
+  .vote-option__name {
+    font-size: 1rem;
+  }
+
+  .vote-option__description {
+    font-size: 0.8125rem;
+  }
+}
+

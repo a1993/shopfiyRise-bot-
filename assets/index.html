@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vote Widget - Shopify Campaign</title>
+  <script type="module" crossorigin src="/vote-widget.js"></script>
+  <link rel="modulepreload" crossorigin href="/vote-widget-vendor.js">
+  <link rel="stylesheet" crossorigin href="/vote-widget.css">
+</head>
+<body>
+  <!-- Vue 应用挂载点 -->
+  <div id="app"></div>
+  
+  <!-- 模拟 Shopify 数据（仅用于本地开发测试） -->
+  <script>
+    // 在实际 Shopify 环境中，这些数据由 campaign-vue-loader.liquid 提供
+    if (!window.SHOPIFY_CUSTOMER) {
+      window.SHOPIFY_CUSTOMER = {
+        id: 123456,
+        email: 'test@example.com',
+        first_name: 'John',
+        last_name: 'Doe',
+        tags: ['vip', 'returning-customer']
+      };
+    }
+    
+    if (!window.SHOPIFY_CONFIG) {
+      window.SHOPIFY_CONFIG = {
+        shop: 'your-shop.myshopify.com',
+        currency: 'USD',
+        money_format: '${{amount}}',
+        locale: 'en',
+        campaign_id: 'holiday-hair-vote-2024'
+      };
+    }
+  </script>
+  
+</body>
+</html>
+

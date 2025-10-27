@@ -1,0 +1,20 @@
+{
+  "sections": {
+    "headless_loader": {
+      "type": "campaign-headless-loader",
+      "settings": {
+        "app_name": "vote-widget",
+        "api_endpoint": "/apps/campaign-api",
+        "loading_text": "Loading campaign...",
+        "error_title": "Unable to load campaign",
+        "error_message": "Please refresh the page or try again later. If the problem persists, contact support.",
+        "seo_content": "<h1>Holiday Hair Vote Campaign</h1><p>Vote for your favorite holiday hairstyle and win amazing prizes!</p>"
+      }
+    }
+  },
+  "order": [
+    "headless_loader"
+  ]
+}
+
+

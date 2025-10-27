@@ -1,0 +1,236 @@
+{% comment %}
+  统一的 Headless 应用加载器
+  支持多个 Vue/React 应用通过配置切换
+  
+  使用方式：
+  1. 在 page template JSON 中引用此 section
+  2. 配置 app_name 指定要加载的应用
+  3. 应用会自动挂载到页面中
+{% endcomment %}
+
+<div class="headless-app-container" data-section-id="{{ section.id }}">
+  {%- comment -%} 应用挂载点 {%- endcomment -%}
+  <div 
+    id="headless-app-{{ section.id }}" 
+    class="headless-app-root"
+    data-app-name="{{ section.settings.app_name }}"
+    data-api-endpoint="{{ section.settings.api_endpoint }}"
+    data-shop-url="{{ shop.url }}"
+    data-shop-domain="{{ shop.domain }}"
+    data-locale="{{ request.locale.iso_code }}"
+    data-currency="{{ cart.currency.iso_code }}"
+    {%- if customer -%}
+    data-customer-id="{{ customer.id }}"
+    data-customer-email="{{ customer.email }}"
+    {%- endif -%}
+    {%- if section.settings.custom_data != blank -%}
+    data-custom="{{ section.settings.custom_data | escape }}"
+    {%- endif -%}
+    v-cloak>
+    
+    {%- comment -%} 加载状态 {%- endcomment -%}
+    <div class="headless-loading-state">
+      <div class="spinner">
+        {%- render 'loading-spinner' -%}
+      </div>
+      <p class="loading-text">{{ section.settings.loading_text | default: 'Loading...' }}</p>
+    </div>
+    
+    {%- comment -%} SEO 友好的后备内容 {%- endcomment -%}
+    {%- if section.settings.seo_content != blank -%}
+    <div class="seo-content visually-hidden" aria-hidden="true">
+      {{ section.settings.seo_content }}
+    </div>
+    {%- endif -%}
+  </div>
+  
+  {%- comment -%} 错误边界 {%- endcomment -%}
+  <div id="headless-error-{{ section.id }}" class="headless-error" style="display: none;">
+    <div class="error-message">
+      <h3>{{ section.settings.error_title | default: 'Oops! Something went wrong' }}</h3>
+      <p>{{ section.settings.error_message | default: 'Please refresh the page or try again later.' }}</p>
+      <button onclick="location.reload()" class="button">Refresh Page</button>
+    </div>
+  </div>
+</div>
+
+{%- comment -%} 预加载关键资源 {%- endcomment -%}
+<link rel="preload" href="{{ section.settings.app_name | append: '.js' | asset_url }}" as="script">
+<link rel="preload" href="{{ section.settings.app_name | append: '.css' | asset_url }}" as="style">
+
+{%- comment -%} 加载应用资源 {%- endcomment -%}
+<link rel="stylesheet" href="{{ section.settings.app_name | append: '.css' | asset_url }}">
+<script src="{{ section.settings.app_name | append: '.js' | asset_url }}" defer></script>
+
+{%- comment -%} 全局配置 {%- endcomment -%}
+<script>
+  window.SHOPIFY_HEADLESS_CONFIG = window.SHOPIFY_HEADLESS_CONFIG || {};
+  window.SHOPIFY_HEADLESS_CONFIG['{{ section.id }}'] = {
+    appName: '{{ section.settings.app_name }}',
+    apiEndpoint: '{{ section.settings.api_endpoint }}',
+    shopUrl: '{{ shop.url }}',
+    locale: '{{ request.locale.iso_code }}',
+    currency: '{{ cart.currency.iso_code }}',
+    {%- if customer -%}
+    customer: {
+      id: {{ customer.id | json }},
+      email: {{ customer.email | json }},
+      firstName: {{ customer.first_name | json }},
+      lastName: {{ customer.last_name | json }}
+    },
+    {%- else -%}
+    customer: null,
+    {%- endif -%}
+    settings: {{ section.settings | json }}
+  };
+  
+  {%- comment -%} 错误处理 {%- endcomment -%}
+  window.addEventListener('error', function(event) {
+    if (event.filename && event.filename.includes('{{ section.settings.app_name }}')) {
+      console.error('Headless app error:', event.error);
+      document.getElementById('headless-app-{{ section.id }}').style.display = 'none';
+      document.getElementById('headless-error-{{ section.id }}').style.display = 'block';
+    }
+  });
+</script>
+
+<style>
+  /* 防止 Vue 未加载时的闪烁 */
+  [v-cloak] {
+    display: block !important;
+  }
+  
+  [v-cloak] > *:not(.headless-loading-state) {
+    display: none !important;
+  }
+  
+  .headless-app-container {
+    min-height: 400px;
+    position: relative;
+  }
+  
+  .headless-loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 1rem;
+  }
+  
+  .headless-loading-state .spinner {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .headless-loading-state .loading-text {
+    color: var(--color-foreground-secondary, #666);
+    font-size: 0.875rem;
+  }
+  
+  .headless-error {
+    padding: 2rem;
+    text-align: center;
+  }
+  
+  .error-message {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  
+  .error-message h3 {
+    margin-bottom: 1rem;
+    color: var(--color-error, #c00);
+  }
+  
+  .error-message p {
+    margin-bottom: 1.5rem;
+  }
+  
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Headless App Loader",
+  "class": "section-headless-app",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Application Settings"
+    },
+    {
+      "type": "text",
+      "id": "app_name",
+      "label": "App Name",
+      "info": "Must match the built file name (e.g., 'vote-widget')",
+      "default": "vote-widget"
+    },
+    {
+      "type": "text",
+      "id": "api_endpoint",
+      "label": "API Endpoint",
+      "info": "Backend API URL or Shopify App Proxy path",
+      "default": "/apps/campaign-api"
+    },
+    {
+      "type": "header",
+      "content": "UI Settings"
+    },
+    {
+      "type": "text",
+      "id": "loading_text",
+      "label": "Loading Text",
+      "default": "Loading campaign..."
+    },
+    {
+      "type": "text",
+      "id": "error_title",
+      "label": "Error Title",
+      "default": "Oops! Something went wrong"
+    },
+    {
+      "type": "textarea",
+      "id": "error_message",
+      "label": "Error Message",
+      "default": "Please refresh the page or try again later."
+    },
+    {
+      "type": "header",
+      "content": "SEO & Content"
+    },
+    {
+      "type": "html",
+      "id": "seo_content",
+      "label": "SEO Content",
+      "info": "Fallback content for search engines"
+    },
+    {
+      "type": "textarea",
+      "id": "custom_data",
+      "label": "Custom Data (JSON)",
+      "info": "Additional data to pass to the app (must be valid JSON)"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Headless App Loader",
+      "settings": {
+        "app_name": "vote-widget"
+      }
+    }
+  ]
+}
+{% endschema %}
+
+
