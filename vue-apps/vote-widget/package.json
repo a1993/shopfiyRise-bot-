@@ -1,0 +1,19 @@
+{
+  "name": "shopify-vote-widget",
+  "version": "1.0.0",
+  "description": "Holiday Hair Vote Widget for Shopify",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.4.21"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "terser": "^5.44.0",
+    "vite": "^5.2.0"
+  }
+}
