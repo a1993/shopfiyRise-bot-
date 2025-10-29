@@ -260,7 +260,7 @@
         "product_card_mVaq7c": {
           "type": "product_card",
           "settings": {
-            "product": "",
+            "product": "15-base-cut",
             "product_handle": "",
             "badge_alt_text": "Badge",
             "badge_position": "top-left",
@@ -271,7 +271,7 @@
         "product_card_j3yz9x": {
           "type": "product_card",
           "settings": {
-            "product": "",
+            "product": "40-order-balance-link",
             "product_handle": "",
             "badge_alt_text": "Badge",
             "badge_position": "top-left",
@@ -282,7 +282,7 @@
         "product_card_JBDH47": {
           "type": "product_card",
           "settings": {
-            "product": "",
+            "product": "50-order-balance-link-change-hair-to-virgin-hair",
             "product_handle": "",
             "badge_alt_text": "Badge",
             "badge_position": "top-left",
