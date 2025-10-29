@@ -1,0 +1,959 @@
+{% comment %}
+  Product Cards Grid Section
+  商品卡片网格容器 - 支持灵活的多列布局
+  
+  功能特性:
+  - 支持 2/3/4/5 列布局（桌面端）
+  - 响应式设计（移动端自适应）
+  - 使用 blocks 动态添加商品卡片
+  - 统一的卡片样式管理
+  - 每个卡片可单独配置
+{% endcomment %}
+
+<div class="campaign-product-cards-grid-section" style="padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px; background: {{ section.settings.section_background }};">
+  <div class="campaign-product-cards-grid-container">
+    
+    {%- if section.settings.section_title != blank -%}
+      <div class="campaign-product-cards-grid__header">
+        <h2 class="campaign-product-cards-grid__title" style="text-align: {{ section.settings.title_alignment }};">
+          {{ section.settings.section_title }}
+        </h2>
+        {%- if section.settings.section_description != blank -%}
+          <div class="campaign-product-cards-grid__description" style="text-align: {{ section.settings.title_alignment }};">
+            {{ section.settings.section_description }}
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+    
+    {%- if section.blocks.size > 0 -%}
+      <div 
+        class="campaign-product-cards-grid"
+        style="
+          --grid-columns-desktop: {{ section.settings.columns_desktop }};
+          --grid-columns-mobile: {{ section.settings.columns_mobile }};
+          --grid-gap: {{ section.settings.grid_gap }}px;
+        "
+      >
+        {%- for block in section.blocks -%}
+          {%- liquid
+            # 获取商品
+            assign product = null
+            if block.settings.product != blank
+              assign product = block.settings.product
+            elsif block.settings.product_handle != blank
+              assign product = all_products[block.settings.product_handle]
+            endif
+            
+            # 计算折扣价格
+            assign has_discount = false
+            assign original_price = 0
+            assign discount_price = 0
+            
+            if product and block.settings.discount_percent > 0
+              assign has_discount = true
+              assign original_price = product.price
+              assign discount_decimal = block.settings.discount_percent | divided_by: 100.0
+              assign discount_amount = original_price | times: discount_decimal
+              assign discount_price = original_price | minus: discount_amount
+            endif
+            
+            # 确定链接URL
+            assign card_url = ''
+            if block.settings.custom_url != blank
+              assign card_url = block.settings.custom_url
+            elsif product
+              assign card_url = product.url
+            endif
+            
+            # 确定是否可点击
+            assign is_clickable = false
+            if card_url != blank and section.settings.enable_link
+              assign is_clickable = true
+            endif
+          -%}
+          
+          <div class="campaign-product-cards-grid__item" {{ block.shopify_attributes }}>
+            
+            {%- if product -%}
+              <div class="campaign-product-card campaign-product-card--{{ section.settings.card_style }}">
+                
+                {%- comment -%} 商品图片区域 {%- endcomment -%}
+                <div class="campaign-product-card__image-wrapper">
+                  {% if is_clickable %}<a href="{{ card_url }}" class="campaign-product-card__image-link">{% endif %}
+                    
+                    {%- if product.featured_image -%}
+                      <img 
+                        src="{{ product.featured_image | image_url: width: 800 }}"
+                        srcset="
+                          {{ product.featured_image | image_url: width: 400 }} 400w,
+                          {{ product.featured_image | image_url: width: 600 }} 600w,
+                          {{ product.featured_image | image_url: width: 800 }} 800w
+                        "
+                        sizes="(max-width: 768px) 50vw, {{ 100 | divided_by: section.settings.columns_desktop }}vw"
+                        alt="{{ product.featured_image.alt | escape | default: product.title }}"
+                        loading="lazy"
+                        class="campaign-product-card__image"
+                      >
+                    {%- else -%}
+                      <div class="campaign-product-card__image campaign-product-card__image--placeholder">
+                        {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                      </div>
+                    {%- endif -%}
+                    
+                    {%- comment -%} 自定义徽章 {%- endcomment -%}
+                    {%- if block.settings.badge_image != blank -%}
+                      <div class="campaign-product-card__badge campaign-product-card__badge--{{ block.settings.badge_position }}">
+                        <img 
+                          src="{{ block.settings.badge_image | image_url: width: 200 }}"
+                          alt="{{ block.settings.badge_alt_text | escape }}"
+                          loading="lazy"
+                          class="campaign-product-card__badge-image"
+                          style="width: {{ section.settings.badge_size }}px;"
+                        >
+                      </div>
+                    {%- endif -%}
+                    
+                    {%- comment -%} 折扣标签 {%- endcomment -%}
+                    {%- if has_discount and section.settings.show_discount_badge -%}
+                      <div class="campaign-product-card__discount-badge">
+                        -{{ block.settings.discount_percent }}%
+                      </div>
+                    {%- endif -%}
+                    
+                  {% if is_clickable %}</a>{% endif %}
+                </div>
+                
+                {%- comment -%} 商品信息区域 {%- endcomment -%}
+                <div class="campaign-product-card__content">
+                  
+                  {%- if section.settings.show_vendor and product.vendor != blank -%}
+                    <div class="campaign-product-card__vendor">{{ product.vendor }}</div>
+                  {%- endif -%}
+                  
+                  <h3 class="campaign-product-card__title">
+                    {% if is_clickable %}
+                      <a href="{{ card_url }}" class="campaign-product-card__title-link">
+                        {{ product.title }}
+                      </a>
+                    {% else %}
+                      {{ product.title }}
+                    {% endif %}
+                  </h3>
+                  
+                  {%- if section.settings.show_description and product.description != blank -%}
+                    <div class="campaign-product-card__description">
+                      {{ product.description | strip_html | truncatewords: section.settings.description_length }}
+                    </div>
+                  {%- endif -%}
+                  
+                  {%- comment -%} 价格区域 {%- endcomment -%}
+                  {%- if section.settings.show_price -%}
+                    <div class="campaign-product-card__price-wrapper">
+                      {%- if has_discount -%}
+                        <span class="campaign-product-card__price campaign-product-card__price--sale">
+                          {{ discount_price | money }}
+                        </span>
+                        <span class="campaign-product-card__price campaign-product-card__price--original">
+                          {{ original_price | money }}
+                        </span>
+                      {%- else -%}
+                        <span class="campaign-product-card__price">
+                          {{ product.price | money }}
+                        </span>
+                      {%- endif -%}
+                    </div>
+                  {%- endif -%}
+                  
+                  {%- comment -%} 自定义按钮 {%- endcomment -%}
+                  {%- if section.settings.show_button -%}
+                    <div class="campaign-product-card__button-wrapper">
+                      <a 
+                        href="{{ card_url }}" 
+                        class="campaign-product-card__button campaign-product-card__button--{{ section.settings.button_style }}"
+                      >
+                        {{ section.settings.button_text | default: 'View Product' }}
+                      </a>
+                    </div>
+                  {%- endif -%}
+                  
+                </div>
+              </div>
+              
+            {%- else -%}
+              {%- comment -%} 未找到商品时的占位 {%- endcomment -%}
+              <div class="campaign-product-card campaign-product-card--placeholder">
+                <div class="campaign-product-card__image-wrapper">
+                  <div class="campaign-product-card__image campaign-product-card__image--placeholder">
+                    {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                  </div>
+                </div>
+                <div class="campaign-product-card__content">
+                  <h3 class="campaign-product-card__title">Product {{ forloop.index }}</h3>
+                  <p class="campaign-product-card__description">
+                    Select a product in block settings
+                  </p>
+                </div>
+              </div>
+            {%- endif -%}
+            
+          </div>
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      {%- comment -%} 无 blocks 时的占位内容 {%- endcomment -%}
+      <div class="campaign-product-cards-grid__empty">
+        <p>Add product card blocks to get started.</p>
+      </div>
+    {%- endif -%}
+    
+  </div>
+</div>
+
+<style>
+  .campaign-product-cards-grid-section {
+    width: 100%;
+  }
+  
+  .campaign-product-cards-grid-container {
+    max-width: {{ section.settings.container_width }}px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  /* Header */
+  .campaign-product-cards-grid__header {
+    margin-bottom: 3rem;
+  }
+  
+  .campaign-product-cards-grid__title {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    color: {{ section.settings.title_color }};
+  }
+  
+  .campaign-product-cards-grid__description {
+    font-size: 1.125rem;
+    color: #666;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  
+  /* Grid Layout */
+  .campaign-product-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-columns-desktop), 1fr);
+    gap: var(--grid-gap);
+  }
+  
+  .campaign-product-cards-grid__item {
+    width: 100%;
+  }
+  
+  /* Empty State */
+  .campaign-product-cards-grid__empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #999;
+    font-size: 1.125rem;
+  }
+  
+  /* Product Card Styles */
+  .campaign-product-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-radius: {{ section.settings.card_border_radius }}px;
+    overflow: hidden;
+    background: {{ section.settings.card_background }};
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .campaign-product-card--elevated {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  
+  .campaign-product-card--elevated:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+  
+  .campaign-product-card--bordered {
+    border: 1px solid #e5e5e5;
+  }
+  
+  .campaign-product-card--flat:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .campaign-product-card:hover {
+    transform: translateY(-4px);
+  }
+  
+  .campaign-product-card__image-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: {{ section.settings.image_ratio }}%;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+  
+  .campaign-product-card__image-link {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .campaign-product-card__image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  
+  .campaign-product-card:hover .campaign-product-card__image {
+    transform: scale(1.05);
+  }
+  
+  .campaign-product-card__image--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f0;
+  }
+  
+  .campaign-product-card__image--placeholder svg {
+    width: 50%;
+    height: 50%;
+    opacity: 0.3;
+  }
+  
+  /* Badge */
+  .campaign-product-card__badge {
+    position: absolute;
+    z-index: 2;
+  }
+  
+  .campaign-product-card__badge--top-left {
+    top: 12px;
+    left: 12px;
+  }
+  
+  .campaign-product-card__badge--top-right {
+    top: 12px;
+    right: 12px;
+  }
+  
+  .campaign-product-card__badge--bottom-left {
+    bottom: 12px;
+    left: 12px;
+  }
+  
+  .campaign-product-card__badge--bottom-right {
+    bottom: 12px;
+    right: 12px;
+  }
+  
+  .campaign-product-card__badge-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+  }
+  
+  /* Discount Badge */
+  .campaign-product-card__discount-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #e74c3c;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    z-index: 1;
+  }
+  
+  /* Content */
+  .campaign-product-card__content {
+    padding: {{ section.settings.content_padding }}px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .campaign-product-card__vendor {
+    font-size: 0.875rem;
+    color: #666;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .campaign-product-card__title {
+    font-size: 1.25rem;
+    margin: 0 0 12px;
+    font-weight: 600;
+    line-height: 1.3;
+    flex-shrink: 0;
+  }
+  
+  .campaign-product-card__title-link {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  
+  .campaign-product-card__title-link:hover {
+    color: {{ section.settings.accent_color }};
+  }
+  
+  .campaign-product-card__description {
+    font-size: 0.9375rem;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 16px;
+    flex: 1;
+  }
+  
+  /* Price */
+  .campaign-product-card__price-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-shrink: 0;
+  }
+  
+  .campaign-product-card__price {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: #333;
+  }
+  
+  .campaign-product-card__price--sale {
+    color: #e74c3c;
+  }
+  
+  .campaign-product-card__price--original {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 1.125rem;
+    font-weight: 400;
+  }
+  
+  /* Button */
+  .campaign-product-card__button-wrapper {
+    margin-top: auto;
+    flex-shrink: 0;
+  }
+  
+  .campaign-product-card__button {
+    display: block;
+    width: 100%;
+    padding: 12px 24px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+  
+  .campaign-product-card__button--primary {
+    background: {{ section.settings.button_color }};
+    color: {{ section.settings.button_text_color }};
+  }
+  
+  .campaign-product-card__button--primary:hover {
+    background: {{ section.settings.button_color | color_darken: 10 }};
+  }
+  
+  .campaign-product-card__button--outline {
+    background: transparent;
+    color: {{ section.settings.button_color }};
+    border-color: {{ section.settings.button_color }};
+  }
+  
+  .campaign-product-card__button--outline:hover {
+    background: {{ section.settings.button_color }};
+    color: {{ section.settings.button_text_color }};
+  }
+  
+  .campaign-product-card__button--text {
+    background: transparent;
+    color: {{ section.settings.button_color }};
+    padding: 8px 0;
+  }
+  
+  .campaign-product-card__button--text:hover {
+    color: {{ section.settings.button_color | color_darken: 15 }};
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .campaign-product-cards-grid {
+      grid-template-columns: repeat({{ section.settings.columns_tablet }}, 1fr);
+    }
+    
+    .campaign-product-cards-grid__title {
+      font-size: 2rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .campaign-product-cards-grid {
+      grid-template-columns: repeat(var(--grid-columns-mobile), 1fr);
+    }
+    
+    .campaign-product-cards-grid-container {
+      padding: 0 16px;
+    }
+    
+    .campaign-product-cards-grid__header {
+      margin-bottom: 2rem;
+    }
+    
+    .campaign-product-cards-grid__title {
+      font-size: 1.75rem;
+    }
+    
+    .campaign-product-cards-grid__description {
+      font-size: 1rem;
+    }
+    
+    .campaign-product-card__title {
+      font-size: 1.125rem;
+    }
+    
+    .campaign-product-card__price {
+      font-size: 1.25rem;
+    }
+    
+    .campaign-product-card__badge--bottom-left,
+    .campaign-product-card__badge--bottom-right {
+      bottom: 8px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .campaign-product-card__content {
+      padding: 16px;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Product Cards Grid",
+  "tag": "section",
+  "class": "section-product-cards-grid",
+  "max_blocks": 20,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Settings"
+    },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section Title",
+      "default": "Featured Products"
+    },
+    {
+      "type": "textarea",
+      "id": "section_description",
+      "label": "Section Description"
+    },
+    {
+      "type": "select",
+      "id": "title_alignment",
+      "label": "Title Alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "section_background",
+      "label": "Section Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "container_width",
+      "min": 800,
+      "max": 1600,
+      "step": 50,
+      "unit": "px",
+      "label": "Container Width",
+      "default": 1400
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "Grid Layout"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "label": "Columns (Desktop)",
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "columns_tablet",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "label": "Columns (Tablet)",
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "columns_mobile",
+      "min": 1,
+      "max": 2,
+      "step": 1,
+      "label": "Columns (Mobile)",
+      "default": 1
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap Between Cards",
+      "default": 30
+    },
+    {
+      "type": "header",
+      "content": "Card Style"
+    },
+    {
+      "type": "select",
+      "id": "card_style",
+      "label": "Card Style",
+      "options": [
+        {
+          "value": "flat",
+          "label": "Flat"
+        },
+        {
+          "value": "elevated",
+          "label": "Elevated (Shadow)"
+        },
+        {
+          "value": "bordered",
+          "label": "Bordered"
+        }
+      ],
+      "default": "elevated"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Border Radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "content_padding",
+      "min": 12,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Content Padding",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Image Settings"
+    },
+    {
+      "type": "range",
+      "id": "image_ratio",
+      "min": 50,
+      "max": 150,
+      "step": 5,
+      "unit": "%",
+      "label": "Image Aspect Ratio",
+      "info": "100% = Square, 75% = Landscape, 125% = Portrait",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "badge_size",
+      "min": 40,
+      "max": 120,
+      "step": 10,
+      "unit": "px",
+      "label": "Badge Size",
+      "default": 60
+    },
+    {
+      "type": "checkbox",
+      "id": "show_discount_badge",
+      "label": "Show Discount Badge",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Display Options"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show Vendor/Brand",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show Description",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "description_length",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "label": "Description Word Count",
+      "default": 20
+    },
+    {
+      "type": "checkbox",
+      "id": "show_price",
+      "label": "Show Price",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Link Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_link",
+      "label": "Enable Links",
+      "default": true,
+      "info": "Allow cards to be clickable"
+    },
+    {
+      "type": "header",
+      "content": "Button Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button",
+      "label": "Show Button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "View Product"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button Style",
+      "options": [
+        {
+          "value": "primary",
+          "label": "Primary (Filled)"
+        },
+        {
+          "value": "outline",
+          "label": "Outline"
+        },
+        {
+          "value": "text",
+          "label": "Text Only"
+        }
+      ],
+      "default": "primary"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent Color",
+      "info": "Used for hover effects",
+      "default": "#e74c3c"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product_card",
+      "name": "Product Card",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Product Selection"
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "text",
+          "id": "product_handle",
+          "label": "Product Handle (Alternative)",
+          "info": "Or enter product handle manually"
+        },
+        {
+          "type": "header",
+          "content": "Badge / Overlay"
+        },
+        {
+          "type": "image_picker",
+          "id": "badge_image",
+          "label": "Badge Image"
+        },
+        {
+          "type": "text",
+          "id": "badge_alt_text",
+          "label": "Badge Alt Text",
+          "default": "Badge"
+        },
+        {
+          "type": "select",
+          "id": "badge_position",
+          "label": "Badge Position",
+          "options": [
+            {
+              "value": "top-left",
+              "label": "Top Left"
+            },
+            {
+              "value": "top-right",
+              "label": "Top Right"
+            },
+            {
+              "value": "bottom-left",
+              "label": "Bottom Left"
+            },
+            {
+              "value": "bottom-right",
+              "label": "Bottom Right"
+            }
+          ],
+          "default": "top-left"
+        },
+        {
+          "type": "header",
+          "content": "Discount & Custom Link"
+        },
+        {
+          "type": "range",
+          "id": "discount_percent",
+          "min": 0,
+          "max": 99,
+          "step": 1,
+          "unit": "%",
+          "label": "Discount Percentage",
+          "default": 0
+        },
+        {
+          "type": "url",
+          "id": "custom_url",
+          "label": "Custom URL",
+          "info": "Leave blank to use product URL"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Cards Grid",
+      "category": "Product",
+      "blocks": [
+        {
+          "type": "product_card"
+        },
+        {
+          "type": "product_card"
+        },
+        {
+          "type": "product_card"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
