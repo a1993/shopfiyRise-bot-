@@ -1,0 +1,45 @@
+{% comment %}
+  Test Template for Flexible Product Layout
+  用于测试灵活商品布局组件的模板
+{% endcomment %}
+
+{%- assign test_collection = collections.all -%}
+
+<div class="test-flexible-layout">
+  <h1>测试灵活商品布局组件</h1>
+  
+  {%- comment -%} 测试 snippet {%- endcomment -%}
+  <h2>测试 Flexible Product Card Snippet:</h2>
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1200px; margin: 0 auto;">
+    {%- for product in test_collection.products limit: 3 -%}
+      {%- render 'flexible-product-card', product: product -%}
+    {%- endfor -%}
+  </div>
+  
+  {%- comment -%} 测试 section {%- endcomment -%}
+  <h2>测试 Flexible Product Layout Section:</h2>
+  <div style="margin-top: 40px;">
+    {%- render 'flexible-product-layout' -%}
+  </div>
+</div>
+
+<style>
+  .test-flexible-layout {
+    padding: 40px 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  
+  .test-flexible-layout h1 {
+    text-align: center;
+    margin-bottom: 40px;
+    color: #333;
+  }
+  
+  .test-flexible-layout h2 {
+    margin: 40px 0 20px;
+    color: #666;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+  }
+</style>

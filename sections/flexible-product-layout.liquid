@@ -12,26 +12,6 @@
 {% endcomment %}
 
 {%- liquid
-  # 获取商品列表
-  assign products_to_show = section.settings.products_to_show
-  assign products = ''
-  
-  if section.settings.collection != blank
-    assign products = section.settings.collection.products | limit: products_to_show
-  else
-    # 手动选择的商品
-    assign products = ''
-    for block in section.blocks
-      if block.type == 'product' and block.settings.product != blank
-        if products == blank
-          assign products = block.settings.product
-        else
-          assign products = products | concat: ',' | append: block.settings.product.handle
-        endif
-      endif
-    endfor
-  endif
-  
   # 计算列数
   assign columns_desktop = section.settings.columns_desktop
   assign columns_tablet = section.settings.columns_tablet
@@ -58,23 +38,44 @@
       </div>
     {%- endif -%}
     
-    {%- if products != blank -%}
-      <div 
-        class="flexible-product-layout__grid"
-        style="
-          --columns-desktop: {{ columns_desktop }};
-          --columns-tablet: {{ columns_tablet }};
-          --columns-mobile: {{ columns_mobile }};
-          --gap-desktop: {{ gap_desktop }}px;
-          --gap-mobile: {{ gap_mobile }}px;
-        "
-      >
-        {%- if section.settings.collection != blank -%}
-          {%- comment -%} 使用商品集合 {%- endcomment -%}
-          {%- for product in products -%}
-            <div class="flexible-product-layout__item">
+    <div 
+      class="flexible-product-layout__grid"
+      style="
+        --columns-desktop: {{ columns_desktop }};
+        --columns-tablet: {{ columns_tablet }};
+        --columns-mobile: {{ columns_mobile }};
+        --gap-desktop: {{ gap_desktop }}px;
+        --gap-mobile: {{ gap_mobile }}px;
+      "
+    >
+      {%- if section.settings.collection != blank -%}
+        {%- comment -%} 使用商品集合 {%- endcomment -%}
+        {%- for product in section.settings.collection.products limit: section.settings.products_to_show -%}
+          <div class="flexible-product-layout__item">
+            {%- render 'flexible-product-card',
+              product: product,
+              card_style: section.settings.card_style,
+              show_vendor: section.settings.show_vendor,
+              show_description: section.settings.show_description,
+              description_length: section.settings.description_length,
+              show_price: section.settings.show_price,
+              show_button: section.settings.show_button,
+              button_text: section.settings.button_text,
+              button_style: section.settings.button_style,
+              image_ratio: section.settings.image_ratio,
+              card_border_radius: section.settings.card_border_radius,
+              content_padding: section.settings.content_padding,
+              enable_hover_effect: section.settings.enable_hover_effect
+            -%}
+          </div>
+        {%- endfor -%}
+      {%- elsif section.blocks.size > 0 -%}
+        {%- comment -%} 使用手动选择的商品 {%- endcomment -%}
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'product' and block.settings.product != blank -%}
+            <div class="flexible-product-layout__item" {{ block.shopify_attributes }}>
               {%- render 'flexible-product-card',
-                product: product,
+                product: block.settings.product,
                 card_style: section.settings.card_style,
                 show_vendor: section.settings.show_vendor,
                 show_description: section.settings.show_description,
@@ -86,45 +87,22 @@
                 image_ratio: section.settings.image_ratio,
                 card_border_radius: section.settings.card_border_radius,
                 content_padding: section.settings.content_padding,
-                enable_hover_effect: section.settings.enable_hover_effect
+                enable_hover_effect: section.settings.enable_hover_effect,
+                custom_discount: block.settings.discount_percent,
+                custom_badge: block.settings.badge_image,
+                custom_badge_position: block.settings.badge_position,
+                custom_badge_size: block.settings.badge_size
               -%}
             </div>
-          {%- endfor -%}
-        {%- else -%}
-          {%- comment -%} 使用手动选择的商品 {%- endcomment -%}
-          {%- for block in section.blocks -%}
-            {%- if block.type == 'product' and block.settings.product != blank -%}
-              <div class="flexible-product-layout__item" {{ block.shopify_attributes }}>
-                {%- render 'flexible-product-card',
-                  product: block.settings.product,
-                  card_style: section.settings.card_style,
-                  show_vendor: section.settings.show_vendor,
-                  show_description: section.settings.show_description,
-                  description_length: section.settings.description_length,
-                  show_price: section.settings.show_price,
-                  show_button: section.settings.show_button,
-                  button_text: section.settings.button_text,
-                  button_style: section.settings.button_style,
-                  image_ratio: section.settings.image_ratio,
-                  card_border_radius: section.settings.card_border_radius,
-                  content_padding: section.settings.content_padding,
-                  enable_hover_effect: section.settings.enable_hover_effect,
-                  custom_discount: block.settings.discount_percent,
-                  custom_badge: block.settings.badge_image,
-                  custom_badge_position: block.settings.badge_position,
-                  custom_badge_size: block.settings.badge_size
-                -%}
-              </div>
-            {%- endif -%}
-          {%- endfor -%}
-        {%- endif -%}
-      </div>
-    {%- else -%}
-      {%- comment -%} 无商品时的占位内容 {%- endcomment -%}
-      <div class="flexible-product-layout__empty">
-        <p>请选择商品集合或添加商品块来显示商品。</p>
-      </div>
-    {%- endif -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- else -%}
+        {%- comment -%} 无商品时的占位内容 {%- endcomment -%}
+        <div class="flexible-product-layout__empty">
+          <p>请选择商品集合或添加商品块来显示商品。</p>
+        </div>
+      {%- endif -%}
+    </div>
     
   </div>
 </div>
@@ -347,13 +325,20 @@
       "info": "Number of columns on tablet screens"
     },
     {
-      "type": "range",
+      "type": "select",
       "id": "columns_mobile",
-      "min": 1,
-      "max": 2,
-      "step": 1,
       "label": "Columns (Mobile)",
-      "default": 1,
+      "options": [
+        {
+          "value": "1",
+          "label": "1 Column"
+        },
+        {
+          "value": "2",
+          "label": "2 Columns"
+        }
+      ],
+      "default": "1",
       "info": "Number of columns on mobile screens"
     },
     {
@@ -599,3 +584,4 @@
   ]
 }
 {% endschema %}
+

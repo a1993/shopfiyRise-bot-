@@ -1,0 +1,417 @@
+{% comment %}
+  Campaign Product Grid Section
+  活动商品网格布局 - 支持多列灵活布局
+  
+  功能特性:
+  - 支持 2/3/4 列布局
+  - 可从商品集合获取或手动选择商品
+  - 统一折扣设置
+  - 响应式设计
+{% endcomment %}
+
+{%- liquid
+  # 获取列数
+  assign columns = section.settings.columns_desktop
+  assign columns_mobile = section.settings.columns_mobile
+  
+  # 获取商品列表
+  assign product_list = ''
+  
+  if section.settings.collection != blank
+    # 从商品集合获取
+    assign product_list = section.settings.collection.products
+  elsif section.blocks.size > 0
+    # 从 blocks 手动获取
+    assign product_handles = ''
+    for block in section.blocks
+      if block.type == 'product' and block.settings.product != blank
+        if product_handles == ''
+          assign product_handles = block.settings.product.handle
+        else
+          assign product_handles = product_handles | append: ',' | append: block.settings.product.handle
+        endif
+      endif
+    endfor
+    
+    if product_handles != ''
+      assign handle_array = product_handles | split: ','
+      assign product_list = ''
+      for handle in handle_array
+        assign product = all_products[handle]
+        if product.id != blank
+          if product_list == ''
+            assign product_list = product
+          endif
+        endif
+      endfor
+    endif
+  endif
+-%}
+
+<div class="campaign-product-grid-section" style="padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px; background: {{ section.settings.section_background }};">
+  <div class="campaign-product-grid-container" style="max-width: {{ section.settings.container_width }}px; margin: 0 auto; padding: 0 20px;">
+    
+    {%- if section.settings.section_title != blank -%}
+      <div class="campaign-product-grid-section__header">
+        <h2 class="campaign-product-grid-section__title" style="text-align: {{ section.settings.title_alignment }}; color: {{ section.settings.title_color }};">
+          {{ section.settings.section_title }}
+        </h2>
+        {%- if section.settings.section_description != blank -%}
+          <div class="campaign-product-grid-section__description" style="text-align: {{ section.settings.title_alignment }};">
+            {{ section.settings.section_description }}
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+    
+    {%- if section.settings.collection != blank -%}
+      {%- comment -%} 使用商品集合 {%- endcomment -%}
+      <div class="campaign-product-grid-wrapper campaign-product-grid-wrapper--{{ columns }}-col">
+        {%- for product in section.settings.collection.products limit: section.settings.products_to_show -%}
+          <div class="campaign-product-grid-wrapper__item">
+            {%- render 'campaign-product-card',
+              product: product,
+              discount_percent: section.settings.discount_percent
+            -%}
+          </div>
+        {%- endfor -%}
+      </div>
+    {%- elsif section.blocks.size > 0 -%}
+      {%- comment -%} 使用手动选择的商品 {%- endcomment -%}
+      <div class="campaign-product-grid-wrapper campaign-product-grid-wrapper--{{ columns }}-col">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'product' and block.settings.product != blank -%}
+            <div class="campaign-product-grid-wrapper__item" {{ block.shopify_attributes }}>
+              {%- render 'campaign-product-card',
+                product: block.settings.product,
+                discount_percent: block.settings.discount_percent,
+                custom_desc: block.settings.custom_description
+              -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      {%- comment -%} 无商品时的占位 {%- endcomment -%}
+      <div class="campaign-product-grid-section__empty">
+        <p>请选择商品集合或添加商品块来显示商品。</p>
+      </div>
+    {%- endif -%}
+    
+  </div>
+</div>
+
+<style>
+  .campaign-product-grid-section {
+    width: 100%;
+  }
+  
+  .campaign-product-grid-container {
+    width: 100%;
+  }
+  
+  /* Header */
+  .campaign-product-grid-section__header {
+    margin-bottom: 3rem;
+  }
+  
+  .campaign-product-grid-section__title {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  
+  .campaign-product-grid-section__description {
+    font-size: 1.125rem;
+    color: #666;
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+  
+  /* Grid Layout */
+  .campaign-product-grid-wrapper {
+    display: grid;
+    gap: {{ section.settings.grid_gap }}px;
+  }
+  
+  .campaign-product-grid-wrapper--2-col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .campaign-product-grid-wrapper--3-col {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .campaign-product-grid-wrapper--4-col {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .campaign-product-grid-wrapper__item {
+    width: 100%;
+  }
+  
+  /* Empty State */
+  .campaign-product-grid-section__empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #999;
+    font-size: 1.125rem;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .campaign-product-grid-wrapper--4-col {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .campaign-product-grid-section__title {
+      font-size: 2rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .campaign-product-grid-wrapper--3-col,
+    .campaign-product-grid-wrapper--4-col {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .campaign-product-grid-wrapper--2-col {
+      grid-template-columns: repeat({{ columns_mobile }}, 1fr);
+    }
+    
+    .campaign-product-grid-container {
+      padding: 0 16px;
+    }
+    
+    .campaign-product-grid-section__header {
+      margin-bottom: 2rem;
+    }
+    
+    .campaign-product-grid-section__title {
+      font-size: 1.75rem;
+    }
+    
+    .campaign-product-grid-section__description {
+      font-size: 1rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .campaign-product-grid-wrapper {
+      grid-template-columns: repeat({{ columns_mobile }}, 1fr);
+    }
+    
+    .campaign-product-grid-section__title {
+      font-size: 1.5rem;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Campaign Product Grid",
+  "tag": "section",
+  "class": "section-campaign-product-grid",
+  "max_blocks": 20,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Settings"
+    },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section Title",
+      "default": "Featured Products"
+    },
+    {
+      "type": "textarea",
+      "id": "section_description",
+      "label": "Section Description"
+    },
+    {
+      "type": "select",
+      "id": "title_alignment",
+      "label": "Title Alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "section_background",
+      "label": "Section Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "container_width",
+      "min": 800,
+      "max": 1600,
+      "step": 50,
+      "unit": "px",
+      "label": "Container Width",
+      "default": 1400
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "Product Source"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "Select a collection to display products from, or leave blank to manually add products using blocks"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 2,
+      "max": 20,
+      "step": 1,
+      "label": "Products to Show",
+      "default": 6,
+      "info": "Only applies when using a collection"
+    },
+    {
+      "type": "range",
+      "id": "discount_percent",
+      "min": 0,
+      "max": 99,
+      "step": 1,
+      "unit": "%",
+      "label": "Discount Percentage (All Products)",
+      "default": 0,
+      "info": "Apply discount to all products from collection"
+    },
+    {
+      "type": "header",
+      "content": "Grid Layout"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "label": "Columns (Desktop)",
+      "default": 3,
+      "info": "Number of columns on desktop screens"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns (Mobile)",
+      "options": [
+        {
+          "value": "1",
+          "label": "1 Column"
+        },
+        {
+          "value": "2",
+          "label": "2 Columns"
+        }
+      ],
+      "default": "1",
+      "info": "Number of columns on mobile screens"
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap Between Cards",
+      "default": 30
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "range",
+          "id": "discount_percent",
+          "min": 0,
+          "max": 99,
+          "step": 1,
+          "unit": "%",
+          "label": "Discount Percentage",
+          "default": 0,
+          "info": "Override discount for this product"
+        },
+        {
+          "type": "text",
+          "id": "custom_description",
+          "label": "Custom Description",
+          "info": "Optional custom description for this product"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Campaign Product Grid",
+      "category": "Product",
+      "blocks": [
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
