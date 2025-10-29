@@ -1,0 +1,417 @@
+{% comment %}
+  Flexible Product Card Snippet
+  灵活的商品卡片组件 - 专为排版容器设计
+  
+  参数说明:
+  - product: Shopify 产品对象 (required)
+  - card_style: 卡片样式 (optional, default: 'elevated')
+  - show_vendor: 是否显示品牌 (optional, default: false)
+  - show_description: 是否显示描述 (optional, default: true)
+  - description_length: 描述字数限制 (optional, default: 20)
+  - show_price: 是否显示价格 (optional, default: true)
+  - show_button: 是否显示按钮 (optional, default: true)
+  - button_text: 按钮文字 (optional, default: 'View Product')
+  - button_style: 按钮样式 (optional, default: 'primary')
+  - image_ratio: 图片比例 (optional, default: 100)
+  - card_border_radius: 卡片圆角 (optional, default: 8)
+  - content_padding: 内容内边距 (optional, default: 20)
+  - enable_hover_effect: 是否启用悬停效果 (optional, default: true)
+  - custom_discount: 自定义折扣百分比 (optional)
+  - custom_badge: 自定义徽章图片 (optional)
+  - custom_badge_position: 徽章位置 (optional, default: 'top-left')
+  - custom_badge_size: 徽章大小 (optional, default: 60)
+{% endcomment %}
+
+{%- liquid
+  # 设置默认值
+  assign card_style_default = card_style | default: 'elevated'
+  assign show_vendor_default = show_vendor | default: false
+  assign show_description_default = show_description | default: true
+  assign description_length_default = description_length | default: 20
+  assign show_price_default = show_price | default: true
+  assign show_button_default = show_button | default: true
+  assign button_text_default = button_text | default: 'View Product'
+  assign button_style_default = button_style | default: 'primary'
+  assign image_ratio_default = image_ratio | default: 100
+  assign card_border_radius_default = card_border_radius | default: 8
+  assign content_padding_default = content_padding | default: 20
+  assign enable_hover_effect_default = enable_hover_effect | default: true
+  assign custom_badge_position_default = custom_badge_position | default: 'top-left'
+  assign custom_badge_size_default = custom_badge_size | default: 60
+  
+  # 计算折扣价格
+  assign has_discount = false
+  assign original_price = 0
+  assign discount_price = 0
+  
+  if custom_discount and custom_discount > 0
+    assign has_discount = true
+    assign original_price = product.price
+    assign discount_decimal = custom_discount | divided_by: 100.0
+    assign discount_amount = original_price | times: discount_decimal
+    assign discount_price = original_price | minus: discount_amount
+  endif
+-%}
+
+<div class="flexible-product-card flexible-product-card--{{ card_style_default }}{% if enable_hover_effect_default %} flexible-product-card--hover{% endif %}">
+  
+  {%- comment -%} 商品图片区域 {%- endcomment -%}
+  <div class="flexible-product-card__image-wrapper">
+    <a href="{{ product.url }}" class="flexible-product-card__image-link">
+      
+      {%- if product.featured_image -%}
+        <img 
+          src="{{ product.featured_image | image_url: width: 800 }}"
+          srcset="
+            {{ product.featured_image | image_url: width: 400 }} 400w,
+            {{ product.featured_image | image_url: width: 600 }} 600w,
+            {{ product.featured_image | image_url: width: 800 }} 800w
+          "
+          sizes="(max-width: 768px) 50vw, 25vw"
+          alt="{{ product.featured_image.alt | escape | default: product.title }}"
+          loading="lazy"
+          class="flexible-product-card__image"
+        >
+      {%- else -%}
+        <div class="flexible-product-card__image flexible-product-card__image--placeholder">
+          {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+        </div>
+      {%- endif -%}
+      
+      {%- comment -%} 自定义徽章 {%- endcomment -%}
+      {%- if custom_badge != blank -%}
+        <div class="flexible-product-card__badge flexible-product-card__badge--{{ custom_badge_position_default }}">
+          <img 
+            src="{{ custom_badge | image_url: width: 200 }}"
+            alt="Badge"
+            loading="lazy"
+            class="flexible-product-card__badge-image"
+            style="width: {{ custom_badge_size_default }}px;"
+          >
+        </div>
+      {%- endif -%}
+      
+      {%- comment -%} 折扣标签 {%- endcomment -%}
+      {%- if has_discount -%}
+        <div class="flexible-product-card__discount-badge">
+          -{{ custom_discount }}%
+        </div>
+      {%- endif -%}
+      
+    </a>
+  </div>
+  
+  {%- comment -%} 商品信息区域 {%- endcomment -%}
+  <div class="flexible-product-card__content">
+    
+    {%- if show_vendor_default and product.vendor != blank -%}
+      <div class="flexible-product-card__vendor">{{ product.vendor }}</div>
+    {%- endif -%}
+    
+    <h3 class="flexible-product-card__title">
+      <a href="{{ product.url }}" class="flexible-product-card__title-link">
+        {{ product.title }}
+      </a>
+    </h3>
+    
+    {%- if show_description_default and product.description != blank -%}
+      <div class="flexible-product-card__description">
+        {{ product.description | strip_html | truncatewords: description_length_default }}
+      </div>
+    {%- endif -%}
+    
+    {%- comment -%} 价格区域 {%- endcomment -%}
+    {%- if show_price_default -%}
+      <div class="flexible-product-card__price-wrapper">
+        {%- if has_discount -%}
+          <span class="flexible-product-card__price flexible-product-card__price--sale">
+            {{ discount_price | money }}
+          </span>
+          <span class="flexible-product-card__price flexible-product-card__price--original">
+            {{ original_price | money }}
+          </span>
+        {%- else -%}
+          <span class="flexible-product-card__price">
+            {{ product.price | money }}
+          </span>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+    
+    {%- comment -%} 按钮 {%- endcomment -%}
+    {%- if show_button_default -%}
+      <div class="flexible-product-card__button-wrapper">
+        <a 
+          href="{{ product.url }}" 
+          class="flexible-product-card__button flexible-product-card__button--{{ button_style_default }}"
+        >
+          {{ button_text_default }}
+        </a>
+      </div>
+    {%- endif -%}
+    
+  </div>
+</div>
+
+<style>
+  .flexible-product-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-radius: {{ card_border_radius_default }}px;
+    overflow: hidden;
+    background: #ffffff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .flexible-product-card--elevated {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  
+  .flexible-product-card--elevated:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+  
+  .flexible-product-card--bordered {
+    border: 1px solid #e5e5e5;
+  }
+  
+  .flexible-product-card--flat:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .flexible-product-card--hover:hover {
+    transform: translateY(-4px);
+  }
+  
+  .flexible-product-card__image-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: {{ image_ratio_default }}%;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+  
+  .flexible-product-card__image-link {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+  }
+  
+  .flexible-product-card__image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  
+  .flexible-product-card--hover:hover .flexible-product-card__image {
+    transform: scale(1.05);
+  }
+  
+  .flexible-product-card__image--placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f0;
+  }
+  
+  .flexible-product-card__image--placeholder svg {
+    width: 50%;
+    height: 50%;
+    opacity: 0.3;
+  }
+  
+  /* Badge */
+  .flexible-product-card__badge {
+    position: absolute;
+    z-index: 2;
+  }
+  
+  .flexible-product-card__badge--top-left {
+    top: 12px;
+    left: 12px;
+  }
+  
+  .flexible-product-card__badge--top-right {
+    top: 12px;
+    right: 12px;
+  }
+  
+  .flexible-product-card__badge--bottom-left {
+    bottom: 12px;
+    left: 12px;
+  }
+  
+  .flexible-product-card__badge--bottom-right {
+    bottom: 12px;
+    right: 12px;
+  }
+  
+  .flexible-product-card__badge-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+  }
+  
+  /* Discount Badge */
+  .flexible-product-card__discount-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #e74c3c;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    z-index: 1;
+  }
+  
+  /* Content */
+  .flexible-product-card__content {
+    padding: {{ content_padding_default }}px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .flexible-product-card__vendor {
+    font-size: 0.875rem;
+    color: #666;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .flexible-product-card__title {
+    font-size: 1.25rem;
+    margin: 0 0 12px;
+    font-weight: 600;
+    line-height: 1.3;
+    flex-shrink: 0;
+  }
+  
+  .flexible-product-card__title-link {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  
+  .flexible-product-card__title-link:hover {
+    color: #e74c3c;
+  }
+  
+  .flexible-product-card__description {
+    font-size: 0.9375rem;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 16px;
+    flex: 1;
+  }
+  
+  /* Price */
+  .flexible-product-card__price-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-shrink: 0;
+  }
+  
+  .flexible-product-card__price {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: #333;
+  }
+  
+  .flexible-product-card__price--sale {
+    color: #e74c3c;
+  }
+  
+  .flexible-product-card__price--original {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 1.125rem;
+    font-weight: 400;
+  }
+  
+  /* Button */
+  .flexible-product-card__button-wrapper {
+    margin-top: auto;
+    flex-shrink: 0;
+  }
+  
+  .flexible-product-card__button {
+    display: block;
+    width: 100%;
+    padding: 12px 24px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+  }
+  
+  .flexible-product-card__button--primary {
+    background: #000000;
+    color: #ffffff;
+  }
+  
+  .flexible-product-card__button--primary:hover {
+    background: #333333;
+  }
+  
+  .flexible-product-card__button--outline {
+    background: transparent;
+    color: #000000;
+    border-color: #000000;
+  }
+  
+  .flexible-product-card__button--outline:hover {
+    background: #000000;
+    color: #ffffff;
+  }
+  
+  .flexible-product-card__button--text {
+    background: transparent;
+    color: #000000;
+    padding: 8px 0;
+  }
+  
+  .flexible-product-card__button--text:hover {
+    color: #333333;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .flexible-product-card__title {
+      font-size: 1.125rem;
+    }
+    
+    .flexible-product-card__price {
+      font-size: 1.25rem;
+    }
+    
+    .flexible-product-card__badge--bottom-left,
+    .flexible-product-card__badge--bottom-right {
+      bottom: 8px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .flexible-product-card__content {
+      padding: 16px;
+    }
+  }
+</style>

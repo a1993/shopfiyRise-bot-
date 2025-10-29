@@ -1,0 +1,601 @@
+{% comment %}
+  Flexible Product Layout Section
+  灵活的商品排版容器 - 支持多种列数布局
+  
+  功能特性:
+  - 支持 2/3/4/5 列布局（桌面端）
+  - 支持 1/2 列布局（移动端）
+  - 响应式设计，自动适配不同屏幕尺寸
+  - 支持商品集合或手动选择商品
+  - 统一的卡片样式管理
+  - 可自定义间距和容器宽度
+{% endcomment %}
+
+{%- liquid
+  # 获取商品列表
+  assign products_to_show = section.settings.products_to_show
+  assign products = ''
+  
+  if section.settings.collection != blank
+    assign products = section.settings.collection.products | limit: products_to_show
+  else
+    # 手动选择的商品
+    assign products = ''
+    for block in section.blocks
+      if block.type == 'product' and block.settings.product != blank
+        if products == blank
+          assign products = block.settings.product
+        else
+          assign products = products | concat: ',' | append: block.settings.product.handle
+        endif
+      endif
+    endfor
+  endif
+  
+  # 计算列数
+  assign columns_desktop = section.settings.columns_desktop
+  assign columns_tablet = section.settings.columns_tablet
+  assign columns_mobile = section.settings.columns_mobile
+  
+  # 计算间距
+  assign gap_desktop = section.settings.gap_desktop
+  assign gap_mobile = section.settings.gap_mobile
+-%}
+
+<div class="flexible-product-layout-section" style="padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px; background: {{ section.settings.section_background }};">
+  <div class="flexible-product-layout-container" style="max-width: {{ section.settings.container_width }}px; margin: 0 auto; padding: 0 20px;">
+    
+    {%- if section.settings.section_title != blank -%}
+      <div class="flexible-product-layout__header">
+        <h2 class="flexible-product-layout__title" style="text-align: {{ section.settings.title_alignment }}; color: {{ section.settings.title_color }};">
+          {{ section.settings.section_title }}
+        </h2>
+        {%- if section.settings.section_description != blank -%}
+          <div class="flexible-product-layout__description" style="text-align: {{ section.settings.title_alignment }};">
+            {{ section.settings.section_description }}
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+    
+    {%- if products != blank -%}
+      <div 
+        class="flexible-product-layout__grid"
+        style="
+          --columns-desktop: {{ columns_desktop }};
+          --columns-tablet: {{ columns_tablet }};
+          --columns-mobile: {{ columns_mobile }};
+          --gap-desktop: {{ gap_desktop }}px;
+          --gap-mobile: {{ gap_mobile }}px;
+        "
+      >
+        {%- if section.settings.collection != blank -%}
+          {%- comment -%} 使用商品集合 {%- endcomment -%}
+          {%- for product in products -%}
+            <div class="flexible-product-layout__item">
+              {%- render 'flexible-product-card',
+                product: product,
+                card_style: section.settings.card_style,
+                show_vendor: section.settings.show_vendor,
+                show_description: section.settings.show_description,
+                description_length: section.settings.description_length,
+                show_price: section.settings.show_price,
+                show_button: section.settings.show_button,
+                button_text: section.settings.button_text,
+                button_style: section.settings.button_style,
+                image_ratio: section.settings.image_ratio,
+                card_border_radius: section.settings.card_border_radius,
+                content_padding: section.settings.content_padding,
+                enable_hover_effect: section.settings.enable_hover_effect
+              -%}
+            </div>
+          {%- endfor -%}
+        {%- else -%}
+          {%- comment -%} 使用手动选择的商品 {%- endcomment -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'product' and block.settings.product != blank -%}
+              <div class="flexible-product-layout__item" {{ block.shopify_attributes }}>
+                {%- render 'flexible-product-card',
+                  product: block.settings.product,
+                  card_style: section.settings.card_style,
+                  show_vendor: section.settings.show_vendor,
+                  show_description: section.settings.show_description,
+                  description_length: section.settings.description_length,
+                  show_price: section.settings.show_price,
+                  show_button: section.settings.show_button,
+                  button_text: section.settings.button_text,
+                  button_style: section.settings.button_style,
+                  image_ratio: section.settings.image_ratio,
+                  card_border_radius: section.settings.card_border_radius,
+                  content_padding: section.settings.content_padding,
+                  enable_hover_effect: section.settings.enable_hover_effect,
+                  custom_discount: block.settings.discount_percent,
+                  custom_badge: block.settings.badge_image,
+                  custom_badge_position: block.settings.badge_position,
+                  custom_badge_size: block.settings.badge_size
+                -%}
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+      </div>
+    {%- else -%}
+      {%- comment -%} 无商品时的占位内容 {%- endcomment -%}
+      <div class="flexible-product-layout__empty">
+        <p>请选择商品集合或添加商品块来显示商品。</p>
+      </div>
+    {%- endif -%}
+    
+  </div>
+</div>
+
+<style>
+  .flexible-product-layout-section {
+    width: 100%;
+  }
+  
+  .flexible-product-layout-container {
+    width: 100%;
+  }
+  
+  /* Header */
+  .flexible-product-layout__header {
+    margin-bottom: 3rem;
+  }
+  
+  .flexible-product-layout__title {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  
+  .flexible-product-layout__description {
+    font-size: 1.125rem;
+    color: #666;
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+  
+  /* Grid Layout */
+  .flexible-product-layout__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--columns-desktop), 1fr);
+    gap: var(--gap-desktop);
+  }
+  
+  .flexible-product-layout__item {
+    width: 100%;
+  }
+  
+  /* Empty State */
+  .flexible-product-layout__empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #999;
+    font-size: 1.125rem;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .flexible-product-layout__grid {
+      grid-template-columns: repeat(var(--columns-tablet), 1fr);
+    }
+    
+    .flexible-product-layout__title {
+      font-size: 2rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .flexible-product-layout__grid {
+      grid-template-columns: repeat(var(--columns-mobile), 1fr);
+      gap: var(--gap-mobile);
+    }
+    
+    .flexible-product-layout-container {
+      padding: 0 16px;
+    }
+    
+    .flexible-product-layout__header {
+      margin-bottom: 2rem;
+    }
+    
+    .flexible-product-layout__title {
+      font-size: 1.75rem;
+    }
+    
+    .flexible-product-layout__description {
+      font-size: 1rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .flexible-product-layout__title {
+      font-size: 1.5rem;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Flexible Product Layout",
+  "tag": "section",
+  "class": "section-flexible-product-layout",
+  "max_blocks": 20,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Settings"
+    },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section Title",
+      "default": "Featured Products"
+    },
+    {
+      "type": "textarea",
+      "id": "section_description",
+      "label": "Section Description"
+    },
+    {
+      "type": "select",
+      "id": "title_alignment",
+      "label": "Title Alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "section_background",
+      "label": "Section Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "container_width",
+      "min": 800,
+      "max": 1600,
+      "step": 50,
+      "unit": "px",
+      "label": "Container Width",
+      "default": 1400
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "Product Source"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection",
+      "info": "Select a collection to display products from, or leave blank to manually add products using blocks"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 2,
+      "max": 20,
+      "step": 1,
+      "label": "Products to Show",
+      "default": 6,
+      "info": "Only applies when using a collection"
+    },
+    {
+      "type": "header",
+      "content": "Grid Layout"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "label": "Columns (Desktop)",
+      "default": 3,
+      "info": "Number of columns on desktop screens"
+    },
+    {
+      "type": "range",
+      "id": "columns_tablet",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "label": "Columns (Tablet)",
+      "default": 3,
+      "info": "Number of columns on tablet screens"
+    },
+    {
+      "type": "range",
+      "id": "columns_mobile",
+      "min": 1,
+      "max": 2,
+      "step": 1,
+      "label": "Columns (Mobile)",
+      "default": 1,
+      "info": "Number of columns on mobile screens"
+    },
+    {
+      "type": "range",
+      "id": "gap_desktop",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap Between Cards (Desktop)",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "min": 10,
+      "max": 40,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap Between Cards (Mobile)",
+      "default": 20
+    },
+    {
+      "type": "header",
+      "content": "Card Style"
+    },
+    {
+      "type": "select",
+      "id": "card_style",
+      "label": "Card Style",
+      "options": [
+        {
+          "value": "flat",
+          "label": "Flat"
+        },
+        {
+          "value": "elevated",
+          "label": "Elevated (Shadow)"
+        },
+        {
+          "value": "bordered",
+          "label": "Bordered"
+        }
+      ],
+      "default": "elevated"
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Border Radius",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "content_padding",
+      "min": 12,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Content Padding",
+      "default": 20
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_hover_effect",
+      "label": "Enable Hover Effect",
+      "default": true,
+      "info": "Add hover animations to cards"
+    },
+    {
+      "type": "header",
+      "content": "Image Settings"
+    },
+    {
+      "type": "range",
+      "id": "image_ratio",
+      "min": 50,
+      "max": 150,
+      "step": 5,
+      "unit": "%",
+      "label": "Image Aspect Ratio",
+      "info": "100% = Square, 75% = Landscape, 125% = Portrait",
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "Display Options"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show Vendor/Brand",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show Description",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "description_length",
+      "min": 10,
+      "max": 50,
+      "step": 5,
+      "label": "Description Word Count",
+      "default": 20
+    },
+    {
+      "type": "checkbox",
+      "id": "show_price",
+      "label": "Show Price",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Button Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_button",
+      "label": "Show Button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "View Product"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button Style",
+      "options": [
+        {
+          "value": "primary",
+          "label": "Primary (Filled)"
+        },
+        {
+          "value": "outline",
+          "label": "Outline"
+        },
+        {
+          "value": "text",
+          "label": "Text Only"
+        }
+      ],
+      "default": "primary"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "header",
+          "content": "Custom Badge"
+        },
+        {
+          "type": "image_picker",
+          "id": "badge_image",
+          "label": "Badge Image"
+        },
+        {
+          "type": "select",
+          "id": "badge_position",
+          "label": "Badge Position",
+          "options": [
+            {
+              "value": "top-left",
+              "label": "Top Left"
+            },
+            {
+              "value": "top-right",
+              "label": "Top Right"
+            },
+            {
+              "value": "bottom-left",
+              "label": "Bottom Left"
+            },
+            {
+              "value": "bottom-right",
+              "label": "Bottom Right"
+            }
+          ],
+          "default": "top-left"
+        },
+        {
+          "type": "range",
+          "id": "badge_size",
+          "min": 40,
+          "max": 120,
+          "step": 10,
+          "unit": "px",
+          "label": "Badge Size",
+          "default": 60
+        },
+        {
+          "type": "header",
+          "content": "Discount"
+        },
+        {
+          "type": "range",
+          "id": "discount_percent",
+          "min": 0,
+          "max": 99,
+          "step": 1,
+          "unit": "%",
+          "label": "Discount Percentage",
+          "default": 0
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Flexible Product Layout",
+      "category": "Product",
+      "blocks": [
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
