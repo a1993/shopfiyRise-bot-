@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "headless_loader": {
@@ -8,13 +17,22 @@
         "loading_text": "Loading campaign...",
         "error_title": "Unable to load campaign",
         "error_message": "Please refresh the page or try again later. If the problem persists, contact support.",
-        "seo_content": "<h1>Holiday Hair Vote Campaign</h1><p>Vote for your favorite holiday hairstyle and win amazing prizes!</p>"
+        "seo_content": "<h1>Holiday Hair Vote Campaign</h1><p>Vote for your favorite holiday hairstyle and win amazing prizes!</p>",
+        "custom_data": ""
+      }
+    },
+    "campaign_vote_widget_APr93Y": {
+      "type": "campaign-vote-widget",
+      "name": "Vote Widget",
+      "settings": {
+        "title": "Don't Miss Your Chance — Vote Today!",
+        "campaign_id": "lv-holiday-hair-vote-new",
+        "submit_button_text": "Vote Now"
       }
     }
   },
   "order": [
-    "headless_loader"
+    "headless_loader",
+    "campaign_vote_widget_APr93Y"
   ]
 }
-
-
