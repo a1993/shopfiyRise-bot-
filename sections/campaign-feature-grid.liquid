@@ -1,10 +1,11 @@
 {% comment %}
   Campaign Feature Grid Section
   特性网格区块 - 用于展示"为什么选择我们"类型的内容
+  支持：左右布局切换、富文本、HTML自定义、图片/视频灵活选择
 {% endcomment %}
 
 <div 
-  class="campaign-feature-grid-section"
+  class="campaign-feature-grid-section campaign-feature-grid--layout-{{ section.settings.layout_direction }}"
   style="background-color: {{ section.settings.bg_color }}; padding: {{ section.settings.padding_top }}px 0 {{ section.settings.padding_bottom }}px;"
 >
   <div class="{% if section.settings.full_width %}campaign-page-width{% else %}campaign-container{% endif %}">
@@ -17,41 +18,88 @@
     {%- endif -%}
 
     <div class="campaign-feature-grid-content">
-      {%- comment -%} 特性列表 {%- endcomment -%}
-      <div class="campaign-feature-list-wrapper">
-        <ul class="campaign-feature-list">
-          {%- for block in section.blocks -%}
-            {%- case block.type -%}
-              {%- when 'feature_item' -%}
-                <li class="campaign-feature-item" {{ block.shopify_attributes }}>
-                  {%- if block.settings.icon_svg != blank -%}
-                    <div class="campaign-feature-item__icon">
-                      {{ block.settings.icon_svg }}
-                    </div>
-                  {%- endif -%}
-                  
-                  <div class="campaign-feature-item__content">
-                    {%- if block.settings.label != blank -%}
-                      <strong>{{ block.settings.label }}:</strong>
-                    {%- endif -%}
-                    {{ block.settings.description }}
-                  </div>
-                </li>
-            {%- endcase -%}
-          {%- endfor -%}
-        </ul>
-      </div>
-
-      {%- comment -%} 视频展示 {%- endcomment -%}
-      {%- if section.settings.show_video and section.settings.video_cover != blank -%}
-        <div class="campaign-feature-video">
-          {% render 'campaign-video-card',
-            video_cover: section.settings.video_cover,
-            video_url: section.settings.video_url,
-            alt_text: section.settings.video_alt
-          %}
+      {%- comment -%} 媒体区块（图片或视频） {%- endcomment -%}
+      {%- if section.settings.show_media -%}
+        <div class="campaign-feature-media">
+          {%- if section.settings.media_type == 'video' and section.settings.video_cover != blank -%}
+            {%- comment -%} 视频展示 {%- endcomment -%}
+            {% render 'campaign-video-card',
+              video_cover: section.settings.video_cover,
+              video_url: section.settings.video_url,
+              alt_text: section.settings.video_alt
+            %}
+          {%- elsif section.settings.media_type == 'image' and section.settings.feature_image != blank -%}
+            {%- comment -%} 图片展示 {%- endcomment -%}
+            <div class="campaign-feature-image-wrapper">
+              <img 
+                src="{{ section.settings.feature_image | image_url: width: 800 }}"
+                srcset="{{ section.settings.feature_image | image_url: width: 400 }} 400w,
+                        {{ section.settings.feature_image | image_url: width: 600 }} 600w,
+                        {{ section.settings.feature_image | image_url: width: 800 }} 800w"
+                sizes="(max-width: 768px) 100vw, 50vw"
+                alt="{{ section.settings.image_alt | escape }}"
+                loading="lazy"
+                width="{{ section.settings.feature_image.width }}"
+                height="{{ section.settings.feature_image.height }}"
+              >
+            </div>
+          {%- endif -%}
         </div>
       {%- endif -%}
+
+      {%- comment -%} 文本/特性列表区块 {%- endcomment -%}
+      <div class="campaign-feature-content-wrapper">
+        {%- if section.settings.use_custom_html and section.settings.custom_html != blank -%}
+          {%- comment -%} 自定义HTML模式 {%- endcomment -%}
+          <div class="campaign-feature-custom-content">
+            {{ section.settings.custom_html }}
+          </div>
+        {%- else -%}
+          {%- comment -%} 标准模式：特性列表或富文本 {%- endcomment -%}
+          
+          {%- if section.settings.content_subtitle != blank -%}
+            <div class="campaign-feature-subtitle">
+              <h3>{{ section.settings.content_subtitle }}</h3>
+            </div>
+          {%- endif -%}
+
+          {%- if section.settings.richtext_content != blank -%}
+            <div class="campaign-feature-richtext">
+              {{ section.settings.richtext_content }}
+            </div>
+          {%- endif -%}
+
+          {%- if section.blocks.size > 0 -%}
+            <ul class="campaign-feature-list">
+              {%- for block in section.blocks -%}
+                {%- case block.type -%}
+                  {%- when 'feature_item' -%}
+                    <li class="campaign-feature-item" {{ block.shopify_attributes }}>
+                      {%- if block.settings.icon_svg != blank -%}
+                        <div class="campaign-feature-item__icon">
+                          {{ block.settings.icon_svg }}
+                        </div>
+                      {%- endif -%}
+                      
+                      <div class="campaign-feature-item__content">
+                        {%- if block.settings.label != blank -%}
+                          <strong class="campaign-feature-item__label">{{ block.settings.label }}:</strong>
+                        {%- endif -%}
+                        {%- if block.settings.use_richtext and block.settings.richtext_description != blank -%}
+                          <div class="campaign-feature-item__richtext">
+                            {{ block.settings.richtext_description }}
+                          </div>
+                        {%- elsif block.settings.description != blank -%}
+                          <span class="campaign-feature-item__text">{{ block.settings.description }}</span>
+                        {%- endif -%}
+                      </div>
+                    </li>
+                {%- endcase -%}
+              {%- endfor -%}
+            </ul>
+          {%- endif -%}
+        {%- endif -%}
+      </div>
     </div>
   </div>
 </div>
@@ -66,42 +114,177 @@
   @media screen and (min-width: 769px) {
     .campaign-feature-grid-content {
       grid-template-columns: 1fr 1fr;
+      gap: 3rem;
     }
     
-    .campaign-feature-grid-section--video-left .campaign-feature-video {
+    /* 媒体在左侧的布局 */
+    .campaign-feature-grid--layout-media-left .campaign-feature-media {
       order: -1;
+    }
+    
+    /* 媒体在右侧的布局（默认） */
+    .campaign-feature-grid--layout-media-right .campaign-feature-media {
+      order: 1;
     }
   }
 
   @media screen and (max-width: 768px) {
     .campaign-feature-grid-content {
       grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    
+    /* 移动端始终媒体在上，文本在下 */
+    .campaign-feature-media {
+      order: -1;
     }
   }
 
-  .campaign-feature-list-wrapper {
+  /* 媒体区块样式 */
+  .campaign-feature-media {
+    width: 100%;
+  }
+
+  .campaign-feature-image-wrapper {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .campaign-feature-image-wrapper img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+
+  /* 内容区块样式 */
+  .campaign-feature-content-wrapper {
     padding: 1rem;
   }
 
-  .campaign-feature-video {
+  .campaign-feature-subtitle h3 {
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .campaign-feature-richtext {
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    color: #555;
+  }
+
+  .campaign-feature-richtext h1,
+  .campaign-feature-richtext h2,
+  .campaign-feature-richtext h3,
+  .campaign-feature-richtext h4 {
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+    font-weight: 600;
+  }
+
+  .campaign-feature-richtext p {
+    margin-bottom: 1em;
+  }
+
+  .campaign-feature-richtext ul,
+  .campaign-feature-richtext ol {
+    margin-left: 1.5em;
+    margin-bottom: 1em;
+  }
+
+  .campaign-feature-richtext a {
+    color: #0066cc;
+    text-decoration: underline;
+  }
+
+  /* 特性列表样式 */
+  .campaign-feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .campaign-feature-item {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .campaign-feature-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .campaign-feature-item__icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .campaign-feature-item__icon svg {
     width: 100%;
+    height: 100%;
+  }
+
+  .campaign-feature-item__content {
+    flex: 1;
+    line-height: 1.6;
+  }
+
+  .campaign-feature-item__label {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: #333;
+    font-size: 1.1em;
+  }
+
+  .campaign-feature-item__text {
+    color: #666;
+  }
+
+  .campaign-feature-item__richtext {
+    color: #666;
+  }
+
+  .campaign-feature-item__richtext p {
+    margin-bottom: 0.5em;
+  }
+
+  .campaign-feature-item__richtext p:last-child {
+    margin-bottom: 0;
+  }
+
+  /* 自定义HTML内容样式 */
+  .campaign-feature-custom-content {
+    line-height: 1.6;
   }
 </style>
 
 {% schema %}
 {
-  "name": "Campaign Feature Grid",
+  "name": "📐 Feature Grid (可左右切换)",
   "tag": "section",
   "class": "section-campaign-feature",
   "settings": [
     {
       "type": "header",
-      "content": "标题设置"
+      "content": "📝 标题设置"
     },
     {
       "type": "text",
       "id": "title",
-      "label": "标题",
+      "label": "区块标题",
       "default": "Why Choose Us?"
     },
     {
@@ -128,7 +311,18 @@
     },
     {
       "type": "header",
-      "content": "布局设置"
+      "content": "🎨 布局设置"
+    },
+    {
+      "type": "select",
+      "id": "layout_direction",
+      "label": "媒体位置（左/右）",
+      "options": [
+        { "value": "media-left", "label": "📱 媒体在左侧" },
+        { "value": "media-right", "label": "📱 媒体在右侧" }
+      ],
+      "default": "media-right",
+      "info": "选择图片/视频显示在左侧还是右侧"
     },
     {
       "type": "color",
@@ -164,18 +358,44 @@
     },
     {
       "type": "header",
-      "content": "视频设置"
+      "content": "🎬 媒体设置（图片或视频）"
     },
     {
       "type": "checkbox",
-      "id": "show_video",
-      "label": "显示视频",
-      "default": true
+      "id": "show_media",
+      "label": "显示媒体区块",
+      "default": true,
+      "info": "关闭后只显示文本内容"
+    },
+    {
+      "type": "select",
+      "id": "media_type",
+      "label": "媒体类型",
+      "options": [
+        { "value": "image", "label": "🖼️ 图片" },
+        { "value": "video", "label": "🎥 视频" }
+      ],
+      "default": "image",
+      "info": "选择显示图片还是视频"
+    },
+    {
+      "type": "image_picker",
+      "id": "feature_image",
+      "label": "特性图片",
+      "info": "当媒体类型为「图片」时显示"
+    },
+    {
+      "type": "text",
+      "id": "image_alt",
+      "label": "图片描述",
+      "default": "Feature Image",
+      "info": "用于SEO和无障碍访问"
     },
     {
       "type": "image_picker",
       "id": "video_cover",
-      "label": "视频封面图"
+      "label": "视频封面图",
+      "info": "当媒体类型为「视频」时显示"
     },
     {
       "type": "url",
@@ -188,12 +408,41 @@
       "id": "video_alt",
       "label": "视频描述",
       "default": "Product Video"
+    },
+    {
+      "type": "header",
+      "content": "✍️ 文本内容设置"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_custom_html",
+      "label": "🔧 使用自定义HTML",
+      "default": false,
+      "info": "开启后可直接输入HTML代码，将忽略下方的富文本和特性列表"
+    },
+    {
+      "type": "html",
+      "id": "custom_html",
+      "label": "自定义HTML内容",
+      "info": "完全自定义HTML代码（需要开启「使用自定义HTML」）"
+    },
+    {
+      "type": "text",
+      "id": "content_subtitle",
+      "label": "内容副标题",
+      "info": "显示在富文本和特性列表之前的小标题"
+    },
+    {
+      "type": "richtext",
+      "id": "richtext_content",
+      "label": "📄 富文本内容",
+      "info": "支持格式化文本、链接、加粗、斜体等"
     }
   ],
   "blocks": [
     {
       "type": "feature_item",
-      "name": "特性项",
+      "name": "✨ 特性项",
       "settings": [
         {
           "type": "html",
@@ -208,17 +457,39 @@
           "default": "Feature Label"
         },
         {
+          "type": "checkbox",
+          "id": "use_richtext",
+          "label": "使用富文本描述",
+          "default": false,
+          "info": "开启后使用下方的富文本编辑器"
+        },
+        {
+          "type": "richtext",
+          "id": "richtext_description",
+          "label": "📝 富文本描述",
+          "info": "支持格式化文本（需要开启「使用富文本描述」）"
+        },
+        {
           "type": "textarea",
           "id": "description",
-          "label": "描述内容",
-          "default": "Feature description goes here"
+          "label": "纯文本描述",
+          "default": "Feature description goes here",
+          "info": "当未使用富文本时显示"
         }
       ]
     }
   ],
   "presets": [
     {
-      "name": "Campaign Feature Grid",
+      "name": "Feature Grid (左右可调)",
+      "settings": {
+        "title": "Why Choose Us?",
+        "layout_direction": "media-right",
+        "show_media": true,
+        "media_type": "image",
+        "content_subtitle": "我们的优势",
+        "richtext_content": "<p>这里是一段介绍文字，您可以使用富文本编辑器进行格式化。</p>"
+      },
       "blocks": [
         {
           "type": "feature_item",
