@@ -1,24 +1,6 @@
 /* Crazy Weekend Sale Styles */
 /* 疯狂周末特卖页面样式 */
 
-/* Banner Styles */
-.crazy-weekend-banner {
-  width: 100%;
-  position: relative;
-}
-
-.crazy-weekend-banner__desktop {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.crazy-weekend-banner__mobile {
-  display: none;
-  width: 100%;
-  height: auto;
-}
-
 /* Main Container */
 .crazy-weekend-wrap {
   max-width: 1368px; /* 85.5rem = 1368px */
@@ -150,14 +132,6 @@
 
 /* Mobile Responsive Styles */
 @media screen and (max-width: 767px) {
-  .crazy-weekend-banner__desktop {
-    display: none;
-  }
-  
-  .crazy-weekend-banner__mobile {
-    display: block;
-  }
-  
   .crazy-weekend-wrap {
     padding: 0 1.25rem; /* 20px */
     margin-top: 3rem;

@@ -59,27 +59,16 @@
 {% endif %}
 
 <!-- Banner Section -->
-{% if banner_desktop != blank or banner_mobile != blank %}
-<div class="crazy-weekend-banner">
-  {% if banner_desktop != blank %}
-    <img src="{{ banner_desktop | image_url: width: 1920 }}" 
-         alt="{{ section.settings.banner_alt | default: 'Crazy Weekend Sale' }}"
-         class="crazy-weekend-banner__desktop"
-         loading="eager"
-         width="1920"
-         height="600">
-  {% endif %}
-  
-  {% if banner_mobile != blank %}
-    <img src="{{ banner_mobile | image_url: width: 768 }}" 
-         alt="{{ section.settings.banner_alt | default: 'Crazy Weekend Sale' }}"
-         class="crazy-weekend-banner__mobile"
-         loading="eager"
-         width="768"
-         height="400">
-  {% endif %}
-</div>
-{% endif %}
+{% render 'campaign-banner',
+  banner_desktop: banner_desktop,
+  banner_mobile: banner_mobile,
+  banner_alt: section.settings.banner_alt,
+  sticky: true,
+  width_desktop: 1920,
+  height_desktop: 628,
+  width_mobile: 750,
+  height_mobile: 750
+%}
 
 <!-- Products Grid -->
 <div class="crazy-weekend-wrap">
