@@ -443,7 +443,8 @@
           "type": "product_category",
           "settings": {
             "category_title": "Product Category Title",
-            "category_subtitle": "Subtitle Description"
+            "category_subtitle": "Subtitle Description",
+            "tag_image": "shopify://shop_images/tag.webp"
           }
         },
         "product_item_J9wLp7": {
