@@ -15,7 +15,7 @@
     if (!tabButtons.length || !tabPanes.length) return;
     
     // Tab 切换函数
-    function switchTab(targetTabId) {
+    function switchTab(targetTabIndex) {
       // 移除所有 active 状态
       tabButtons.forEach(function(btn) {
         btn.classList.remove('active');
@@ -26,8 +26,8 @@
       });
       
       // 添加 active 状态到目标 tab
-      const targetButton = document.querySelector('[data-tab-id="' + targetTabId + '"]');
-      const targetPane = document.querySelector('[data-tab-content="' + targetTabId + '"]');
+      const targetButton = document.querySelector('[data-tab-index="' + targetTabIndex + '"]');
+      const targetPane = document.querySelector('[data-tab-content="' + targetTabIndex + '"]');
       
       if (targetButton && targetPane) {
         targetButton.classList.add('active');
@@ -38,9 +38,9 @@
     // 绑定点击事件
     tabButtons.forEach(function(button) {
       button.addEventListener('click', function() {
-        const tabId = this.getAttribute('data-tab-id');
-        if (tabId) {
-          switchTab(tabId);
+        const tabIndex = this.getAttribute('data-tab-index');
+        if (tabIndex) {
+          switchTab(tabIndex);
           
           // 滚动到产品网格顶部（可选）
           const container = document.querySelector('.flash-sale-tabs-content');

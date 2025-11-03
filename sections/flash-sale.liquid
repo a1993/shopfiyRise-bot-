@@ -24,12 +24,14 @@
   
   <!-- Tab Buttons -->
   <div class="flash-sale-tabs-nav">
+    {% assign tab_index = 0 %}
     {% for block in section.blocks %}
       {% if block.type == 'product_tab' %}
+        {% assign tab_index = tab_index | plus: 1 %}
         <button 
           type="button"
           class="flash-sale-tab-btn{% if forloop.first %} active{% endif %}"
-          data-tab-id="{{ block.id }}"
+          data-tab-index="{{ tab_index }}"
           {{ block.shopify_attributes }}>
           {{ block.settings.tab_title }}
         </button>
@@ -39,19 +41,23 @@
   
   <!-- Tab Content -->
   <div class="flash-sale-tabs-content">
+    {% assign tab_index = 0 %}
     {% for block in section.blocks %}
       {% if block.type == 'product_tab' %}
+        {% assign tab_index = tab_index | plus: 1 %}
         <div 
           class="flash-sale-tab-pane{% if forloop.first %} active{% endif %}"
-          data-tab-content="{{ block.id }}"
+          data-tab-content="{{ tab_index }}"
           {{ block.shopify_attributes }}>
           
           <!-- Product Grid -->
           <div class="flash-sale-products">
             {% comment %} 遍历该分类下的所有产品块 {% endcomment %}
             {% for product_block in section.blocks %}
-              {% if product_block.type == 'product_item' and product_block.settings.parent_tab == block.id %}
-                {% assign product = product_block.settings.product %}
+              {% if product_block.type == 'product_item' %}
+                {% assign parent_tab_number = product_block.settings.parent_tab_number | plus: 0 %}
+                {% if parent_tab_number == tab_index %}
+                  {% assign product = product_block.settings.product %}
                 
                 {% if product %}
                   <a href="{{ product.url }}" class="flash-sale-product-card" {{ product_block.shopify_attributes }}>
@@ -103,6 +109,7 @@
                       </div>
                     {% endif %}
                   </a>
+                  {% endif %}
                 {% endif %}
               {% endif %}
             {% endfor %}
@@ -178,10 +185,11 @@
       "name": "Product",
       "settings": [
         {
-          "type": "text",
-          "id": "parent_tab",
-          "label": "Parent Tab ID",
-          "info": "Enter the tab block ID (e.g., product_tab_1)"
+          "type": "number",
+          "id": "parent_tab_number",
+          "label": "Belongs to Tab Number",
+          "default": 1,
+          "info": "Enter 1 for first tab, 2 for second tab, etc."
         },
         {
           "type": "product",
