@@ -177,8 +177,17 @@
   cursor: not-allowed;
 }
 
+/* Firework Section */
+.halloween-firework-section {
+  margin: 4rem 0;
+  padding: 0 1rem;
+}
+
 /* Desktop Responsive */
 @media screen and (min-width: 1280px) {
+  .halloween-firework-section {
+    margin: 6rem 0;
+  }
   .halloween-category__title {
     font-size: 2.25rem;
     padding-top: 4.5rem;
