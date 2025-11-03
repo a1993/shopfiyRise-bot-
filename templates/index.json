@@ -329,6 +329,52 @@
         "button_text_color": "#ffffff",
         "accent_color": "#e74c3c"
       }
+    },
+    "flash_sale_jrBeVY": {
+      "type": "flash-sale",
+      "blocks": {
+        "product_tab_rjnLrV": {
+          "type": "product_tab",
+          "settings": {
+            "tab_title": "Product Category1",
+            "discount_percent": 15
+          }
+        },
+        "product_tab_aDKAWc": {
+          "type": "product_tab",
+          "settings": {
+            "tab_title": "Product Category2",
+            "discount_percent": 15
+          }
+        },
+        "product_tab_YgAi3L": {
+          "type": "product_tab",
+          "settings": {
+            "tab_title": "Product Category3",
+            "discount_percent": 15
+          }
+        },
+        "product_item_LAf8x7": {
+          "type": "product_item",
+          "settings": {
+            "parent_tab": "",
+            "product": "15-base-cut"
+          }
+        }
+      },
+      "block_order": [
+        "product_tab_rjnLrV",
+        "product_tab_aDKAWc",
+        "product_tab_YgAi3L",
+        "product_item_LAf8x7"
+      ],
+      "name": "Flash Sale",
+      "settings": {
+        "banner_desktop": "shopify://shop_images/banner_1.webp",
+        "banner_mobile": "shopify://shop_images/banner_m_1.webp",
+        "banner_alt": "Flash Sale",
+        "show_reviews": false
+      }
     }
   },
   "order": [
@@ -338,6 +384,7 @@
     "image-banner",
     "flexible_product_layout_yrGWPT",
     "campaign_product_grid_YD9cCF",
-    "campaign_product_cards_grid_GQXTB7"
+    "campaign_product_cards_grid_GQXTB7",
+    "flash_sale_jrBeVY"
   ]
 }
