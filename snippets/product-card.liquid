@@ -109,19 +109,21 @@
   <!-- Product Image -->
   <div class="product-card__image-wrapper">
     {%- liquid
-      assign image = nil
-      if product_image
-        assign image = product_image
-      elsif product and product.featured_image
-        assign image = product.featured_image
+      assign product_img = nil
+      
+      # 优先使用传入的 product_image（用于 crazy-weekend-sale 自定义图片）
+      if product_image != blank
+        assign product_img = product_image
+      elsif product != blank and product.featured_image != blank
+        assign product_img = product.featured_image
       endif
     -%}
     
-    {% if image %}
+    {% if product_img %}
       <img 
-        src="{{ image | image_url: width: img_width }}"
-        srcset="{{ image | image_url: width: img_width }} {{ img_width }}w,
-                {{ image | image_url: width: img_width | times: 2 }} {{ img_width | times: 2 }}w"
+        src="{{ product_img | image_url: width: img_width }}"
+        srcset="{{ product_img | image_url: width: img_width }} {{ img_width }}w,
+                {{ product_img | image_url: width: img_width | times: 2 }} {{ img_width | times: 2 }}w"
         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, {{ img_width }}px"
         alt="{{ title | escape }}"
         width="{{ img_width }}"
@@ -137,7 +139,7 @@
     <!-- Badges & Tags -->
     {% if card_style == 'crazy' %}
       <!-- Crazy Weekend Sale 样式 -->
-      {% if badge_image %}
+      {% if badge_image != blank %}
         <img loading="lazy"
              src="{{ badge_image | image_url: width: 262 }}"
              alt="Discount Badge"
@@ -164,12 +166,12 @@
       
     {% elsif card_style == 'halloween' %}
       <!-- Halloween Sale 样式 -->
-      {% if tag_image %}
+      {% if tag_image != blank %}
         <img 
           src="{{ tag_image | image_url: width: 140 }}"
           alt="Sale Tag"
           width="140"
-          height="140"
+          height="34"
           class="product-card__tag-image"
           loading="lazy">
       {% else %}
@@ -205,20 +207,22 @@
     {% endif %}
     
     <!-- Reviews (仅 flash 和 halloween 样式) -->
-    {% if show_reviews and product and product.metafields.reviews.rating_count.value %}
-      {% if card_style == 'flash' %}
-        <div class="product-card__reviews">
-          {{ product.metafields.reviews.rating_count.value }} Review(s)
-        </div>
-      {% elsif card_style == 'halloween' %}
-        <div class="product-card__reviews">
-          <span class="product-card__rating">
-            {{ product.metafields.reviews.rating.value | round: 1 }} ★
-          </span>
-          <span class="product-card__review-count">
-            ({{ product.metafields.reviews.rating_count.value }})
-          </span>
-        </div>
+    {% if show_reviews and product != blank %}
+      {% if product.metafields.reviews.rating_count.value and product.metafields.reviews.rating_count.value > 0 %}
+        {% if card_style == 'flash' %}
+          <div class="product-card__reviews">
+            {{ product.metafields.reviews.rating_count.value }} Review(s)
+          </div>
+        {% elsif card_style == 'halloween' %}
+          <div class="product-card__reviews">
+            <span class="product-card__rating">
+              {{ product.metafields.reviews.rating.value | round: 1 }} ★
+            </span>
+            <span class="product-card__review-count">
+              ({{ product.metafields.reviews.rating_count.value }})
+            </span>
+          </div>
+        {% endif %}
       {% endif %}
     {% endif %}
     
@@ -228,16 +232,22 @@
         <!-- Crazy Weekend Sale 价格布局 -->
         <div class="product-card__price-main">
           <div class="product-card__price-group">
-            {% if has_compare_price and original_price != blank %}
-              <div class="product-card__price-old">{{ currency }}{{ original_price }}</div>
+            {% if has_compare_price %}
+              <div class="product-card__price-old">
+                {% if has_custom_price %}
+                  {{ currency }}{{ original_price }}
+                {% else %}
+                  {{ original_price | money }}
+                {% endif %}
+              </div>
             {% endif %}
-            {% if sale_price != blank or has_custom_price == false %}
+            <div class="product-card__price-new">
               {% if has_custom_price %}
-                <div class="product-card__price-new">{{ currency }}{{ sale_price }}</div>
+                {{ currency }}{{ sale_price }}
               {% else %}
-                <div class="product-card__price-new">{{ currency }}{{ sale_price | money_without_currency | round: 2 }}</div>
+                {{ sale_price | money }}
               {% endif %}
-            {% endif %}
+            </div>
           </div>
           <div class="product-card__button">{{ btn_text }}</div>
         </div>
@@ -248,7 +258,7 @@
             {% if has_custom_price %}
               {{ currency }}{{ original_price }}
             {% else %}
-              {{ currency }}{{ original_price | money_without_currency | round: 2 }}
+              {{ original_price | money }}
             {% endif %}
           </span>
         {% endif %}
@@ -256,7 +266,7 @@
           {% if has_custom_price %}
             {{ currency }}{{ sale_price }}
           {% else %}
-            {{ currency }}{{ sale_price | money_without_currency | round: 2 }}
+            {{ sale_price | money }}
           {% endif %}
         </span>
       {% endif %}
