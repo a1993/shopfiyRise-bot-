@@ -47,7 +47,13 @@
                           product: product,
                           show_reviews: section.settings.show_reviews,
                           button_text: product_block.settings.button_text,
-                          tag_image: block.settings.tag_image
+                          tag_image: block.settings.tag_image,
+                          custom_image: product_block.settings.custom_image,
+                          custom_title: product_block.settings.custom_title,
+                          custom_description: product_block.settings.custom_description,
+                          custom_compare_price: product_block.settings.custom_compare_price,
+                          custom_discount_percent: product_block.settings.custom_discount_percent,
+                          category_discount_percent: block.settings.category_discount_percent
                         %}
                       </div>
                       {% endif %}
@@ -159,6 +165,17 @@
           "id": "tag_image",
           "label": "Sale Tag Image (Optional)",
           "info": "Custom tag image displayed on all products in this category"
+        },
+        {
+          "type": "header",
+          "content": "Category Discount Settings"
+        },
+        {
+          "type": "number",
+          "id": "category_discount_percent",
+          "label": "Category Discount %",
+          "default": 0,
+          "info": "Apply discount to all products in this category. Individual product discount will override this."
         }
       ]
     },
