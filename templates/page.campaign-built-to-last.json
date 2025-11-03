@@ -32,6 +32,8 @@
           "settings": {
             "icon_svg": "",
             "label": "For Busy People",
+            "use_richtext": false,
+            "richtext_description": "",
             "description": "Less Maintenance & Fewer Replacements = More Time Saved."
           }
         },
@@ -40,6 +42,8 @@
           "settings": {
             "icon_svg": "",
             "label": "For Budget-Conscious Buyers",
+            "use_richtext": false,
+            "richtext_description": "",
             "description": "Saves money by reducing replacements and repairs."
           }
         },
@@ -48,6 +52,8 @@
           "settings": {
             "icon_svg": "",
             "label": "For Quality Seekers",
+            "use_richtext": false,
+            "richtext_description": "",
             "description": "Longer lifespan means better quality and reliability."
           }
         }
@@ -61,14 +67,22 @@
         "title": "Why Should We Choose Hair System with Longer Life Span?",
         "title_tag": "h2",
         "title_align": "center",
+        "layout_direction": "media-left",
         "bg_color": "#f5f5f5",
         "full_width": false,
         "padding_top": 40,
         "padding_bottom": 40,
-        "show_video": true,
+        "show_media": true,
+        "media_type": "image",
+        "feature_image": "shopify://shop_images/M_01.webp",
+        "image_alt": "Feature Image",
         "video_cover": "shopify://shop_images/download.webp",
         "video_url": "",
-        "video_alt": "Why Choose Durable Hair Systems"
+        "video_alt": "Why Choose Durable Hair Systems",
+        "use_custom_html": false,
+        "custom_html": "<div>123</div>",
+        "content_subtitle": "hahha",
+        "richtext_content": ""
       }
     },
     "campaign_products": {
