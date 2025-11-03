@@ -74,38 +74,37 @@
           <p class="durable-category-subtitle">{{ block.settings.category_subtitle }}</p>
         {% endif %}
         
-        {% if block.settings.product_skus != blank %}
-          {% assign sku_list = block.settings.product_skus | split: ',' %}
-          <div class="durable-product-grid">
-            {% for sku in sku_list %}
-              {% assign sku_trimmed = sku | strip %}
-              {% assign found_product = all_products[sku_trimmed] %}
+        <div class="durable-product-grid">
+          {% comment %} 遍历该分类下的所有产品块 {% endcomment %}
+          {% for product_block in section.blocks %}
+            {% if product_block.type == 'product_item' and product_block.settings.parent_category == block.id %}
+              {% assign product = product_block.settings.product %}
               
-              {% if found_product %}
-                <div class="durable-product-item">
-                  <a href="{{ found_product.url }}" class="durable-product-link">
-                    {% if found_product.featured_image %}
+              {% if product %}
+                <div class="durable-product-item" {{ product_block.shopify_attributes }}>
+                  <a href="{{ product.url }}" class="durable-product-link">
+                    {% if product.featured_image %}
                       <img 
-                        src="{{ found_product.featured_image | image_url: width: 300 }}"
-                        alt="{{ found_product.title | escape }}"
+                        src="{{ product.featured_image | image_url: width: 300 }}"
+                        alt="{{ product.title | escape }}"
                         loading="lazy"
                         class="durable-product-image">
                     {% endif %}
                     
-                    <h3 class="durable-product-title">{{ found_product.title }}</h3>
+                    <h3 class="durable-product-title">{{ product.title }}</h3>
                     
                     <div class="durable-product-price">
-                      {% if found_product.compare_at_price > found_product.price %}
-                        <span class="durable-price-compare">{{ found_product.compare_at_price | money }}</span>
+                      {% if product.compare_at_price > product.price %}
+                        <span class="durable-price-compare">{{ product.compare_at_price | money }}</span>
                       {% endif %}
-                      <span class="durable-price-sale">{{ found_product.price | money }}</span>
+                      <span class="durable-price-sale">{{ product.price | money }}</span>
                     </div>
                   </a>
                 </div>
               {% endif %}
-            {% endfor %}
-          </div>
-        {% endif %}
+            {% endif %}
+          {% endfor %}
+        </div>
       </div>
     {% endif %}
     
@@ -230,13 +229,23 @@
           "type": "text",
           "id": "category_subtitle",
           "label": "Category Subtitle"
+        }
+      ]
+    },
+    {
+      "type": "product_item",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "text",
+          "id": "parent_category",
+          "label": "Parent Category ID",
+          "info": "Enter the category block ID this product belongs to"
         },
         {
-          "type": "textarea",
-          "id": "product_skus",
-          "label": "Product SKUs",
-          "info": "Enter SKU handles separated by commas",
-          "placeholder": "TU2308,TU2401,TP1808"
+          "type": "product",
+          "id": "product",
+          "label": "Select Product"
         }
       ]
     },

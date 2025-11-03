@@ -32,31 +32,30 @@
           </div>
           
           <!-- Product Grid -->
-          {% if block.settings.product_skus != blank %}
-            {% assign sku_list = block.settings.product_skus | split: ',' %}
-            <div class="flash-sale-products">
-              {% for sku in sku_list %}
-                {% assign sku_trimmed = sku | strip %}
-                {% assign found_product = all_products[sku_trimmed] %}
+          <div class="flash-sale-products">
+            {% comment %} 遍历该分类下的所有产品块 {% endcomment %}
+            {% for product_block in section.blocks %}
+              {% if product_block.type == 'product_item' and product_block.settings.parent_tab == block.id %}
+                {% assign product = product_block.settings.product %}
                 
-                {% if found_product %}
-                  <div class="flash-sale-product-item">
-                    <a href="{{ found_product.url }}" class="flash-sale-product-link">
-                      {% if found_product.featured_image %}
+                {% if product %}
+                  <div class="flash-sale-product-item" {{ product_block.shopify_attributes }}>
+                    <a href="{{ product.url }}" class="flash-sale-product-link">
+                      {% if product.featured_image %}
                         <img 
-                          src="{{ found_product.featured_image | image_url: width: 300 }}"
-                          alt="{{ found_product.title | escape }}"
+                          src="{{ product.featured_image | image_url: width: 300 }}"
+                          alt="{{ product.title | escape }}"
                           loading="lazy"
                           class="flash-sale-product-image">
                       {% endif %}
                       
-                      <h3 class="flash-sale-product-title">{{ found_product.title }}</h3>
+                      <h3 class="flash-sale-product-title">{{ product.title }}</h3>
                       
                       <div class="flash-sale-product-price">
-                        {% if found_product.compare_at_price > found_product.price %}
-                          <span class="flash-sale-price-compare">{{ found_product.compare_at_price | money }}</span>
+                        {% if product.compare_at_price > product.price %}
+                          <span class="flash-sale-price-compare">{{ product.compare_at_price | money }}</span>
                         {% endif %}
-                        <span class="flash-sale-price-sale">{{ found_product.price | money }}</span>
+                        <span class="flash-sale-price-sale">{{ product.price | money }}</span>
                       </div>
                       
                       {% if block.settings.discount_percent > 0 %}
@@ -65,9 +64,9 @@
                     </a>
                   </div>
                 {% endif %}
-              {% endfor %}
-            </div>
-          {% endif %}
+              {% endif %}
+            {% endfor %}
+          </div>
         </div>
       {% endif %}
     {% endfor %}
@@ -124,13 +123,23 @@
           "id": "discount_percent",
           "label": "Discount Percentage",
           "default": 15
+        }
+      ]
+    },
+    {
+      "type": "product_item",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "text",
+          "id": "parent_tab",
+          "label": "Parent Category ID",
+          "info": "Enter the category block ID this product belongs to (e.g., product_tab_1, product_tab_2)"
         },
         {
-          "type": "textarea",
-          "id": "product_skus",
-          "label": "Product SKUs",
-          "info": "Enter SKU handles separated by commas (e.g., TU2214,TP1802,TP1804)",
-          "placeholder": "TU2214,TP1802,TP1804"
+          "type": "product",
+          "id": "product",
+          "label": "Select Product"
         }
       ]
     }

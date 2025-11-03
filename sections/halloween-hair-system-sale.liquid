@@ -37,23 +37,22 @@
           {% endif %}
           
           <!-- Product Swiper -->
-          {% if block.settings.product_skus != blank %}
-            {% assign sku_list = block.settings.product_skus | split: ',' %}
-            <div class="halloween-swiper-container" data-block-id="{{ block.id }}">
-              <div class="halloween-swiper">
-                <div class="halloween-swiper-wrapper">
-                  {% for sku in sku_list %}
-                    {% assign sku_trimmed = sku | strip %}
-                    {% assign found_product = all_products[sku_trimmed] %}
+          <div class="halloween-swiper-container" data-block-id="{{ block.id }}">
+            <div class="halloween-swiper">
+              <div class="halloween-swiper-wrapper">
+                {% comment %} 遍历该分类下的所有产品块 {% endcomment %}
+                {% for product_block in section.blocks %}
+                  {% if product_block.type == 'product_item' and product_block.settings.parent_category == block.id %}
+                    {% assign product = product_block.settings.product %}
                     
-                    {% if found_product %}
-                      <div class="halloween-swiper-slide">
-                        <a href="{{ found_product.url }}" class="halloween-product-card">
-                          {% if found_product.featured_image %}
+                    {% if product %}
+                      <div class="halloween-swiper-slide" {{ product_block.shopify_attributes }}>
+                        <a href="{{ product.url }}" class="halloween-product-card">
+                          {% if product.featured_image %}
                             <div class="halloween-product-image-wrapper">
                               <img 
-                                src="{{ found_product.featured_image | image_url: width: 400 }}"
-                                alt="{{ found_product.title | escape }}"
+                                src="{{ product.featured_image | image_url: width: 400 }}"
+                                alt="{{ product.title | escape }}"
                                 loading="lazy"
                                 class="halloween-product-image">
                               
@@ -66,34 +65,35 @@
                             </div>
                           {% endif %}
                           
-                          <h3 class="halloween-product-title">{{ found_product.title }}</h3>
+                          <h3 class="halloween-product-title">{{ product.title }}</h3>
                           
                           <div class="halloween-product-price">
-                            {% if found_product.compare_at_price > found_product.price %}
-                              <span class="halloween-price-compare">{{ found_product.compare_at_price | money }}</span>
+                            {% if product.compare_at_price > product.price %}
+                              <span class="halloween-price-compare">{{ product.compare_at_price | money }}</span>
                             {% endif %}
-                            <span class="halloween-price-sale">{{ found_product.price | money }}</span>
+                            <span class="halloween-price-sale">{{ product.price | money }}</span>
                           </div>
                         </a>
                       </div>
                     {% endif %}
-                  {% endfor %}
-                </div>
-              </div>
-              
-              <!-- Navigation Buttons -->
-              <div class="halloween-swiper-button-prev halloween-swiper-button-prev-{{ forloop.index }}">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <div class="halloween-swiper-button-next halloween-swiper-button-next-{{ forloop.index }}">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+                  {% endif %}
+                {% endfor %}
               </div>
             </div>
-          {% endif %}
+
+            
+            <!-- Navigation Buttons -->
+            <div class="halloween-swiper-button-prev halloween-swiper-button-prev-{{ forloop.index }}">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="halloween-swiper-button-next halloween-swiper-button-next-{{ forloop.index }}">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
         </div>
       {% endif %}
     {% endfor %}
@@ -156,16 +156,26 @@
           "default": "Subtitle Description"
         },
         {
-          "type": "textarea",
-          "id": "product_skus",
-          "label": "Product SKUs",
-          "info": "Enter SKU handles separated by commas",
-          "placeholder": "TP1802,TP1804,TU2214"
-        },
-        {
           "type": "image_picker",
           "id": "tag_image",
           "label": "Sale Tag Image (Optional)"
+        }
+      ]
+    },
+    {
+      "type": "product_item",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "text",
+          "id": "parent_category",
+          "label": "Parent Category ID",
+          "info": "Enter the category block ID this product belongs to"
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Select Product"
         }
       ]
     }
