@@ -498,6 +498,8 @@
       ],
       "name": "Halloween Sale",
       "settings": {
+        "banner_desktop": "shopify://shop_images/banner_1.webp",
+        "banner_mobile": "shopify://shop_images/banner_m_1.webp",
         "banner_alt": "Halloween Hair System Sale",
         "background_gradient": "linear-gradient(180deg, rgba(228, 210, 201, 1), rgba(244, 246, 248, 1) 100%)",
         "show_firework_feed": true,
