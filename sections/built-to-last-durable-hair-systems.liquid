@@ -63,8 +63,10 @@
   {% endif %}
   
   <!-- Product Categories -->
+  {% assign category_index = 0 %}
   {% for block in section.blocks %}
     {% if block.type == 'product_category' %}
+      {% assign category_index = category_index | plus: 1 %}
       <div class="durable-category" {{ block.shopify_attributes }}>
         {% if block.settings.category_title != blank %}
           <h2 class="durable-category-title">{{ block.settings.category_title }}</h2>
@@ -77,8 +79,10 @@
         <div class="durable-product-grid">
           {% comment %} 遍历该分类下的所有产品块 {% endcomment %}
           {% for product_block in section.blocks %}
-            {% if product_block.type == 'product_item' and product_block.settings.parent_category == block.id %}
-              {% assign product = product_block.settings.product %}
+            {% if product_block.type == 'product_item' %}
+              {% assign parent_category_number = product_block.settings.parent_category_number | plus: 0 %}
+              {% if parent_category_number == category_index %}
+                {% assign product = product_block.settings.product %}
               
               {% if product %}
                 <div class="durable-product-item" {{ product_block.shopify_attributes }}>
@@ -101,6 +105,7 @@
                     </div>
                   </a>
                 </div>
+                {% endif %}
               {% endif %}
             {% endif %}
           {% endfor %}
@@ -237,10 +242,11 @@
       "name": "Product",
       "settings": [
         {
-          "type": "text",
-          "id": "parent_category",
-          "label": "Parent Category ID",
-          "info": "Enter the category block ID this product belongs to"
+          "type": "number",
+          "id": "parent_category_number",
+          "label": "Belongs to Category Number",
+          "default": 1,
+          "info": "Enter 1 for first category, 2 for second category, etc."
         },
         {
           "type": "product",
