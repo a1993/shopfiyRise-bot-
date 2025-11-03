@@ -435,6 +435,67 @@
         "banner_alt": "Flash Sale",
         "show_reviews": false
       }
+    },
+    "halloween_hair_system_sale_EGMfJK": {
+      "type": "halloween-hair-system-sale",
+      "blocks": {
+        "product_category_n4z63f": {
+          "type": "product_category",
+          "settings": {
+            "category_title": "Product Category Title",
+            "category_subtitle": "Subtitle Description",
+            "tag_image": "shopify://shop_images/tag.webp"
+          }
+        },
+        "product_item_J9wLp7": {
+          "type": "product_item",
+          "settings": {
+            "parent_category_number": 1,
+            "product": "15-base-cut"
+          }
+        },
+        "product_item_p8qUfG": {
+          "type": "product_item",
+          "settings": {
+            "parent_category_number": 1,
+            "product": "15-base-cut"
+          }
+        },
+        "product_item_yAnHFK": {
+          "type": "product_item",
+          "settings": {
+            "parent_category_number": 1,
+            "product": "15-base-cut"
+          }
+        },
+        "product_item_qVkn79": {
+          "type": "product_item",
+          "settings": {
+            "parent_category_number": 1,
+            "product": "15-base-cut"
+          }
+        },
+        "product_item_qnPRKW": {
+          "type": "product_item",
+          "settings": {
+            "parent_category_number": 1,
+            "product": "15-base-cut"
+          }
+        }
+      },
+      "block_order": [
+        "product_category_n4z63f",
+        "product_item_J9wLp7",
+        "product_item_p8qUfG",
+        "product_item_yAnHFK",
+        "product_item_qVkn79",
+        "product_item_qnPRKW"
+      ],
+      "name": "Halloween Sale",
+      "settings": {
+        "banner_alt": "Halloween Hair System Sale",
+        "background_gradient": "linear-gradient(180deg, rgba(228, 210, 201, 1), rgba(244, 246, 248, 1) 100%)"
+      }
     }
   },
   "order": [
@@ -445,6 +506,7 @@
     "flexible_product_layout_yrGWPT",
     "campaign_product_grid_YD9cCF",
     "campaign_product_cards_grid_GQXTB7",
-    "flash_sale_jrBeVY"
+    "flash_sale_jrBeVY",
+    "halloween_hair_system_sale_EGMfJK"
   ]
 }
