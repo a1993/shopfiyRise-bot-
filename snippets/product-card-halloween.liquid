@@ -35,21 +35,42 @@
       assign compare_price_value = custom_compare_price | times: 100
       assign compare_price = compare_price_value
       
-      # 计算显示的折扣百分比（基于自定义原价和产品价格）
-      if compare_price > product.price
-        assign discount_amount = compare_price | minus: product.price
-        assign display_discount_percent = discount_amount | times: 100.0 | divided_by: compare_price | round
+      # 如果设置了自定义折扣百分比，基于自定义原价计算现价
+      if custom_discount_percent and custom_discount_percent > 0
+        assign display_discount_percent = custom_discount_percent
+        assign discount_decimal = custom_discount_percent | times: 1.0 | divided_by: 100.0
+        assign discount_amount = compare_price | times: discount_decimal
+        assign sale_price = compare_price | minus: discount_amount
+      else
+        # 没有自定义折扣，计算基于自定义原价和产品价格的折扣百分比
+        if compare_price > product.price
+          assign discount_amount = compare_price | minus: product.price
+          assign display_discount_percent = discount_amount | times: 100.0 | divided_by: compare_price | round
+        endif
+        # 现价使用产品价格
       endif
     elsif product.compare_at_price > product.price
       # 使用产品自带的对比价格
       assign compare_price = product.compare_at_price
-      assign discount_amount = compare_price | minus: product.price
-      assign display_discount_percent = discount_amount | times: 100.0 | divided_by: compare_price | round
-    endif
-    
-    # 如果设置了自定义折扣百分比，优先使用
-    if custom_discount_percent and custom_discount_percent > 0
+      
+      # 如果有自定义折扣百分比，基于产品价格计算现价
+      if custom_discount_percent and custom_discount_percent > 0
+        assign display_discount_percent = custom_discount_percent
+        assign discount_decimal = custom_discount_percent | times: 1.0 | divided_by: 100.0
+        assign discount_amount = product.price | times: discount_decimal
+        assign sale_price = product.price | minus: discount_amount
+      else
+        # 计算实际折扣百分比
+        assign discount_amount = compare_price | minus: product.price
+        assign display_discount_percent = discount_amount | times: 100.0 | divided_by: compare_price | round
+      endif
+    elsif custom_discount_percent and custom_discount_percent > 0
+      # 只有自定义折扣百分比，基于产品价格计算
       assign display_discount_percent = custom_discount_percent
+      assign compare_price = product.price
+      assign discount_decimal = custom_discount_percent | times: 1.0 | divided_by: 100.0
+      assign discount_amount = product.price | times: discount_decimal
+      assign sale_price = product.price | minus: discount_amount
     endif
   -%}
   
@@ -96,14 +117,15 @@
     
     <!-- Product Price -->
     <div class="product-card__price">
-      {% if has_custom_price or compare_price > sale_price %}
-        {% if has_custom_price %}
-          <span class="product-card__price-compare">${{ custom_compare_price }}</span>
-        {% else %}
-          <span class="product-card__price-compare">{{ compare_price | money }}</span>
-        {% endif %}
+      {% if has_custom_price %}
+        <span class="product-card__price-compare">${{ custom_compare_price }}</span>
+        <span class="product-card__price-sale">{{ sale_price | money }}</span>
+      {% elsif compare_price > sale_price %}
+        <span class="product-card__price-compare">{{ compare_price | money }}</span>
+        <span class="product-card__price-sale">{{ sale_price | money }}</span>
+      {% else %}
+        <span class="product-card__price-sale">{{ sale_price | money }}</span>
       {% endif %}
-      <span class="product-card__price-sale">{{ sale_price | money }}</span>
     </div>
     
     <!-- Top Left Tag -->

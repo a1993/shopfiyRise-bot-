@@ -31,13 +31,14 @@
       assign compare_price_value = custom_compare_price | times: 100
       assign compare_price = compare_price_value
       
-      # 如果有折扣百分比，计算折扣价
+      # 如果有折扣百分比，基于自定义原价计算现价
       if final_discount_percent and final_discount_percent > 0
         assign has_discount = true
         assign discount_decimal = final_discount_percent | times: 1.0 | divided_by: 100.0
-        assign discount_amount = product.price | times: discount_decimal
-        assign sale_price = product.price | minus: discount_amount
+        assign discount_amount = compare_price | times: discount_decimal
+        assign sale_price = compare_price | minus: discount_amount
       endif
+      # 如果没有折扣，现价使用产品价格
     elsif final_discount_percent and final_discount_percent > 0
       # 没有自定义原价，但有折扣百分比，基于产品价格计算
       assign has_discount = true
@@ -109,13 +110,14 @@
       
       <!-- Price -->
       <div class="product-card__price">
-        <span class="product-card__price-sale">{{ sale_price | money }}</span>
-        {% if has_custom_price or compare_price > sale_price %}
-          {% if has_custom_price %}
-            <span class="product-card__price-compare">${{ custom_compare_price }}</span>
-          {% else %}
-            <span class="product-card__price-compare">{{ compare_price | money }}</span>
-          {% endif %}
+        {% if has_custom_price %}
+          <span class="product-card__price-sale">{{ sale_price | money }}</span>
+          <span class="product-card__price-compare">${{ custom_compare_price }}</span>
+        {% elsif compare_price > sale_price %}
+          <span class="product-card__price-sale">{{ sale_price | money }}</span>
+          <span class="product-card__price-compare">{{ compare_price | money }}</span>
+        {% else %}
+          <span class="product-card__price-sale">{{ sale_price | money }}</span>
         {% endif %}
       </div>
       
