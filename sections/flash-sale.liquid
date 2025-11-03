@@ -1,9 +1,10 @@
 {% comment %}
   Flash Sale Section
-  闪购活动页面
+  闪购活动页面 - 带 Tab 切换的产品展示
 {% endcomment %}
 
 {{ 'flash-sale.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'flash-sale.js' | asset_url }}" defer></script>
 
 {%- liquid
   assign banner_desktop = section.settings.banner_desktop
@@ -20,16 +21,30 @@
 
 <!-- Product Tabs Container -->
 <div class="flash-sale-container lv-container">
-  <div class="flash-sale-tabs">
+  
+  <!-- Tab Buttons -->
+  <div class="flash-sale-tabs-nav">
     {% for block in section.blocks %}
       {% if block.type == 'product_tab' %}
-        <div class="flash-sale-tab" {{ block.shopify_attributes }}>
-          <div class="flash-sale-tab__header">
-            <h2 class="flash-sale-tab__title">{{ block.settings.tab_title }}</h2>
-            {% if block.settings.discount_badge != blank %}
-              <span class="flash-sale-tab__badge">{{ block.settings.discount_badge }}</span>
-            {% endif %}
-          </div>
+        <button 
+          type="button"
+          class="flash-sale-tab-btn{% if forloop.first %} active{% endif %}"
+          data-tab-id="{{ block.id }}"
+          {{ block.shopify_attributes }}>
+          {{ block.settings.tab_title }}
+        </button>
+      {% endif %}
+    {% endfor %}
+  </div>
+  
+  <!-- Tab Content -->
+  <div class="flash-sale-tabs-content">
+    {% for block in section.blocks %}
+      {% if block.type == 'product_tab' %}
+        <div 
+          class="flash-sale-tab-pane{% if forloop.first %} active{% endif %}"
+          data-tab-content="{{ block.id }}"
+          {{ block.shopify_attributes }}>
           
           <!-- Product Grid -->
           <div class="flash-sale-products">
@@ -39,38 +54,65 @@
                 {% assign product = product_block.settings.product %}
                 
                 {% if product %}
-                  <div class="flash-sale-product-item" {{ product_block.shopify_attributes }}>
-                    <a href="{{ product.url }}" class="flash-sale-product-link">
-                      {% if product.featured_image %}
-                        <img 
-                          src="{{ product.featured_image | image_url: width: 300 }}"
-                          alt="{{ product.title | escape }}"
-                          loading="lazy"
-                          class="flash-sale-product-image">
-                      {% endif %}
-                      
+                  <a href="{{ product.url }}" class="flash-sale-product-card" {{ product_block.shopify_attributes }}>
+                    <!-- Product Image -->
+                    {% if product.featured_image %}
+                      <img 
+                        src="{{ product.featured_image | image_url: width: 400 }}"
+                        alt="{{ product.title | escape }}"
+                        loading="lazy"
+                        width="400"
+                        height="400"
+                        class="flash-sale-product-image">
+                    {% endif %}
+                    
+                    <!-- Product Info -->
+                    <div class="flash-sale-product-info">
                       <h3 class="flash-sale-product-title">{{ product.title }}</h3>
                       
+                      <!-- Price -->
                       <div class="flash-sale-product-price">
                         {% if product.compare_at_price > product.price %}
-                          <span class="flash-sale-price-compare">{{ product.compare_at_price | money }}</span>
+                          <span class="flash-sale-price-sale">${{ product.price | money_without_currency }}</span>
+                          <span class="flash-sale-price-compare">${{ product.compare_at_price | money_without_currency }}</span>
+                        {% else %}
+                          <span class="flash-sale-price-sale">${{ product.price | money_without_currency }}</span>
                         {% endif %}
-                        <span class="flash-sale-price-sale">{{ product.price | money }}</span>
                       </div>
                       
-                      {% if block.settings.discount_percent > 0 %}
-                        <div class="flash-sale-discount-tag">-{{ block.settings.discount_percent }}%</div>
+                      <!-- Reviews (Optional) -->
+                      {% if section.settings.show_reviews and product.metafields.reviews.rating.value %}
+                        <div class="flash-sale-reviews">
+                          {{ product.metafields.reviews.rating_count.value }} Review(s)
+                        </div>
                       {% endif %}
-                    </a>
-                  </div>
+                    </div>
+                    
+                    <!-- Discount Badge -->
+                    {% if block.settings.discount_percent > 0 %}
+                      <div class="flash-sale-discount-badge">
+                        <span>{{ block.settings.discount_percent }}%</span>
+                        <span class="flash-sale-discount-off">OFF</span>
+                      </div>
+                    {% endif %}
+                    
+                    <!-- Hot Tag (if product has tag) -->
+                    {% if product.tags contains 'HOT' or product.tags contains 'hot' %}
+                      <div class="flash-sale-hot-tag">
+                        <span>HOT</span>
+                      </div>
+                    {% endif %}
+                  </a>
                 {% endif %}
               {% endif %}
             {% endfor %}
           </div>
+          
         </div>
       {% endif %}
     {% endfor %}
   </div>
+  
 </div>
 
 {% schema %}
@@ -98,31 +140,36 @@
       "id": "banner_alt",
       "label": "Banner Alt Text",
       "default": "Flash Sale"
+    },
+    {
+      "type": "header",
+      "content": "Display Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_reviews",
+      "label": "Show Review Count",
+      "default": false,
+      "info": "Requires Shopify Product Reviews app"
     }
   ],
   "blocks": [
     {
       "type": "product_tab",
-      "name": "Product Category",
+      "name": "Product Tab",
       "settings": [
         {
           "type": "text",
           "id": "tab_title",
-          "label": "Category Title",
+          "label": "Tab Title",
           "default": "Product Category"
-        },
-        {
-          "type": "text",
-          "id": "discount_badge",
-          "label": "Discount Badge Text",
-          "default": "15% OFF",
-          "info": "e.g., '15% OFF' or 'SALE'"
         },
         {
           "type": "number",
           "id": "discount_percent",
           "label": "Discount Percentage",
-          "default": 15
+          "default": 15,
+          "info": "Show on product card (e.g., 15 for 15% OFF)"
         }
       ]
     },
@@ -133,8 +180,8 @@
         {
           "type": "text",
           "id": "parent_tab",
-          "label": "Parent Category ID",
-          "info": "Enter the category block ID this product belongs to (e.g., product_tab_1, product_tab_2)"
+          "label": "Parent Tab ID",
+          "info": "Enter the tab block ID (e.g., product_tab_1)"
         },
         {
           "type": "product",
@@ -151,4 +198,3 @@
   ]
 }
 {% endschema %}
-
