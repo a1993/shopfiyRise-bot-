@@ -29,7 +29,7 @@
           {% assign parent_num = 0 %}
           {% if grid_style == 'flash' %}
             {% assign parent_num = block.settings.parent_tab_number | plus: 0 %}
-          elsif grid_style == 'halloween' %}
+          {% elsif grid_style == 'halloween' %}
             {% assign parent_num = block.settings.parent_category_number | plus: 0 %}
           {% endif %}
           

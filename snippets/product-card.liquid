@@ -25,8 +25,23 @@
   assign card_style = card_style | default: 'standard'
   assign currency = currency_symbol | default: '$'
   assign btn_text = button_text | default: 'Shop Now'
-  assign url = product_url | default: product.url
-  assign title = product_title | default: product.title
+  
+  # 处理 URL 和标题
+  if product_url
+    assign url = product_url
+  elsif product
+    assign url = product.url
+  else
+    assign url = '#'
+  endif
+  
+  if product_title
+    assign title = product_title
+  elsif product
+    assign title = product.title
+  else
+    assign title = ''
+  endif
   
   # 价格计算
   if old_price and new_price
@@ -34,7 +49,7 @@
     assign original_price = old_price
     assign sale_price = new_price
     assign has_custom_price = true
-  else
+  elsif product
     # 使用商品价格
     assign original_price = product.price
     assign sale_price = product.price
@@ -46,13 +61,18 @@
       assign discount_amount = original_price | times: discount_decimal
       assign sale_price = original_price | minus: discount_amount
     endif
+  else
+    # 没有价格信息
+    assign original_price = 0
+    assign sale_price = 0
+    assign has_custom_price = false
   endif
   
   # 判断是否有对比价格
   assign has_compare_price = false
   if has_custom_price and old_price != blank
     assign has_compare_price = true
-  elsif product.compare_at_price > product.price
+  elsif product and product.compare_at_price > product.price
     assign has_compare_price = true
     assign original_price = product.compare_at_price
   endif
@@ -88,8 +108,16 @@
   
   <!-- Product Image -->
   <div class="product-card__image-wrapper">
-    {% if product.featured_image or product_image %}
-      {% assign image = product.featured_image | default: product_image %}
+    {%- liquid
+      assign image = nil
+      if product_image
+        assign image = product_image
+      elsif product and product.featured_image
+        assign image = product.featured_image
+      endif
+    -%}
+    
+    {% if image %}
       <img 
         src="{{ image | image_url: width: img_width }}"
         srcset="{{ image | image_url: width: img_width }} {{ img_width }}w,
@@ -126,10 +154,12 @@
           <span class="product-card__discount-off">OFF</span>
         </div>
       {% endif %}
-      {% if product.tags contains 'HOT' or product.tags contains 'hot' %}
-        <div class="product-card__hot-tag">
-          <span>HOT</span>
-        </div>
+      {% if product %}
+        {% if product.tags contains 'HOT' or product.tags contains 'hot' %}
+          <div class="product-card__hot-tag">
+            <span>HOT</span>
+          </div>
+        {% endif %}
       {% endif %}
       
     {% elsif card_style == 'halloween' %}
@@ -150,10 +180,12 @@
               <span class="product-card__badge-off">OFF</span>
             </div>
           {% endif %}
-          {% if product.tags contains 'HOT' or product.tags contains 'hot' %}
-            <div class="product-card__badge product-card__badge--hot">HOT</div>
-          {% elsif product.tags contains 'NEW' or product.tags contains 'new' %}
-            <div class="product-card__badge product-card__badge--new">NEW</div>
+          {% if product %}
+            {% if product.tags contains 'HOT' or product.tags contains 'hot' %}
+              <div class="product-card__badge product-card__badge--hot">HOT</div>
+            {% elsif product.tags contains 'NEW' or product.tags contains 'new' %}
+              <div class="product-card__badge product-card__badge--new">NEW</div>
+            {% endif %}
           {% endif %}
         </div>
       {% endif %}
@@ -173,7 +205,7 @@
     {% endif %}
     
     <!-- Reviews (仅 flash 和 halloween 样式) -->
-    {% if show_reviews and product.metafields.reviews.rating_count.value %}
+    {% if show_reviews and product and product.metafields.reviews.rating_count.value %}
       {% if card_style == 'flash' %}
         <div class="product-card__reviews">
           {{ product.metafields.reviews.rating_count.value }} Review(s)
