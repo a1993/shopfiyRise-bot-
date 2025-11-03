@@ -257,6 +257,17 @@
     "campaign_product_cards_grid_GQXTB7": {
       "type": "campaign-product-cards-grid",
       "blocks": {
+        "product_card_qqJcGQ": {
+          "type": "product_card",
+          "settings": {
+            "product": "30-order-balance-link-adding-stand-up-curl",
+            "product_handle": "",
+            "badge_alt_text": "Badge",
+            "badge_position": "top-left",
+            "discount_percent": 0,
+            "custom_url": ""
+          }
+        },
         "product_card_mVaq7c": {
           "type": "product_card",
           "settings": {
@@ -292,6 +303,7 @@
         }
       },
       "block_order": [
+        "product_card_qqJcGQ",
         "product_card_mVaq7c",
         "product_card_j3yz9x",
         "product_card_JBDH47"
