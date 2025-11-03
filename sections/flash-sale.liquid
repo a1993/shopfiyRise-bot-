@@ -1,0 +1,145 @@
+{% comment %}
+  Flash Sale Section
+  闪购活动页面
+{% endcomment %}
+
+{{ 'flash-sale.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign banner_desktop = section.settings.banner_desktop
+  assign banner_mobile = section.settings.banner_mobile
+-%}
+
+<!-- Banner -->
+{% render 'campaign-banner',
+  banner_desktop: banner_desktop,
+  banner_mobile: banner_mobile,
+  banner_alt: section.settings.banner_alt,
+  sticky: true
+%}
+
+<!-- Product Tabs Container -->
+<div class="flash-sale-container lv-container">
+  <div class="flash-sale-tabs">
+    {% for block in section.blocks %}
+      {% if block.type == 'product_tab' %}
+        <div class="flash-sale-tab" {{ block.shopify_attributes }}>
+          <div class="flash-sale-tab__header">
+            <h2 class="flash-sale-tab__title">{{ block.settings.tab_title }}</h2>
+            {% if block.settings.discount_badge != blank %}
+              <span class="flash-sale-tab__badge">{{ block.settings.discount_badge }}</span>
+            {% endif %}
+          </div>
+          
+          <!-- Product Grid -->
+          {% if block.settings.product_skus != blank %}
+            {% assign sku_list = block.settings.product_skus | split: ',' %}
+            <div class="flash-sale-products">
+              {% for sku in sku_list %}
+                {% assign sku_trimmed = sku | strip %}
+                {% assign found_product = all_products[sku_trimmed] %}
+                
+                {% if found_product %}
+                  <div class="flash-sale-product-item">
+                    <a href="{{ found_product.url }}" class="flash-sale-product-link">
+                      {% if found_product.featured_image %}
+                        <img 
+                          src="{{ found_product.featured_image | image_url: width: 300 }}"
+                          alt="{{ found_product.title | escape }}"
+                          loading="lazy"
+                          class="flash-sale-product-image">
+                      {% endif %}
+                      
+                      <h3 class="flash-sale-product-title">{{ found_product.title }}</h3>
+                      
+                      <div class="flash-sale-product-price">
+                        {% if found_product.compare_at_price > found_product.price %}
+                          <span class="flash-sale-price-compare">{{ found_product.compare_at_price | money }}</span>
+                        {% endif %}
+                        <span class="flash-sale-price-sale">{{ found_product.price | money }}</span>
+                      </div>
+                      
+                      {% if block.settings.discount_percent > 0 %}
+                        <div class="flash-sale-discount-tag">-{{ block.settings.discount_percent }}%</div>
+                      {% endif %}
+                    </a>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Flash Sale",
+  "tag": "section",
+  "class": "flash-sale-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Banner Settings"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_desktop",
+      "label": "Desktop Banner"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_mobile",
+      "label": "Mobile Banner"
+    },
+    {
+      "type": "text",
+      "id": "banner_alt",
+      "label": "Banner Alt Text",
+      "default": "Flash Sale"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product_tab",
+      "name": "Product Category",
+      "settings": [
+        {
+          "type": "text",
+          "id": "tab_title",
+          "label": "Category Title",
+          "default": "Product Category"
+        },
+        {
+          "type": "text",
+          "id": "discount_badge",
+          "label": "Discount Badge Text",
+          "default": "15% OFF",
+          "info": "e.g., '15% OFF' or 'SALE'"
+        },
+        {
+          "type": "number",
+          "id": "discount_percent",
+          "label": "Discount Percentage",
+          "default": 15
+        },
+        {
+          "type": "textarea",
+          "id": "product_skus",
+          "label": "Product SKUs",
+          "info": "Enter SKU handles separated by commas (e.g., TU2214,TP1802,TP1804)",
+          "placeholder": "TU2214,TP1802,TP1804"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Flash Sale"
+    }
+  ]
+}
+{% endschema %}
+

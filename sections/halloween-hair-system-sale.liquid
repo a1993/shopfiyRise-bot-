@@ -1,0 +1,180 @@
+{% comment %}
+  Halloween Hair System Sale Section
+  万圣节发制品促销页面 - 支持多个产品分类滑动展示
+{% endcomment %}
+
+{{ 'halloween-hair-system-sale.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'halloween-hair-system-sale.js' | asset_url }}" defer></script>
+
+{%- liquid
+  assign banner_desktop = section.settings.banner_desktop
+  assign banner_mobile = section.settings.banner_mobile
+-%}
+
+<!-- Banner -->
+{% render 'campaign-banner',
+  banner_desktop: banner_desktop,
+  banner_mobile: banner_mobile,
+  banner_alt: section.settings.banner_alt,
+  sticky: false
+%}
+
+<!-- Main Content -->
+<div class="halloween-sale-container">
+  <div class="halloween-sale-content lv-container">
+    
+    {% for block in section.blocks %}
+      {% if block.type == 'product_category' %}
+        <div class="halloween-category" {{ block.shopify_attributes }}>
+          <!-- Category Title -->
+          {% if block.settings.category_title != blank %}
+            <h2 class="halloween-category__title">{{ block.settings.category_title }}</h2>
+          {% endif %}
+          
+          <!-- Category Subtitle -->
+          {% if block.settings.category_subtitle != blank %}
+            <p class="halloween-category__subtitle">{{ block.settings.category_subtitle }}</p>
+          {% endif %}
+          
+          <!-- Product Swiper -->
+          {% if block.settings.product_skus != blank %}
+            {% assign sku_list = block.settings.product_skus | split: ',' %}
+            <div class="halloween-swiper-container" data-block-id="{{ block.id }}">
+              <div class="halloween-swiper">
+                <div class="halloween-swiper-wrapper">
+                  {% for sku in sku_list %}
+                    {% assign sku_trimmed = sku | strip %}
+                    {% assign found_product = all_products[sku_trimmed] %}
+                    
+                    {% if found_product %}
+                      <div class="halloween-swiper-slide">
+                        <a href="{{ found_product.url }}" class="halloween-product-card">
+                          {% if found_product.featured_image %}
+                            <div class="halloween-product-image-wrapper">
+                              <img 
+                                src="{{ found_product.featured_image | image_url: width: 400 }}"
+                                alt="{{ found_product.title | escape }}"
+                                loading="lazy"
+                                class="halloween-product-image">
+                              
+                              {% if block.settings.tag_image != blank %}
+                                <img 
+                                  src="{{ block.settings.tag_image | image_url: width: 140 }}"
+                                  alt="Sale Tag"
+                                  class="halloween-sale-tag">
+                              {% endif %}
+                            </div>
+                          {% endif %}
+                          
+                          <h3 class="halloween-product-title">{{ found_product.title }}</h3>
+                          
+                          <div class="halloween-product-price">
+                            {% if found_product.compare_at_price > found_product.price %}
+                              <span class="halloween-price-compare">{{ found_product.compare_at_price | money }}</span>
+                            {% endif %}
+                            <span class="halloween-price-sale">{{ found_product.price | money }}</span>
+                          </div>
+                        </a>
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              
+              <!-- Navigation Buttons -->
+              <div class="halloween-swiper-button-prev halloween-swiper-button-prev-{{ forloop.index }}">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="halloween-swiper-button-next halloween-swiper-button-next-{{ forloop.index }}">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+    
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Halloween Hair System Sale",
+  "tag": "section",
+  "class": "halloween-sale-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Banner Settings"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_desktop",
+      "label": "Desktop Banner"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_mobile",
+      "label": "Mobile Banner"
+    },
+    {
+      "type": "text",
+      "id": "banner_alt",
+      "label": "Banner Alt Text",
+      "default": "Halloween Hair System Sale"
+    },
+    {
+      "type": "header",
+      "content": "Background Settings"
+    },
+    {
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "Background Gradient",
+      "default": "linear-gradient(180deg, #E4D2C9 0%, #F4F6F8 100%)"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product_category",
+      "name": "Product Category",
+      "settings": [
+        {
+          "type": "text",
+          "id": "category_title",
+          "label": "Category Title",
+          "default": "Product Category Title"
+        },
+        {
+          "type": "text",
+          "id": "category_subtitle",
+          "label": "Category Subtitle",
+          "default": "Subtitle Description"
+        },
+        {
+          "type": "textarea",
+          "id": "product_skus",
+          "label": "Product SKUs",
+          "info": "Enter SKU handles separated by commas",
+          "placeholder": "TP1802,TP1804,TU2214"
+        },
+        {
+          "type": "image_picker",
+          "id": "tag_image",
+          "label": "Sale Tag Image (Optional)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Halloween Hair System Sale"
+    }
+  ]
+}
+{% endschema %}
+

@@ -1,0 +1,273 @@
+{% comment %}
+  Built to Last: Durable Hair Systems Section
+  持久耐用发制品展示页面
+{% endcomment %}
+
+{{ 'built-to-last-durable.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'built-to-last-durable.js' | asset_url }}" defer></script>
+
+{%- liquid
+  assign banner_desktop = section.settings.banner_desktop
+  assign banner_mobile = section.settings.banner_mobile
+-%}
+
+<!-- Banner -->
+{% render 'campaign-banner',
+  banner_desktop: banner_desktop,
+  banner_mobile: banner_mobile,
+  banner_alt: section.settings.banner_alt,
+  sticky: true
+%}
+
+<!-- Main Content -->
+<div class="durable-container lv-container">
+  
+  <!-- Introduction Card -->
+  {% if section.settings.show_intro_card %}
+  <div class="durable-intro-card">
+    <div class="durable-intro-content">
+      <h2 class="durable-intro-title">{{ section.settings.intro_title | default: "Why Should We Choose Hair System with Longer Life Span?" }}</h2>
+      
+      <ul class="durable-intro-list">
+        {% if section.settings.point_1 != blank %}
+          <li>{{ section.settings.point_1 }}</li>
+        {% endif %}
+        {% if section.settings.point_2 != blank %}
+          <li>{{ section.settings.point_2 }}</li>
+        {% endif %}
+        {% if section.settings.point_3 != blank %}
+          <li>{{ section.settings.point_3 }}</li>
+        {% endif %}
+      </ul>
+    </div>
+    
+    {% if section.settings.intro_video_url != blank %}
+    <div class="durable-intro-video">
+      <div class="durable-video-wrapper" data-video="{{ section.settings.intro_video_url }}">
+        {% if section.settings.intro_video_cover != blank %}
+          <img 
+            src="{{ section.settings.intro_video_cover | image_url: width: 600 }}"
+            alt="Video Cover"
+            class="durable-video-cover">
+          <div class="durable-play-button">
+            <svg width="68" height="68" viewBox="0 0 68 68" fill="none">
+              <circle cx="34" cy="34" r="34" fill="white" opacity="0.9"/>
+              <path d="M27 22L47 34L27 46V22Z" fill="#1d1e20"/>
+            </svg>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+  
+  <!-- Product Categories -->
+  {% for block in section.blocks %}
+    {% if block.type == 'product_category' %}
+      <div class="durable-category" {{ block.shopify_attributes }}>
+        {% if block.settings.category_title != blank %}
+          <h2 class="durable-category-title">{{ block.settings.category_title }}</h2>
+        {% endif %}
+        
+        {% if block.settings.category_subtitle != blank %}
+          <p class="durable-category-subtitle">{{ block.settings.category_subtitle }}</p>
+        {% endif %}
+        
+        {% if block.settings.product_skus != blank %}
+          {% assign sku_list = block.settings.product_skus | split: ',' %}
+          <div class="durable-product-grid">
+            {% for sku in sku_list %}
+              {% assign sku_trimmed = sku | strip %}
+              {% assign found_product = all_products[sku_trimmed] %}
+              
+              {% if found_product %}
+                <div class="durable-product-item">
+                  <a href="{{ found_product.url }}" class="durable-product-link">
+                    {% if found_product.featured_image %}
+                      <img 
+                        src="{{ found_product.featured_image | image_url: width: 300 }}"
+                        alt="{{ found_product.title | escape }}"
+                        loading="lazy"
+                        class="durable-product-image">
+                    {% endif %}
+                    
+                    <h3 class="durable-product-title">{{ found_product.title }}</h3>
+                    
+                    <div class="durable-product-price">
+                      {% if found_product.compare_at_price > found_product.price %}
+                        <span class="durable-price-compare">{{ found_product.compare_at_price | money }}</span>
+                      {% endif %}
+                      <span class="durable-price-sale">{{ found_product.price | money }}</span>
+                    </div>
+                  </a>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+    
+    {% if block.type == 'video_tips' %}
+      <div class="durable-video-tips" {{ block.shopify_attributes }}>
+        <div class="durable-video-tip" data-video="{{ block.settings.video_url }}">
+          {% if block.settings.video_cover != blank %}
+            <img 
+              src="{{ block.settings.video_cover | image_url: width: 600 }}"
+              alt="{{ block.settings.video_title | escape }}"
+              loading="lazy"
+              class="durable-tip-cover">
+            <div class="durable-play-button">
+              <svg width="68" height="68" viewBox="0 0 68 68" fill="none">
+                <circle cx="34" cy="34" r="34" fill="white" opacity="0.9"/>
+                <path d="M27 22L47 34L27 46V22Z" fill="#1d1e20"/>
+              </svg>
+            </div>
+          {% endif %}
+          {% if block.settings.video_title != blank %}
+            <h3 class="durable-tip-title">{{ block.settings.video_title }}</h3>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+  
+</div>
+
+<!-- Video Modal -->
+<div class="durable-video-modal" id="videoModal">
+  <div class="durable-modal-overlay"></div>
+  <div class="durable-modal-content">
+    <button class="durable-modal-close">&times;</button>
+    <div class="durable-modal-video" id="videoContainer"></div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Built to Last: Durable Hair Systems",
+  "tag": "section",
+  "class": "durable-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Banner Settings"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_desktop",
+      "label": "Desktop Banner"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_mobile",
+      "label": "Mobile Banner"
+    },
+    {
+      "type": "text",
+      "id": "banner_alt",
+      "label": "Banner Alt Text",
+      "default": "Built to Last: Durable Hair Systems"
+    },
+    {
+      "type": "header",
+      "content": "Introduction Card"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_intro_card",
+      "label": "Show Introduction Card",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "intro_title",
+      "label": "Introduction Title",
+      "default": "Why Should We Choose Hair System with Longer Life Span?"
+    },
+    {
+      "type": "html",
+      "id": "point_1",
+      "label": "Point 1",
+      "default": "<strong>For Busy People:</strong> Less Maintenance & Fewer Replacements = More Time Saved."
+    },
+    {
+      "type": "html",
+      "id": "point_2",
+      "label": "Point 2",
+      "default": "<strong>For Budget-Conscious Buyers:</strong> Saves money by reducing replacements and repairs."
+    },
+    {
+      "type": "html",
+      "id": "point_3",
+      "label": "Point 3",
+      "default": "<strong>For Quality Seekers:</strong> Longer lifespan means better quality and reliability"
+    },
+    {
+      "type": "image_picker",
+      "id": "intro_video_cover",
+      "label": "Intro Video Cover Image"
+    },
+    {
+      "type": "url",
+      "id": "intro_video_url",
+      "label": "Intro Video URL (YouTube Embed URL)"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product_category",
+      "name": "Product Category",
+      "settings": [
+        {
+          "type": "text",
+          "id": "category_title",
+          "label": "Category Title",
+          "default": "Up to 6–12 Months Lifespan"
+        },
+        {
+          "type": "text",
+          "id": "category_subtitle",
+          "label": "Category Subtitle"
+        },
+        {
+          "type": "textarea",
+          "id": "product_skus",
+          "label": "Product SKUs",
+          "info": "Enter SKU handles separated by commas",
+          "placeholder": "TU2308,TU2401,TP1808"
+        }
+      ]
+    },
+    {
+      "type": "video_tips",
+      "name": "Video Tips",
+      "settings": [
+        {
+          "type": "text",
+          "id": "video_title",
+          "label": "Video Title",
+          "default": "Expert Tips"
+        },
+        {
+          "type": "image_picker",
+          "id": "video_cover",
+          "label": "Video Cover Image"
+        },
+        {
+          "type": "url",
+          "id": "video_url",
+          "label": "Video URL (YouTube Embed URL)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Built to Last: Durable Hair Systems"
+    }
+  ]
+}
+{% endschema %}
+
