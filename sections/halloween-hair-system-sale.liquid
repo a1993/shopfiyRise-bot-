@@ -3,6 +3,7 @@
   万圣节发制品促销页面 - 支持多个产品分类滑动展示
 {% endcomment %}
 
+{{ 'product-card.css' | asset_url | stylesheet_tag }}
 {{ 'halloween-hair-system-sale.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'halloween-hair-system-sale.js' | asset_url }}" defer></script>
 
@@ -28,15 +29,6 @@
       {% if block.type == 'product_category' %}
         {% assign category_index = category_index | plus: 1 %}
         <div class="halloween-category" {{ block.shopify_attributes }}>
-          <!-- Category Title -->
-          {% if block.settings.category_title != blank %}
-            <h2 class="halloween-category__title">{{ block.settings.category_title }}</h2>
-          {% endif %}
-          
-          <!-- Category Subtitle -->
-          {% if block.settings.category_subtitle != blank %}
-            <p class="halloween-category__subtitle">{{ block.settings.category_subtitle }}</p>
-          {% endif %}
           
           <!-- Product Swiper -->
           <div class="halloween-swiper-container" data-category-index="{{ category_index }}">
@@ -51,87 +43,13 @@
                     
                     {% if product %}
                       <div class="halloween-swiper-slide" {{ product_block.shopify_attributes }}>
-                        <a href="{{ product.url }}" class="halloween-product-card">
-                          <!-- Product Image -->
-                          {% if product.featured_image %}
-                            <img 
-                              src="{{ product.featured_image | image_url: width: 300 }}"
-                              srcset="{{ product.featured_image | image_url: width: 185 }} 185w,
-                                      {{ product.featured_image | image_url: width: 215 }} 215w,
-                                      {{ product.featured_image | image_url: width: 266 }} 266w,
-                                      {{ product.featured_image | image_url: width: 300 }} 300w"
-                              sizes="(max-width: 374px) 185px, (max-width: 479px) 215px, (max-width: 639px) 266px, (max-width: 767px) 300px, (max-width: 1023px) 224px, (max-width: 1279px) 250px, (max-width: 1535px) 287px, 300px"
-                              alt="{{ product.title | escape }}"
-                              width="300"
-                              height="300"
-                              loading="lazy"
-                              class="halloween-product-image">
-                          {% else %}
-                            <div class="halloween-product-image halloween-product-image--placeholder">
-                              {{ 'product-1' | placeholder_svg_tag }}
-                            </div>
-                          {% endif %}
-                          
-                          <!-- Product Title -->
-                          <h3 class="halloween-product-title">{{ product.title }}</h3>
-                          
-                          <!-- Reviews (Optional) -->
-                          {% if section.settings.show_reviews and product.metafields.reviews.rating_count.value %}
-                            <div class="halloween-product-reviews">
-                              <span class="halloween-product-rating">
-                                {{ product.metafields.reviews.rating.value | round: 1 }} ★
-                              </span>
-                              <span class="halloween-product-review-count">
-                                ({{ product.metafields.reviews.rating_count.value }})
-                              </span>
-                            </div>
-                          {% endif %}
-                          
-                          <!-- Product Price -->
-                          <div class="halloween-product-price">
-                            {% if product.compare_at_price > product.price %}
-                              <span class="halloween-price-compare">${{ product.compare_at_price | money_without_currency | round: 2 }}</span>
-                            {% endif %}
-                            <span class="halloween-price-sale">${{ product.price | money_without_currency | round: 2 }}</span>
-                          </div>
-                          
-                          <!-- Top Left Tag -->
-                          {% if block.settings.tag_image != blank %}
-                            <!-- Custom Tag Image (上移一半) -->
-                            <img 
-                              src="{{ block.settings.tag_image | image_url: width: 140 }}"
-                              alt="Sale Tag"
-                              width="140"
-                              height="140"
-                              class="halloween-tag-image"
-                              loading="lazy">
-                          {% else %}
-                            <!-- Discount & Tag Badges -->
-                            <div class="halloween-badges">
-                              <!-- Discount Badge -->
-                              {% if product.compare_at_price > product.price %}
-                                {% assign discount_amount = product.compare_at_price | minus: product.price %}
-                                {% assign discount_percent = discount_amount | times: 100.0 | divided_by: product.compare_at_price | round %}
-                                <div class="halloween-badge halloween-badge--discount">
-                                  <span>{{ discount_percent }}%</span>
-                                  <span class="halloween-badge-off">OFF</span>
-                                </div>
-                              {% endif %}
-                              
-                              <!-- Product Tag (HOT/NEW) -->
-                              {% if product.tags contains 'HOT' or product.tags contains 'hot' %}
-                                <div class="halloween-badge halloween-badge--hot">HOT</div>
-                              {% elsif product.tags contains 'NEW' or product.tags contains 'new' %}
-                                <div class="halloween-badge halloween-badge--new">NEW</div>
-                              {% endif %}
-                            </div>
-                          {% endif %}
-                          
-                          <!-- Shop Now Button -->
-                          <div class="halloween-shop-button">
-                            {{ product_block.settings.button_text | default: 'Shop Now' }}
-                          </div>
-                        </a>
+                        {% render 'product-card',
+                          product: product,
+                          card_style: 'halloween',
+                          show_reviews: section.settings.show_reviews,
+                          button_text: product_block.settings.button_text,
+                          tag_image: block.settings.tag_image
+                        %}
                       </div>
                       {% endif %}
                     {% endif %}
@@ -238,21 +156,10 @@
       "name": "Product Category",
       "settings": [
         {
-          "type": "text",
-          "id": "category_title",
-          "label": "Category Title",
-          "default": "Product Category Title"
-        },
-        {
-          "type": "text",
-          "id": "category_subtitle",
-          "label": "Category Subtitle",
-          "default": "Subtitle Description"
-        },
-        {
           "type": "image_picker",
           "id": "tag_image",
-          "label": "Sale Tag Image (Optional)"
+          "label": "Sale Tag Image (Optional)",
+          "info": "Custom tag image displayed on all products in this category"
         }
       ]
     },

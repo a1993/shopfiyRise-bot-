@@ -3,6 +3,7 @@
   闪购活动页面 - 带 Tab 切换的产品展示
 {% endcomment %}
 
+{{ 'product-card.css' | asset_url | stylesheet_tag }}
 {{ 'flash-sale.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'flash-sale.js' | asset_url }}" defer></script>
 
@@ -51,95 +52,15 @@
           {{ block.shopify_attributes }}>
           
           <!-- Product Grid -->
-          <div class="flash-sale-products">
-            {% comment %} 遍历该分类下的所有产品块 {% endcomment %}
-            {% for product_block in section.blocks %}
-              {% if product_block.type == 'product_item' %}
-                {% assign parent_tab_number = product_block.settings.parent_tab_number | plus: 0 %}
-                {% if parent_tab_number == tab_index %}
-                  {% assign product = product_block.settings.product %}
-                
-                {% if product %}
-                  {%- liquid
-                    # 计算折扣价格
-                    assign has_discount = false
-                    assign original_price = product.price
-                    assign discount_price = product.price
-                    assign discount_percent = block.settings.discount_percent
-                    
-                    if discount_percent and discount_percent > 0
-                      assign has_discount = true
-                      assign discount_decimal = discount_percent | times: 1.0 | divided_by: 100.0
-                      assign discount_amount = original_price | times: discount_decimal
-                      assign discount_price = original_price | minus: discount_amount
-                    endif
-                  -%}
-                  
-                  <a href="{{ product.url }}" class="flash-sale-product-card" {{ product_block.shopify_attributes }}>
-                    <!-- Product Image -->
-                    <div class="flash-sale-product-image-wrapper">
-                      {% if product.featured_image %}
-                        <img 
-                          src="{{ product.featured_image | image_url: width: 400 }}"
-                          srcset="{{ product.featured_image | image_url: width: 200 }} 200w,
-                                  {{ product.featured_image | image_url: width: 400 }} 400w,
-                                  {{ product.featured_image | image_url: width: 600 }} 600w"
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                          alt="{{ product.title | escape }}"
-                          loading="lazy"
-                          class="flash-sale-product-image">
-                      {% else %}
-                        <div class="flash-sale-product-image flash-sale-product-image--placeholder">
-                          {{ 'product-1' | placeholder_svg_tag }}
-                        </div>
-                      {% endif %}
-                      
-                      <!-- Discount Badge -->
-                      {% if has_discount %}
-                        <div class="flash-sale-discount-badge">
-                          <span>{{ discount_percent }}%</span>
-                          <span class="flash-sale-discount-off">OFF</span>
-                        </div>
-                      {% endif %}
-                      
-                      <!-- Hot Tag -->
-                      {% if product.tags contains 'HOT' or product.tags contains 'hot' %}
-                        <div class="flash-sale-hot-tag">
-                          <span>HOT</span>
-                        </div>
-                      {% endif %}
-                    </div>
-                    
-                    <!-- Product Info -->
-                    <div class="flash-sale-product-info">
-                      <h3 class="flash-sale-product-title">{{ product.title }}</h3>
-                      
-                      <!-- Price -->
-                      <div class="flash-sale-product-price">
-                        {% if has_discount %}
-                          <span class="flash-sale-price-sale">${{ discount_price | money_without_currency | round: 2 }}</span>
-                          <span class="flash-sale-price-compare">${{ original_price | money_without_currency | round: 2 }}</span>
-                        {% elsif product.compare_at_price > product.price %}
-                          <span class="flash-sale-price-sale">${{ product.price | money_without_currency | round: 2 }}</span>
-                          <span class="flash-sale-price-compare">${{ product.compare_at_price | money_without_currency | round: 2 }}</span>
-                        {% else %}
-                          <span class="flash-sale-price-sale">${{ product.price | money_without_currency | round: 2 }}</span>
-                        {% endif %}
-                      </div>
-                      
-                      <!-- Reviews (Optional) -->
-                      {% if section.settings.show_reviews and product.metafields.reviews.rating_count.value %}
-                        <div class="flash-sale-reviews">
-                          {{ product.metafields.reviews.rating_count.value }} Review(s)
-                        </div>
-                      {% endif %}
-                    </div>
-                  </a>
-                {% endif %}
-                {% endif %}
-              {% endif %}
-            {% endfor %}
-          </div>
+          {% render 'product-grid',
+            section_blocks: section.blocks,
+            grid_style: 'flash',
+            grid_class: 'flash-sale-products',
+            card_style: 'flash',
+            show_reviews: section.settings.show_reviews,
+            discount_percent: block.settings.discount_percent,
+            filter_category: tab_index
+          %}
           
         </div>
       {% endif %}

@@ -51,147 +51,14 @@
   display: block;
 }
 
-/* Product Grid */
-.flash-sale-products {
+/* Product Grid - uses product-grid component */
+.product-grid--flash {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0.5rem;
   max-width: 1368px;
   margin: 2.5rem auto;
   box-sizing: border-box;
-}
-
-/* Product Card */
-.flash-sale-product-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  border: 1px solid #e5e5e5;
-  box-sizing: border-box;
-  text-decoration: none;
-  color: inherit;
-  transition: all 0.3s ease;
-  background: #fff;
-  overflow: hidden;
-}
-
-.flash-sale-product-card:hover {
-  border-color: #2a8e9e;
-  box-shadow: 0 2px 8px rgba(42, 142, 158, 0.1);
-}
-
-/* Product Image Wrapper */
-.flash-sale-product-image-wrapper {
-  width: 100%;
-  position: relative;
-  overflow: hidden;
-}
-
-.flash-sale-product-image {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1;
-  object-fit: cover;
-  display: block;
-}
-
-.flash-sale-product-image--placeholder {
-  background: #f5f5f5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.flash-sale-product-info {
-  width: 100%;
-  padding: 0.75rem 0.5rem 1rem;
-  text-align: center;
-  box-sizing: border-box;
-}
-
-.flash-sale-product-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  line-height: 1.4;
-  min-height: 4.2rem;
-  color: #1d1e20;
-}
-
-.flash-sale-product-price {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-  font-weight: bold;
-}
-
-.flash-sale-price-sale {
-  font-size: 1.1rem;
-  color: #1d1e20;
-}
-
-.flash-sale-price-compare {
-  font-size: 0.9rem;
-  color: #7a7a7a;
-  text-decoration: line-through;
-}
-
-.flash-sale-reviews {
-  font-size: 1rem;
-  color: #232323;
-  margin-top: 0.5rem;
-}
-
-/* Discount Badge */
-.flash-sale-discount-badge {
-  position: absolute;
-  top: 0;
-  left: 0;
-  background: #2a8e9e;
-  color: #fff;
-  padding: 0.25rem 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-weight: bold;
-  z-index: 2;
-}
-
-.flash-sale-discount-badge span:first-child {
-  font-size: 1rem;
-  line-height: 1;
-}
-
-.flash-sale-discount-off {
-  font-size: 0.75rem;
-  line-height: 1;
-}
-
-/* Hot Tag */
-.flash-sale-hot-tag {
-  position: absolute;
-  top: 3rem;
-  left: 0;
-  display: flex;
-  flex-direction: column;
-  z-index: 2;
-}
-
-.flash-sale-hot-tag span {
-  background: #32d296;
-  color: #fff;
-  padding: 0.375rem 0.625rem;
-  font-size: 1rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  line-height: 1;
 }
 
 /* Desktop Responsive */
@@ -210,36 +77,23 @@
     padding-right: 1.5rem;
   }
   
-  .flash-sale-products {
+  .product-grid--flash {
     grid-template-columns: repeat(4, 1fr);
     gap: 2rem;
     margin: 5rem auto;
-  }
-  
-  .flash-sale-product-info {
-    padding: 1rem 0.75rem 1.25rem;
-  }
-  
-  .flash-sale-product-title {
-    font-size: 1.05rem;
-    margin-bottom: 0.75rem;
-  }
-  
-  .flash-sale-product-price {
-    margin-top: 0.75rem;
   }
 }
 
 /* Large Desktop */
 @media screen and (min-width: 1280px) {
-  .flash-sale-products {
+  .product-grid--flash {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
 /* Tablet */
 @media screen and (min-width: 768px) and (max-width: 1024px) {
-  .flash-sale-products {
+  .product-grid--flash {
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
   }
@@ -261,17 +115,8 @@
     font-size: 1rem;
   }
   
-  .flash-sale-products {
+  .product-grid--flash {
     gap: 0.5rem;
     margin: 1.5rem auto;
-  }
-  
-  .flash-sale-product-title {
-    font-size: 1rem;
-    min-height: 3rem;
-  }
-  
-  .flash-sale-product-price {
-    font-size: 0.9rem;
   }
 }
