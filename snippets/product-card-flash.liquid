@@ -1,0 +1,131 @@
+{% comment %}
+  Flash Sale 商品卡片组件
+  使用 Shopify 产品对象
+  
+  参数:
+  - product: Shopify 产品对象 (必需)
+  - show_reviews: 是否显示评论
+  - discount_percent: Tab 的折扣百分比
+  - custom_image: 自定义商品图片 (可选)
+  - custom_title: 自定义标题 (可选)
+  - custom_description: 自定义描述 (可选)
+  - custom_compare_price: 自定义原价 (可选)
+  - custom_discount_percent: 自定义折扣百分比 (可选，优先于 discount_percent)
+  - shopify_attributes: Shopify 属性
+{% endcomment %}
+
+{% if product %}
+  {%- liquid
+    # 确定使用哪个折扣百分比
+    assign final_discount_percent = custom_discount_percent | default: discount_percent
+    
+    # 确定原价和折扣价
+    assign has_custom_price = false
+    assign has_discount = false
+    assign compare_price = 0
+    assign sale_price = product.price
+    
+    # 如果有自定义原价
+    if custom_compare_price != blank
+      assign has_custom_price = true
+      assign compare_price_value = custom_compare_price | times: 100
+      assign compare_price = compare_price_value
+      
+      # 如果有折扣百分比，计算折扣价
+      if final_discount_percent and final_discount_percent > 0
+        assign has_discount = true
+        assign discount_decimal = final_discount_percent | times: 1.0 | divided_by: 100.0
+        assign discount_amount = product.price | times: discount_decimal
+        assign sale_price = product.price | minus: discount_amount
+      endif
+    elsif final_discount_percent and final_discount_percent > 0
+      # 没有自定义原价，但有折扣百分比，基于产品价格计算
+      assign has_discount = true
+      assign compare_price = product.price
+      assign discount_decimal = final_discount_percent | times: 1.0 | divided_by: 100.0
+      assign discount_amount = product.price | times: discount_decimal
+      assign sale_price = product.price | minus: discount_amount
+    elsif product.compare_at_price > product.price
+      # 使用产品自带的对比价格
+      assign compare_price = product.compare_at_price
+    endif
+    
+    # 显示折扣徽章的条件
+    assign show_discount_badge = false
+    if final_discount_percent and final_discount_percent > 0
+      assign show_discount_badge = true
+    endif
+  -%}
+  
+  <a href="{{ product.url }}" class="product-card product-card--flash" {{ shopify_attributes }}>
+    <!-- Product Image -->
+    <div class="product-card__image-wrapper">
+      {%- liquid
+        # 优先使用自定义图片
+        assign display_image = custom_image | default: product.featured_image
+        assign display_title = custom_title | default: product.title
+      -%}
+      
+      {% if display_image %}
+        <img 
+          src="{{ display_image | image_url: width: 400 }}"
+          srcset="{{ display_image | image_url: width: 200 }} 200w,
+                  {{ display_image | image_url: width: 400 }} 400w,
+                  {{ display_image | image_url: width: 600 }} 600w"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          alt="{{ display_title | escape }}"
+          loading="lazy"
+          class="product-card__image">
+      {% else %}
+        <div class="product-card__image product-card__image--placeholder">
+          {{ 'product-1' | placeholder_svg_tag }}
+        </div>
+      {% endif %}
+      
+      <!-- Discount Badge -->
+      {% if show_discount_badge %}
+        <div class="product-card__discount-badge">
+          <span>{{ final_discount_percent }}%</span>
+          <span class="product-card__discount-off">OFF</span>
+        </div>
+      {% endif %}
+      
+      <!-- Hot Tag -->
+      {% if product.tags contains 'HOT' or product.tags contains 'hot' %}
+        <div class="product-card__hot-tag">
+          <span>HOT</span>
+        </div>
+      {% endif %}
+    </div>
+    
+    <!-- Product Info -->
+    <div class="product-card__info">
+      <h3 class="product-card__title">{{ display_title }}</h3>
+      
+      <!-- Custom Description (Optional) -->
+      {% if custom_description != blank %}
+        <p class="product-card__description">{{ custom_description }}</p>
+      {% endif %}
+      
+      <!-- Price -->
+      <div class="product-card__price">
+        <span class="product-card__price-sale">{{ sale_price | money }}</span>
+        {% if has_custom_price or compare_price > sale_price %}
+          {% if has_custom_price %}
+            <span class="product-card__price-compare">${{ custom_compare_price }}</span>
+          {% else %}
+            <span class="product-card__price-compare">{{ compare_price | money }}</span>
+          {% endif %}
+        {% endif %}
+      </div>
+      
+      <!-- Reviews (Optional) -->
+      {% if show_reviews and product.metafields.reviews.rating_count.value %}
+        <div class="product-card__reviews">
+          {{ product.metafields.reviews.rating_count.value }} Review(s)
+        </div>
+      {% endif %}
+    </div>
+  </a>
+{% endif %}
+

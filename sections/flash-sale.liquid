@@ -56,7 +56,6 @@
             section_blocks: section.blocks,
             grid_style: 'flash',
             grid_class: 'flash-sale-products',
-            card_style: 'flash',
             show_reviews: section.settings.show_reviews,
             discount_percent: block.settings.discount_percent,
             filter_category: tab_index
@@ -142,6 +141,44 @@
           "type": "product",
           "id": "product",
           "label": "Select Product"
+        },
+        {
+          "type": "header",
+          "content": "Content Customization (Optional)"
+        },
+        {
+          "type": "image_picker",
+          "id": "custom_image",
+          "label": "Custom Product Image",
+          "info": "Leave blank to use product's featured image"
+        },
+        {
+          "type": "text",
+          "id": "custom_title",
+          "label": "Custom Title",
+          "info": "Leave blank to use product title"
+        },
+        {
+          "type": "textarea",
+          "id": "custom_description",
+          "label": "Custom Description",
+          "info": "Optional short description (not shown in current design)"
+        },
+        {
+          "type": "header",
+          "content": "Price Customization (Optional)"
+        },
+        {
+          "type": "text",
+          "id": "custom_compare_price",
+          "label": "Custom Original Price",
+          "info": "Leave blank to use product's compare_at_price. Example: 299.00"
+        },
+        {
+          "type": "number",
+          "id": "custom_discount_percent",
+          "label": "Custom Discount %",
+          "info": "Override tab discount. Leave blank to use tab discount. Example: 20 for 20% OFF"
         }
       ]
     }
