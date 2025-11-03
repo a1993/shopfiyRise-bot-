@@ -340,6 +340,55 @@
             "discount_percent": 15
           }
         },
+        "product_item_LAf8x7": {
+          "type": "product_item",
+          "settings": {
+            "parent_tab_number": 1,
+            "product": "30-shipping-fee"
+          }
+        },
+        "product_item_GJPWHf": {
+          "type": "product_item",
+          "settings": {
+            "parent_tab_number": 1,
+            "product": "15-base-cut"
+          }
+        },
+        "product_item_79xGzC": {
+          "type": "product_item",
+          "settings": {
+            "parent_tab_number": 1,
+            "product": "15-base-cut"
+          }
+        },
+        "product_item_DmycBC": {
+          "type": "product_item",
+          "settings": {
+            "parent_tab_number": 1,
+            "product": "15-base-cut"
+          }
+        },
+        "product_item_ijzhfD": {
+          "type": "product_item",
+          "settings": {
+            "parent_tab_number": 1,
+            "product": "15-base-cut"
+          }
+        },
+        "product_item_CRqwaa": {
+          "type": "product_item",
+          "settings": {
+            "parent_tab_number": 2,
+            "product": "15-base-cut"
+          }
+        },
+        "product_item_FNbCnK": {
+          "type": "product_item",
+          "settings": {
+            "parent_tab_number": 2,
+            "product": "15-base-cut"
+          }
+        },
         "product_tab_aDKAWc": {
           "type": "product_tab",
           "settings": {
@@ -353,20 +402,19 @@
             "tab_title": "Product Category3",
             "discount_percent": 15
           }
-        },
-        "product_item_LAf8x7": {
-          "type": "product_item",
-          "settings": {
-            "parent_tab": "",
-            "product": "15-base-cut"
-          }
         }
       },
       "block_order": [
         "product_tab_rjnLrV",
+        "product_item_LAf8x7",
+        "product_item_GJPWHf",
+        "product_item_79xGzC",
+        "product_item_DmycBC",
+        "product_item_ijzhfD",
+        "product_item_CRqwaa",
+        "product_item_FNbCnK",
         "product_tab_aDKAWc",
-        "product_tab_YgAi3L",
-        "product_item_LAf8x7"
+        "product_tab_YgAi3L"
       ],
       "name": "Flash Sale",
       "settings": {
