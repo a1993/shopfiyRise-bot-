@@ -451,35 +451,40 @@
           "type": "product_item",
           "settings": {
             "parent_category_number": 1,
-            "product": "15-base-cut"
+            "product": "15-base-cut",
+            "button_text": "Shop Now"
           }
         },
         "product_item_p8qUfG": {
           "type": "product_item",
           "settings": {
             "parent_category_number": 1,
-            "product": "15-base-cut"
+            "product": "15-base-cut",
+            "button_text": "Shop Now"
           }
         },
         "product_item_yAnHFK": {
           "type": "product_item",
           "settings": {
             "parent_category_number": 1,
-            "product": "15-base-cut"
+            "product": "15-base-cut",
+            "button_text": "Shop Now"
           }
         },
         "product_item_qVkn79": {
           "type": "product_item",
           "settings": {
             "parent_category_number": 1,
-            "product": "15-base-cut"
+            "product": "15-base-cut",
+            "button_text": "Shop Now"
           }
         },
         "product_item_qnPRKW": {
           "type": "product_item",
           "settings": {
             "parent_category_number": 1,
-            "product": "15-base-cut"
+            "product": "15-base-cut",
+            "button_text": "Shop Now"
           }
         }
       },
@@ -493,10 +498,13 @@
       ],
       "name": "Halloween Sale",
       "settings": {
+        "banner_desktop": "shopify://shop_images/banner_1.webp",
+        "banner_mobile": "shopify://shop_images/banner_m_1.webp",
         "banner_alt": "Halloween Hair System Sale",
         "background_gradient": "linear-gradient(180deg, rgba(228, 210, 201, 1), rgba(244, 246, 248, 1) 100%)",
         "show_firework_feed": true,
-        "firework_playlist": "5bJBa2"
+        "firework_playlist": "5bJBa2",
+        "show_reviews": false
       }
     },
     "crazy_weekend_sale_TXX4cL": {
@@ -568,6 +576,48 @@
         "banner_alt": "Crazy Weekend Sale",
         "currency_symbol": "$"
       }
+    },
+    "built_to_last_durable_hair_systems_QbYtcL": {
+      "type": "built-to-last-durable-hair-systems",
+      "blocks": {
+        "video_tips_6mcrEH": {
+          "type": "video_tips",
+          "settings": {
+            "video_title": "Expert Tips",
+            "video_cover": "shopify://shop_images/banner_m_1.webp",
+            "video_url": "https://www.youtube.com/embed/PuVSmqosLog?autoplay=1"
+          }
+        },
+        "product_item_yRxY3i": {
+          "type": "product_item",
+          "settings": {
+            "parent_category_number": 1,
+            "product": "1-order-balance-link"
+          }
+        },
+        "product_category_gnNaNP": {
+          "type": "product_category",
+          "settings": {
+            "category_title": "Up to 6–12 Months Lifespan",
+            "category_subtitle": ""
+          }
+        }
+      },
+      "block_order": [
+        "video_tips_6mcrEH",
+        "product_item_yRxY3i",
+        "product_category_gnNaNP"
+      ],
+      "name": "Durable Hair Systems",
+      "settings": {
+        "banner_alt": "Built to Last: Durable Hair Systems",
+        "show_intro_card": true,
+        "intro_title": "Why Should We Choose Hair System with Longer Life Span?",
+        "point_1": "<strong>For Busy People:</strong> Less Maintenance &amp; Fewer Replacements = More Time Saved.",
+        "point_2": "<strong>For Budget-Conscious Buyers:</strong> Saves money by reducing replacements and repairs.",
+        "point_3": "<strong>For Quality Seekers:</strong> Longer lifespan means better quality and reliability",
+        "intro_video_url": ""
+      }
     }
   },
   "order": [
@@ -580,6 +630,7 @@
     "campaign_product_cards_grid_GQXTB7",
     "flash_sale_jrBeVY",
     "halloween_hair_system_sale_EGMfJK",
-    "crazy_weekend_sale_TXX4cL"
+    "crazy_weekend_sale_TXX4cL",
+    "built_to_last_durable_hair_systems_QbYtcL"
   ]
 }
