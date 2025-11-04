@@ -616,6 +616,17 @@
     "built_to_last_durable_hair_systems_QbYtcL": {
       "type": "built-to-last-durable-hair-systems",
       "blocks": {
+        "product_with_video_w9mjnD": {
+          "type": "product_with_video",
+          "settings": {
+            "product": "1-order-balance-link",
+            "product_desc": "1112",
+            "video_cover": "shopify://shop_images/banner_m_1.webp",
+            "video_url": "https://www.youtube.com/embed/7NJCQwFN5gE?autoplay=1",
+            "video_position": "left",
+            "product_position": "left"
+          }
+        },
         "video_tips_list_yADTNr": {
           "type": "video_tips_list",
           "settings": {
@@ -643,6 +654,7 @@
         }
       },
       "block_order": [
+        "product_with_video_w9mjnD",
         "video_tips_list_yADTNr",
         "product_item_yRxY3i",
         "product_category_gnNaNP"
