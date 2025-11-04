@@ -26,6 +26,12 @@
         alt="{{ video_1_title | escape }}"
         loading="lazy"
         class="durable-video-tip-image">
+      <div class="durable-play-button">
+        <svg width="68" height="68" viewBox="0 0 68 68" fill="none">
+          <circle cx="34" cy="34" r="34" fill="white" opacity="0.9"/>
+          <path d="M27 22L47 34L27 46V22Z" fill="#1d1e20"/>
+        </svg>
+      </div>
     </div>
   </div>
   {% endif %}
@@ -41,6 +47,12 @@
         alt="{{ video_2_title | escape }}"
         loading="lazy"
         class="durable-video-tip-image">
+      <div class="durable-play-button">
+        <svg width="68" height="68" viewBox="0 0 68 68" fill="none">
+          <circle cx="34" cy="34" r="34" fill="white" opacity="0.9"/>
+          <path d="M27 22L47 34L27 46V22Z" fill="#1d1e20"/>
+        </svg>
+      </div>
     </div>
   </div>
   {% endif %}
@@ -78,7 +90,7 @@
   border-radius: 0.9375rem;
   overflow: hidden;
   width: 100%;
-  max-width: 578px;
+  /* max-width: 578px; */
 }
 
 .durable-video-tip-image {
@@ -90,6 +102,20 @@
 
 .durable-video-tip-image-wrapper:hover .durable-video-tip-image {
   transform: scale(1.05);
+}
+
+.durable-play-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.3s ease;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.durable-video-tip-image-wrapper:hover .durable-play-button {
+  transform: translate(-50%, -50%) scale(1.1);
 }
 
 @media screen and (max-width: 767px) {

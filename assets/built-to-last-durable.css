@@ -77,9 +77,13 @@
   left: 50%;
   transform: translate(-50%, -50%);
   transition: transform 0.3s ease;
+  z-index: 10;
+  pointer-events: none;
 }
 
-.durable-video-wrapper:hover .durable-play-button {
+.durable-video-wrapper:hover .durable-play-button,
+.durable-product-video-section:hover .durable-play-button,
+.durable-video-tip-image-wrapper:hover .durable-play-button {
   transform: translate(-50%, -50%) scale(1.1);
 }
 

@@ -17,7 +17,7 @@
 <div class="durable-product-video-card" {{ block.shopify_attributes }}>
   <div class="durable-product-video-wrapper">
     {% if video_cover != blank and video_url != blank %}
-    <div class="durable-product-video-section {% if video_position == 'right' %}order-2{% endif %}" 
+    <div class="durable-product-video-section {% if video_position == 'right' %}durable-video-order-2{% endif %}" 
          onclick="openVideoModal('durable-video-modal', '{{ video_url }}')">
       <img 
         src="{{ video_cover | image_url: width: 600 }}"
@@ -36,13 +36,15 @@
     {% if product %}
     <div class="durable-product-info-section">
       <a href="{{ product.url }}" class="durable-product-info-link">
-        <div class="durable-product-info-content {% if product_position == 'right' %}order-2{% endif %}">
+        <div class="durable-product-info-content">
           {% if product.featured_image %}
-            <img 
-              src="{{ product.featured_image | image_url: width: 400 }}"
-              alt="{{ product.title | escape }}"
-              loading="lazy"
-              class="durable-product-info-image">
+            <div class="durable-product-image-wrapper {% if product_position == 'right' %}durable-product-order-2{% endif %}">
+              <img 
+                src="{{ product.featured_image | image_url: width: 400 }}"
+                alt="{{ product.title | escape }}"
+                loading="lazy"
+                class="durable-product-info-image">
+            </div>
           {% endif %}
           
           <div class="durable-product-info-text">
@@ -93,6 +95,8 @@
 @media screen and (min-width: 768px) {
   .durable-product-video-wrapper {
     flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     gap: 3.5rem;
     padding: 3.5rem;
   }
@@ -112,6 +116,12 @@
   .durable-product-video-section {
     flex: 0 0 39%;
     max-width: 528px;
+    width: 39%;
+    order: 1;
+  }
+  
+  .durable-video-order-2 {
+    order: 2;
   }
 }
 
@@ -127,6 +137,8 @@
   left: 50%;
   transform: translate(-50%, -50%);
   transition: transform 0.3s ease;
+  z-index: 10;
+  pointer-events: none;
 }
 
 .durable-product-video-section:hover .durable-play-button {
@@ -135,6 +147,17 @@
 
 .durable-product-info-section {
   flex: 1;
+}
+
+@media screen and (min-width: 768px) {
+  .durable-product-info-section {
+    order: 1;
+  }
+  
+  /* 当视频在右侧时，产品信息区域保持在左侧（order: 1） */
+  .durable-video-order-2 ~ .durable-product-info-section {
+    order: 1;
+  }
 }
 
 .durable-product-info-link {
@@ -154,7 +177,23 @@
 @media screen and (min-width: 768px) {
   .durable-product-info-content {
     flex-direction: row;
+    align-items: center;
+    justify-content: center;
     gap: 2.5rem;
+    padding: 0;
+  }
+}
+
+.durable-product-image-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  order: 1;
+}
+
+@media screen and (min-width: 768px) {
+  .durable-product-order-2 {
+    order: 2;
   }
 }
 
