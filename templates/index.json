@@ -356,49 +356,70 @@
           "type": "product_item",
           "settings": {
             "parent_tab_number": 1,
-            "product": "30-shipping-fee"
+            "product": "30-shipping-fee",
+            "custom_title": "",
+            "custom_description": "",
+            "custom_compare_price": ""
           }
         },
         "product_item_GJPWHf": {
           "type": "product_item",
           "settings": {
             "parent_tab_number": 1,
-            "product": "15-base-cut"
+            "product": "15-base-cut",
+            "custom_title": "",
+            "custom_description": "",
+            "custom_compare_price": ""
           }
         },
         "product_item_79xGzC": {
           "type": "product_item",
           "settings": {
             "parent_tab_number": 1,
-            "product": "15-base-cut"
+            "product": "15-base-cut",
+            "custom_title": "",
+            "custom_description": "",
+            "custom_compare_price": ""
           }
         },
         "product_item_DmycBC": {
           "type": "product_item",
           "settings": {
             "parent_tab_number": 1,
-            "product": "15-base-cut"
+            "product": "15-base-cut",
+            "custom_title": "",
+            "custom_description": "",
+            "custom_compare_price": ""
           }
         },
         "product_item_ijzhfD": {
           "type": "product_item",
           "settings": {
             "parent_tab_number": 1,
-            "product": "15-base-cut"
+            "product": "15-base-cut",
+            "custom_title": "",
+            "custom_description": "",
+            "custom_compare_price": ""
           }
         },
         "product_item_CRqwaa": {
           "type": "product_item",
           "settings": {
             "parent_tab_number": 2,
-            "product": "15-base-cut"
+            "product": "15-base-cut",
+            "custom_title": "",
+            "custom_description": "",
+            "custom_compare_price": ""
           }
         },
         "product_item_FNbCnK": {
           "type": "product_item",
           "settings": {
             "parent_tab_number": 2,
-            "product": "15-base-cut"
+            "product": "15-base-cut",
+            "custom_title": "",
+            "custom_description": "",
+            "custom_compare_price": ""
           }
         },
         "product_tab_aDKAWc": {
@@ -442,9 +463,8 @@
         "product_category_n4z63f": {
           "type": "product_category",
           "settings": {
-            "category_title": "Product Category Title",
-            "category_subtitle": "Subtitle Description",
-            "tag_image": "shopify://shop_images/tag.webp"
+            "tag_image": "shopify://shop_images/tag.webp",
+            "category_discount_percent": 20
           }
         },
         "product_item_J9wLp7": {
@@ -452,7 +472,11 @@
           "settings": {
             "parent_category_number": 1,
             "product": "15-base-cut",
-            "button_text": "Shop Now"
+            "button_text": "Shop Now",
+            "custom_title": "",
+            "custom_description": "",
+            "custom_compare_price": "",
+            "custom_discount_percent": 0
           }
         },
         "product_item_p8qUfG": {
@@ -460,7 +484,10 @@
           "settings": {
             "parent_category_number": 1,
             "product": "15-base-cut",
-            "button_text": "Shop Now"
+            "button_text": "Shop Now",
+            "custom_title": "",
+            "custom_description": "",
+            "custom_compare_price": ""
           }
         },
         "product_item_yAnHFK": {
@@ -468,7 +495,10 @@
           "settings": {
             "parent_category_number": 1,
             "product": "15-base-cut",
-            "button_text": "Shop Now"
+            "button_text": "Shop Now",
+            "custom_title": "",
+            "custom_description": "",
+            "custom_compare_price": ""
           }
         },
         "product_item_qVkn79": {
@@ -476,7 +506,10 @@
           "settings": {
             "parent_category_number": 1,
             "product": "15-base-cut",
-            "button_text": "Shop Now"
+            "button_text": "Shop Now",
+            "custom_title": "",
+            "custom_description": "",
+            "custom_compare_price": ""
           }
         },
         "product_item_qnPRKW": {
@@ -484,7 +517,10 @@
           "settings": {
             "parent_category_number": 1,
             "product": "15-base-cut",
-            "button_text": "Shop Now"
+            "button_text": "Shop Now",
+            "custom_title": "",
+            "custom_description": "",
+            "custom_compare_price": ""
           }
         }
       },
