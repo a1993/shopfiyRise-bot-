@@ -1,20 +1,21 @@
 {% comment %}
-  产品+视频组合组件
-  Product with Video Component
-  
-  用于展示产品信息和视频的组合，匹配 Vue 组件中的 ProductVideo
+  Product with Video Section
+  产品+视频组合模块
 {% endcomment %}
 
+{{ 'built-to-last-durable.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'built-to-last-durable.js' | asset_url }}" defer></script>
+
 {%- liquid
-  assign product = block.settings.product
-  assign video_cover = block.settings.video_cover
-  assign video_url = block.settings.video_url
-  assign video_position = block.settings.video_position | default: 'left'
-  assign product_position = block.settings.product_position | default: 'left'
-  assign product_desc = block.settings.product_desc
+  assign product = section.settings.product
+  assign video_cover = section.settings.video_cover
+  assign video_url = section.settings.video_url
+  assign video_position = section.settings.video_position | default: 'left'
+  assign product_position = section.settings.product_position | default: 'left'
+  assign product_desc = section.settings.product_desc
 -%}
 
-<div class="durable-product-video-card" {{ block.shopify_attributes }}>
+<div class="durable-product-video-card" {{ section.shopify_attributes }}>
   <div class="durable-product-video-wrapper">
     {% if video_cover != blank and video_url != blank %}
     <div class="durable-product-video-section {% if video_position == 'right' %}durable-video-order-2{% endif %}" 
@@ -70,6 +71,9 @@
   </div>
 </div>
 
+<!-- Video Modal -->
+{% render 'video-modal', modal_id: 'durable-video-modal' %}
+
 <style>
 .durable-product-video-card {
   margin: 2rem 0;
@@ -88,7 +92,7 @@
   align-items: center;
   background: #eff5f5;
   border-radius: 0.9375rem;
-  /* padding: 1rem; */
+  padding: 1rem;
   box-sizing: border-box;
 }
 
@@ -98,7 +102,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 3.5rem;
-    /* padding: 3.5rem; */
+    padding: 3.5rem;
   }
 }
 
@@ -188,12 +192,12 @@
   flex: 1;
   display: flex;
   align-items: center;
-  order: 0;
+  order: 1;
 }
 
 @media screen and (min-width: 768px) {
   .durable-product-order-2 {
-    order: 1;
+    order: 2;
   }
 }
 
@@ -277,4 +281,80 @@
   }
 }
 </style>
+
+{% schema %}
+{
+  "name": "Product with Video",
+  "tag": "section",
+  "class": "product-with-video-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Product Settings"
+    },
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Select Product"
+    },
+    {
+      "type": "text",
+      "id": "product_desc",
+      "label": "Product Description",
+      "info": "Optional product description to display"
+    },
+    {
+      "type": "header",
+      "content": "Video Settings"
+    },
+    {
+      "type": "image_picker",
+      "id": "video_cover",
+      "label": "Video Cover Image"
+    },
+    {
+      "type": "url",
+      "id": "video_url",
+      "label": "Video URL (YouTube Embed URL)"
+    },
+    {
+      "type": "select",
+      "id": "video_position",
+      "label": "Video Position",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "product_position",
+      "label": "Product Image Position",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product with Video"
+    }
+  ]
+}
+{% endschema %}
 
