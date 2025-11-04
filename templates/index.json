@@ -616,12 +616,15 @@
     "built_to_last_durable_hair_systems_QbYtcL": {
       "type": "built-to-last-durable-hair-systems",
       "blocks": {
-        "video_tips_6mcrEH": {
-          "type": "video_tips",
+        "video_tips_list_yADTNr": {
+          "type": "video_tips_list",
           "settings": {
-            "video_title": "Expert Tips",
-            "video_cover": "shopify://shop_images/banner_m_1.webp",
-            "video_url": "https://www.youtube.com/embed/PuVSmqosLog?autoplay=1"
+            "video_1_title": "How to Revive Your <br> Hair System Fast?",
+            "video_1_cover": "shopify://shop_images/banner_m_1.webp",
+            "video_1_url": "https://www.youtube.com/embed/PuVSmqosLog?autoplay=1",
+            "video_2_title": "Expert Tips to Extend Your <br> Hair System's Lifespan",
+            "video_2_cover": "shopify://shop_images/banner_m_1.webp",
+            "video_2_url": "https://www.youtube.com/embed/PuVSmqosLog?autoplay=1"
           }
         },
         "product_item_yRxY3i": {
@@ -640,7 +643,7 @@
         }
       },
       "block_order": [
-        "video_tips_6mcrEH",
+        "video_tips_list_yADTNr",
         "product_item_yRxY3i",
         "product_category_gnNaNP"
       ],
