@@ -140,13 +140,7 @@
 </div>
 
 <!-- Video Modal -->
-<div class="durable-video-modal" id="videoModal">
-  <div class="durable-modal-overlay"></div>
-  <div class="durable-modal-content">
-    <button class="durable-modal-close">&times;</button>
-    <div class="durable-modal-video" id="videoContainer"></div>
-  </div>
-</div>
+{% render 'video-modal', modal_id: 'durable-video-modal' %}
 
 {% schema %}
 {

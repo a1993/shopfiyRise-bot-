@@ -199,72 +199,7 @@
   text-align: center;
 }
 
-/* Video Modal */
-.durable-video-modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 9999;
-}
-
-.durable-video-modal.active {
-  display: block;
-}
-
-.durable-modal-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
-}
-
-.durable-modal-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: 1200px;
-  background: #000;
-  border-radius: 0.5rem;
-  overflow: hidden;
-}
-
-.durable-modal-close {
-  position: absolute;
-  top: -40px;
-  right: 0;
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 2.5rem;
-  cursor: pointer;
-  padding: 0;
-  width: 40px;
-  height: 40px;
-  line-height: 1;
-  z-index: 10000;
-}
-
-.durable-modal-video {
-  position: relative;
-  padding-bottom: 56.25%;
-  height: 0;
-  overflow: hidden;
-}
-
-.durable-modal-video iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
+/* Video Modal styles are now in video-modal.liquid snippet */
 
 /* Mobile Responsive */
 @media screen and (max-width: 767px) {
@@ -321,14 +256,6 @@
     gap: 1.5rem;
   }
   
-  .durable-modal-content {
-    width: 95%;
-  }
-  
-  .durable-modal-close {
-    top: -35px;
-    font-size: 2rem;
-  }
 }
 
 /* Tablet */
