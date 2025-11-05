@@ -80,17 +80,6 @@
       {% endif %}
     {% endfor %}
     
-    <!-- Firework Video Feed (Optional) -->
-    {% if section.settings.show_firework_feed and section.settings.firework_playlist != blank %}
-      <div class="halloween-firework-section">
-        {% render 'firework-feed',
-          playlist: section.settings.firework_playlist,
-          channel: 'lavivid_hair',
-          mode: 'row',
-          player_placement: 'bottom-left'
-        %}
-      </div>
-    {% endif %}
     
   </div>
 </div>
@@ -130,22 +119,6 @@
       "id": "background_gradient",
       "label": "Background Gradient",
       "default": "linear-gradient(180deg, #E4D2C9 0%, #F4F6F8 100%)"
-    },
-    {
-      "type": "header",
-      "content": "Firework Video Feed (Optional)"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_firework_feed",
-      "label": "Show Firework Video Feed",
-      "default": false
-    },
-    {
-      "type": "text",
-      "id": "firework_playlist",
-      "label": "Firework Playlist ID",
-      "info": "Enter Firework playlist ID (e.g., 5bJBa2)"
     },
     {
       "type": "checkbox",
