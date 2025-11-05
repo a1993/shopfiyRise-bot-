@@ -75,6 +75,12 @@
     "collection-list": {
       "type": "collection-list",
       "blocks": {
+        "featured_collection_xY63Mx": {
+          "type": "featured_collection",
+          "settings": {
+            "collection": ""
+          }
+        },
         "collection-0": {
           "type": "featured_collection",
           "settings": {
@@ -96,11 +102,12 @@
         "collection-3": {
           "type": "featured_collection",
           "settings": {
-            "collection": ""
+            "collection": "african-american-hair-pieces"
           }
         }
       },
       "block_order": [
+        "featured_collection_xY63Mx",
         "collection-0",
         "collection-1",
         "collection-2",
@@ -140,11 +147,11 @@
         "product_xJ9a3E": {
           "type": "product",
           "settings": {
-            "product": "1-order-balance-link",
+            "product": "1-order-balance-link-1",
             "badge_image": "shopify://shop_images/ares-men-s-non-surgical-hair-replacement-french-lace-with-skin-around-best-for-daily-wear.jpg",
             "badge_position": "top-left",
             "badge_size": 60,
-            "discount_percent": 50
+            "discount_percent": 0
           }
         },
         "product_9qYgbL": {
@@ -483,7 +490,7 @@
           "type": "product_item",
           "settings": {
             "parent_category_number": 1,
-            "product": "15-base-cut",
+            "product": "1-order-balance-link-1",
             "button_text": "Shop Now",
             "custom_title": "",
             "custom_description": "",
