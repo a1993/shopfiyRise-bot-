@@ -16,17 +16,15 @@
 
 {% if product %}
   {%- liquid
-    # 确定使用哪个折扣百分比
-    # 优先级：custom_discount_percent > discount_percent > 系统计算的百分比折扣
-    assign final_discount_percent = 0
-    assign system_discount_percent = 0
-    
     # 确定原价和折扣价
-    assign has_custom_price = false
+    # 优先级：自定义价格 > 系统价格（product.compare_at_price 和 product.price）
     assign compare_price = 0
     assign sale_price = product.price
+    assign show_compare_price = false
+    assign final_discount_percent = 0
     
     # 计算系统折扣百分比（基于产品的 compare_at_price）
+    assign system_discount_percent = 0
     if product.compare_at_price > product.price
       assign discount_amount = product.compare_at_price | minus: product.price
       assign system_discount_percent = discount_amount | times: 100.0 | divided_by: product.compare_at_price | round
@@ -34,11 +32,11 @@
     
     # 如果有自定义原价
     if custom_compare_price != blank
-      assign has_custom_price = true
       assign compare_price_value = custom_compare_price | times: 100
       assign compare_price = compare_price_value
+      assign show_compare_price = true
       
-      # 确定使用的折扣百分比
+      # 确定使用的折扣百分比（优先级：custom_discount_percent > discount_percent > 系统计算的）
       if custom_discount_percent and custom_discount_percent > 0
         assign final_discount_percent = custom_discount_percent
       elsif discount_percent and discount_percent > 0
@@ -57,8 +55,8 @@
         assign sale_price = product.price
       endif
     else
-      # 没有自定义原价
-      # 确定使用的折扣百分比
+      # 没有自定义原价，使用系统价格（product.compare_at_price 和 product.price）
+      # 确定使用的折扣百分比（优先级：custom_discount_percent > discount_percent > 系统计算的）
       if custom_discount_percent and custom_discount_percent > 0
         assign final_discount_percent = custom_discount_percent
       elsif discount_percent and discount_percent > 0
@@ -69,8 +67,10 @@
       
       # 使用系统固定折扣（product.compare_at_price）
       if product.compare_at_price > product.price
+        # 系统已配置折扣，直接使用
         assign compare_price = product.compare_at_price
         assign sale_price = product.price
+        assign show_compare_price = true
         # 如果没有设置任何折扣百分比，使用系统计算的
         if final_discount_percent == 0
           assign final_discount_percent = system_discount_percent
@@ -81,6 +81,7 @@
         assign discount_decimal = final_discount_percent | times: 1.0 | divided_by: 100.0
         assign discount_amount = product.price | times: discount_decimal
         assign sale_price = product.price | minus: discount_amount
+        assign show_compare_price = true
       endif
     endif
     
@@ -145,13 +146,12 @@
       
       <!-- Price -->
       <div class="product-card__price">
-        {% if has_custom_price %}
+        {% if show_compare_price and compare_price > sale_price %}
+          {% comment %} 显示原价和折扣价（符合 Shopify 官方格式） {% endcomment %}
+          <s class="product-card__price-compare">{{ compare_price | money }}</s>
           <span class="product-card__price-sale">{{ sale_price | money }}</span>
-          <span class="product-card__price-compare">${{ custom_compare_price }}</span>
-        {% elsif compare_price > sale_price %}
-          <span class="product-card__price-sale">{{ sale_price | money }}</span>
-          <span class="product-card__price-compare">{{ compare_price | money }}</span>
         {% else %}
+          {% comment %} 只显示当前价格 {% endcomment %}
           <span class="product-card__price-sale">{{ sale_price | money }}</span>
         {% endif %}
       </div>
