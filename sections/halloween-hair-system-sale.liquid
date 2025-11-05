@@ -148,7 +148,7 @@
           "id": "category_discount_percent",
           "label": "Category Discount %",
           "default": 0,
-          "info": "Apply discount to all products in this category. Individual product discount will override this."
+          "info": "Set to 0 to use product's system discount (compare_at_price). Or set custom % for all products in this category."
         }
       ]
     },
@@ -211,7 +211,8 @@
           "type": "number",
           "id": "custom_discount_percent",
           "label": "Custom Discount %",
-          "info": "Show discount badge. Example: 20 for 20% OFF"
+          "default": 0,
+          "info": "Set to 0 to use category or system discount. Or set custom % for this product. Example: 20 for 20% OFF"
         }
       ]
     }
