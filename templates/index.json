@@ -538,8 +538,6 @@
         "banner_mobile": "shopify://shop_images/banner_m_1.webp",
         "banner_alt": "Halloween Hair System Sale",
         "background_gradient": "linear-gradient(180deg, rgba(228, 210, 201, 1), rgba(244, 246, 248, 1) 100%)",
-        "show_firework_feed": true,
-        "firework_playlist": "5bJBa2",
         "show_reviews": false
       }
     },
@@ -681,6 +679,45 @@
         "video_2_cover": "shopify://shop_images/banner_m_1.webp",
         "video_2_url": "https://www.lavividhair.com/skin-hair-systems/mirage-toupee-for-men-full-super-thin-skin-base-celebrities-choice_p44-4571.html"
       }
+    },
+    "faq_4gmnMN": {
+      "type": "faq",
+      "blocks": {
+        "faq_item_mbbxjF": {
+          "type": "faq_item",
+          "settings": {
+            "question": "What is this FAQ about?",
+            "answer": "This is the answer to the FAQ question.",
+            "is_html": false
+          }
+        },
+        "faq_item_nrYwmG": {
+          "type": "faq_item",
+          "settings": {
+            "question": "What is this FAQ about?",
+            "answer": "This is the answer to the FAQ question.",
+            "is_html": false
+          }
+        },
+        "faq_item_yEKF9n": {
+          "type": "faq_item",
+          "settings": {
+            "question": "Another question?",
+            "answer": "Another answer.",
+            "is_html": false
+          }
+        }
+      },
+      "block_order": [
+        "faq_item_mbbxjF",
+        "faq_item_nrYwmG",
+        "faq_item_yEKF9n"
+      ],
+      "name": "FAQ",
+      "settings": {
+        "faq_title": "Frequently Asked Questions",
+        "faq_subtitle": ""
+      }
     }
   },
   "order": [
@@ -697,6 +734,7 @@
     "built_to_last_durable_hair_systems_QbYtcL",
     "product_with_video_UwFWWk",
     "product_with_video_KLtUYJ",
-    "video_tips_list_MxzP6W"
+    "video_tips_list_MxzP6W",
+    "faq_4gmnMN"
   ]
 }
