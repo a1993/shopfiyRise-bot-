@@ -24,12 +24,21 @@
     assign display_image = custom_image | default: product.featured_image
     assign display_title = custom_title | default: product.title
     
-    # 确定使用的折扣百分比（优先级：商品折扣 > 分类折扣）
+    # 计算系统折扣百分比（基于产品的 compare_at_price）
+    assign system_discount_percent = 0
+    if product.compare_at_price > product.price
+      assign discount_amount = product.compare_at_price | minus: product.price
+      assign system_discount_percent = discount_amount | times: 100.0 | divided_by: product.compare_at_price | round
+    endif
+    
+    # 确定使用的折扣百分比（优先级：商品折扣 > 分类折扣 > 系统折扣）
     assign final_discount_percent = 0
     if custom_discount_percent and custom_discount_percent > 0
       assign final_discount_percent = custom_discount_percent
     elsif category_discount_percent and category_discount_percent > 0
       assign final_discount_percent = category_discount_percent
+    elsif system_discount_percent > 0
+      assign final_discount_percent = system_discount_percent
     endif
     
     # 确定原价和折扣价
@@ -59,21 +68,25 @@
           assign display_discount_percent = discount_amount | times: 100.0 | divided_by: compare_price | round
         endif
         # 现价使用产品价格
+        assign sale_price = product.price
       endif
-    elsif final_discount_percent > 0
-      # 有折扣百分比，基于产品价格计算
-      assign display_discount_percent = final_discount_percent
-      assign compare_price = product.price
-      assign discount_decimal = final_discount_percent | times: 1.0 | divided_by: 100.0
-      assign discount_amount = product.price | times: discount_decimal
-      assign sale_price = product.price | minus: discount_amount
-      assign show_compare_price = true
-    elsif product.compare_at_price > product.price
-      # 使用产品自带的对比价格
-      assign compare_price = product.compare_at_price
-      assign discount_amount = compare_price | minus: product.price
-      assign display_discount_percent = discount_amount | times: 100.0 | divided_by: compare_price | round
-      assign show_compare_price = true
+    else
+      # 没有自定义原价，使用系统固定折扣（product.compare_at_price）
+      if product.compare_at_price > product.price
+        assign compare_price = product.compare_at_price
+        assign sale_price = product.price
+        assign show_compare_price = true
+        # 使用系统计算的折扣百分比或已设置的折扣百分比
+        assign display_discount_percent = final_discount_percent
+      elsif final_discount_percent > 0
+        # 有折扣百分比但没有系统固定折扣，基于产品价格计算
+        assign display_discount_percent = final_discount_percent
+        assign compare_price = product.price
+        assign discount_decimal = final_discount_percent | times: 1.0 | divided_by: 100.0
+        assign discount_amount = product.price | times: discount_decimal
+        assign sale_price = product.price | minus: discount_amount
+        assign show_compare_price = true
+      endif
     endif
   -%}
   
