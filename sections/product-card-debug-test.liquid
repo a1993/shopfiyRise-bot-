@@ -1,0 +1,80 @@
+{% comment %}
+  商品卡片调试测试 Section
+  用于测试和调试折扣显示问题
+{% endcomment %}
+
+<div class="debug-test-container" style="padding: 20px;">
+  <h1 style="text-align: center; margin-bottom: 20px;">商品折扣调试测试</h1>
+  
+  <div style="background: #fff3cd; padding: 15px; margin-bottom: 20px; border: 1px solid #ffc107;">
+    <strong>使用说明：</strong>
+    <ol>
+      <li>选择一个已设置系统折扣的商品（product.compare_at_price > product.price）</li>
+      <li>查看下方调试信息，确认商品的价格设置</li>
+      <li>测试不同的折扣百分比设置</li>
+    </ol>
+  </div>
+  
+  {% if section.settings.product %}
+    {% render 'product-card-flash-debug',
+      product: section.settings.product,
+      custom_discount_percent: section.settings.custom_discount_percent,
+      discount_percent: section.settings.tab_discount_percent,
+      custom_compare_price: section.settings.custom_compare_price
+    %}
+  {% else %}
+    <div style="background: #f8d7da; padding: 20px; text-align: center; color: #721c24; border: 1px solid #f5c6cb;">
+      请在右侧设置中选择一个商品进行测试
+    </div>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "商品卡片调试测试",
+  "tag": "section",
+  "class": "debug-test-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "选择测试商品"
+    },
+    {
+      "type": "product",
+      "id": "product",
+      "label": "测试商品",
+      "info": "选择一个已设置系统折扣的商品（compare_at_price > price）"
+    },
+    {
+      "type": "header",
+      "content": "测试不同折扣设置"
+    },
+    {
+      "type": "number",
+      "id": "tab_discount_percent",
+      "label": "Tab 折扣百分比",
+      "default": 0,
+      "info": "模拟 Tab 级别的折扣百分比"
+    },
+    {
+      "type": "number",
+      "id": "custom_discount_percent",
+      "label": "自定义折扣百分比",
+      "default": 0,
+      "info": "模拟商品自定义折扣百分比"
+    },
+    {
+      "type": "text",
+      "id": "custom_compare_price",
+      "label": "自定义原价",
+      "info": "留空使用系统价格。示例: 299.00"
+    }
+  ],
+  "presets": [
+    {
+      "name": "商品卡片调试测试"
+    }
+  ]
+}
+{% endschema %}
+

@@ -1,0 +1,138 @@
+{% comment %}
+  Flash Sale 商品卡片组件 - 调试版本
+  用于调试折扣显示问题
+{% endcomment %}
+
+{% if product %}
+  {%- liquid
+    # 确定原价和折扣价
+    assign compare_price = 0
+    assign sale_price = product.price
+    assign show_compare_price = false
+    assign final_discount_percent = 0
+    
+    # 计算系统折扣百分比（基于产品的 compare_at_price）
+    assign system_discount_percent = 0
+    if product.compare_at_price > product.price
+      assign discount_amount = product.compare_at_price | minus: product.price
+      assign system_discount_percent = discount_amount | times: 100.0 | divided_by: product.compare_at_price | round
+    endif
+    
+    # 如果有自定义原价
+    if custom_compare_price != blank
+      assign compare_price_value = custom_compare_price | times: 100
+      assign compare_price = compare_price_value
+      assign show_compare_price = true
+      
+      # 确定使用的折扣百分比
+      if custom_discount_percent and custom_discount_percent > 0
+        assign final_discount_percent = custom_discount_percent
+      elsif discount_percent and discount_percent > 0
+        assign final_discount_percent = discount_percent
+      elsif system_discount_percent > 0
+        assign final_discount_percent = system_discount_percent
+      endif
+      
+      # 如果有折扣百分比，基于自定义原价计算现价
+      if final_discount_percent > 0
+        assign discount_decimal = final_discount_percent | times: 1.0 | divided_by: 100.0
+        assign discount_amount = compare_price | times: discount_decimal
+        assign sale_price = compare_price | minus: discount_amount
+      else
+        assign sale_price = product.price
+      endif
+    else
+      # 没有自定义原价，使用系统价格
+      # 确定使用的折扣百分比
+      if custom_discount_percent and custom_discount_percent > 0
+        assign final_discount_percent = custom_discount_percent
+      elsif discount_percent and discount_percent > 0
+        assign final_discount_percent = discount_percent
+      elsif system_discount_percent > 0
+        assign final_discount_percent = system_discount_percent
+      endif
+      
+      # 使用系统固定折扣
+      if product.compare_at_price > product.price
+        assign compare_price = product.compare_at_price
+        assign sale_price = product.price
+        assign show_compare_price = true
+        if final_discount_percent == 0
+          assign final_discount_percent = system_discount_percent
+        endif
+      elsif final_discount_percent > 0
+        assign compare_price = product.price
+        assign discount_decimal = final_discount_percent | times: 1.0 | divided_by: 100.0
+        assign discount_amount = product.price | times: discount_decimal
+        assign sale_price = product.price | minus: discount_amount
+        assign show_compare_price = true
+      endif
+    endif
+    
+    # 显示折扣徽章的条件
+    assign show_discount_badge = false
+    if final_discount_percent > 0
+      assign show_discount_badge = true
+    endif
+  -%}
+  
+  <div class="product-card product-card--flash debug-mode" style="border: 2px solid red; padding: 10px; margin: 10px;">
+    <h3>{{ product.title }}</h3>
+    
+    <!-- 调试信息 -->
+    <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; font-size: 12px;">
+      <strong>调试信息：</strong><br>
+      product.price: {{ product.price | money }}<br>
+      product.compare_at_price: {{ product.compare_at_price | money }}<br>
+      <br>
+      custom_compare_price: {{ custom_compare_price | default: "未设置" }}<br>
+      custom_discount_percent: {{ custom_discount_percent | default: "未设置" }}<br>
+      discount_percent (Tab): {{ discount_percent | default: "未设置" }}<br>
+      <br>
+      system_discount_percent: {{ system_discount_percent }}%<br>
+      final_discount_percent: {{ final_discount_percent }}%<br>
+      <br>
+      compare_price: {{ compare_price | money }}<br>
+      sale_price: {{ sale_price | money }}<br>
+      show_compare_price: {{ show_compare_price }}<br>
+      show_discount_badge: {{ show_discount_badge }}<br>
+    </div>
+    
+    <!-- 产品图片 -->
+    {% if product.featured_image %}
+      <img 
+        src="{{ product.featured_image | image_url: width: 200 }}"
+        alt="{{ product.title }}"
+        width="200"
+        height="200"
+        style="max-width: 200px;">
+    {% endif %}
+    
+    <!-- 折扣徽章 -->
+    {% if show_discount_badge %}
+      <div style="background: red; color: white; padding: 5px;">
+        {{ final_discount_percent }}% OFF
+      </div>
+    {% else %}
+      <div style="background: gray; color: white; padding: 5px;">
+        无折扣徽章
+      </div>
+    {% endif %}
+    
+    <!-- 价格 -->
+    <div style="margin: 10px 0; font-size: 16px;">
+      {% if show_compare_price and compare_price > sale_price %}
+        <s style="color: #999;">{{ compare_price | money }}</s>
+        <strong style="color: red;">{{ sale_price | money }}</strong>
+      {% else %}
+        <strong>{{ sale_price | money }}</strong>
+      {% endif %}
+    </div>
+    
+    <!-- 链接 -->
+    <a href="{{ product.url }}" style="display: block; background: blue; color: white; padding: 10px; text-align: center;">
+      查看商品
+    </a>
+  </div>
+{% endif %}
+
