@@ -356,7 +356,7 @@
           "type": "product_tab",
           "settings": {
             "tab_title": "Product Category1",
-            "discount_percent": 15
+            "discount_percent": 0
           }
         },
         "product_item_LAf8x7": {
@@ -373,7 +373,7 @@
           "type": "product_item",
           "settings": {
             "parent_tab_number": 1,
-            "product": "15-base-cut",
+            "product": "1-order-balance-link-1",
             "custom_title": "",
             "custom_description": "",
             "custom_compare_price": ""
