@@ -725,6 +725,17 @@
         "faq_title": "Frequently Asked Questions",
         "faq_subtitle": ""
       }
+    },
+    "story_block_rqg94q": {
+      "type": "story-block",
+      "name": "StoryBlock",
+      "settings": {
+        "playlist": "gMwNxQ",
+        "channel": "lavivid_hair",
+        "mode": "floating",
+        "player_placement": "bottom-right",
+        "autoplay": true
+      }
     }
   },
   "order": [
@@ -742,6 +753,7 @@
     "product_with_video_UwFWWk",
     "product_with_video_KLtUYJ",
     "video_tips_list_MxzP6W",
-    "faq_4gmnMN"
+    "faq_4gmnMN",
+    "story_block_rqg94q"
   ]
 }
