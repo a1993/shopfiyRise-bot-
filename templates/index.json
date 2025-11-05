@@ -694,8 +694,8 @@
           "type": "faq_item",
           "settings": {
             "question": "What is this FAQ about?",
-            "answer": "This is the answer to the FAQ question.",
-            "is_html": false
+            "answer": "For the front hairline area, a <a class=\"!underline\" href=\"${originUrl}/content/skin-base-10\" target=\"_blank\">thin skin base</a> and <a class=\"!underline\" href=\"${originUrl}/lace-hair-systems_40482\" target=\"_blank\">lace base</a> can both offer you a super natural look, while a <a class=\"!underline\" href=\"${originUrl}/silk-hair-systems_40485\" target=\"_blank\">silk base</a> can guarantee you a scalp-like top. You can go for a combo base with a lace front.",
+            "is_html": true
           }
         },
         "faq_item_nrYwmG": {
