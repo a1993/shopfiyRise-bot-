@@ -1,0 +1,472 @@
+{% comment %}
+  标准化容器 Section
+  Standard Container Section - 类似 Vue Slot 的容器
+  
+  功能：
+  - PC 端宽度 1400px，小于 1400px 时宽度 100%
+  - 支持在容器中添加多个内容块（类似 Vue slot）
+  - 每个内容块可以自定义宽度限制
+{% endcomment %}
+
+{{ 'standard-container.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign background_color = section.settings.background_color
+  assign background_gradient = section.settings.background_gradient
+  assign padding_top = section.settings.padding_top
+  assign padding_bottom = section.settings.padding_bottom
+-%}
+
+<div class="standard-container-section" 
+     {{ section.shopify_attributes }}
+     {% if background_color != blank or background_gradient != blank %}style="{% if background_gradient != blank %}background: {{ background_gradient }};{% elsif background_color != blank %}background-color: {{ background_color }};{% endif %}"{% endif %}>
+  
+  <div class="standard-container-wrapper" 
+       style="padding-top: {{ padding_top }}px; padding-bottom: {{ padding_bottom }}px;">
+    
+    {% if section.blocks.size > 0 %}
+      {% for block in section.blocks %}
+        {% case block.type %}
+          {% when 'content_block' %}
+            {% comment %} 内容块 - 类似 Vue slot {% endcomment %}
+            <div class="standard-content-block" 
+                 data-block-type="{{ block.type }}"
+                 {{ block.shopify_attributes }}>
+              
+              {%- liquid
+                assign block_width = block.settings.block_width | default: 'full'
+                assign block_max_width = block.settings.block_max_width
+                assign block_alignment = block.settings.block_alignment | default: 'left'
+                assign block_padding = block.settings.block_padding | default: 'medium'
+              -%}
+              
+              <div class="standard-content-block__inner 
+                          standard-content-block__inner--width-{{ block_width }}
+                          standard-content-block__inner--align-{{ block_alignment }}
+                          standard-content-block__inner--padding-{{ block_padding }}"
+                   {% if block_max_width > 0 %}style="max-width: {{ block_max_width }}px;"{% endif %}>
+                
+                {% if block.settings.title != blank %}
+                  <h2 class="standard-content-block__title">{{ block.settings.title }}</h2>
+                {% endif %}
+                
+                {% if block.settings.subtitle != blank %}
+                  <p class="standard-content-block__subtitle">{{ block.settings.subtitle }}</p>
+                {% endif %}
+                
+                {% if block.settings.content != blank %}
+                  <div class="standard-content-block__content">
+                    {{ block.settings.content }}
+                  </div>
+                {% endif %}
+                
+                {% if block.settings.richtext != blank %}
+                  <div class="standard-content-block__richtext">
+                    {{ block.settings.richtext }}
+                  </div>
+                {% endif %}
+                
+                {% if block.settings.image != blank %}
+                  <div class="standard-content-block__image-wrapper">
+                    <img 
+                      src="{{ block.settings.image | image_url: width: 1200 }}"
+                      srcset="{{ block.settings.image | image_url: width: 600 }} 600w,
+                              {{ block.settings.image | image_url: width: 900 }} 900w,
+                              {{ block.settings.image | image_url: width: 1200 }} 1200w"
+                      sizes="(max-width: 767px) 100vw, (max-width: 1399px) 100vw, 1200px"
+                      alt="{{ block.settings.image.alt | default: block.settings.title | escape }}"
+                      width="1200"
+                      height="600"
+                      loading="lazy"
+                      class="standard-content-block__image">
+                  </div>
+                {% endif %}
+                
+                {% if block.settings.button_text != blank and block.settings.button_url != blank %}
+                  <div class="standard-content-block__button-wrapper">
+                    <a href="{{ block.settings.button_url }}" 
+                       class="standard-content-block__button standard-content-block__button--{{ block.settings.button_style | default: 'primary' }}">
+                      {{ block.settings.button_text }}
+                    </a>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+          {% when 'html_block' %}
+            {% comment %} HTML 块 - 完全自定义内容 {% endcomment %}
+            <div class="standard-content-block standard-content-block--html" 
+                 data-block-type="{{ block.type }}"
+                 {{ block.shopify_attributes }}>
+              
+              {%- liquid
+                assign block_width = block.settings.block_width | default: 'full'
+                assign block_max_width = block.settings.block_max_width
+                assign block_alignment = block.settings.block_alignment | default: 'left'
+                assign block_padding = block.settings.block_padding | default: 'medium'
+              -%}
+              
+              <div class="standard-content-block__inner 
+                          standard-content-block__inner--width-{{ block_width }}
+                          standard-content-block__inner--align-{{ block_alignment }}
+                          standard-content-block__inner--padding-{{ block_padding }}"
+                   {% if block_max_width > 0 %}style="max-width: {{ block_max_width }}px;"{% endif %}>
+                {{ block.settings.html_content }}
+              </div>
+            </div>
+            
+          {% when 'spacer' %}
+            {% comment %} 间距块 {% endcomment %}
+            <div class="standard-content-block standard-content-block--spacer" 
+                 data-block-type="{{ block.type }}"
+                 {{ block.shopify_attributes }}>
+              <div class="standard-content-block__spacer" 
+                   style="height: {{ block.settings.height }}px;"></div>
+            </div>
+            
+        {% endcase %}
+      {% endfor %}
+    {% else %}
+      {% comment %} 空状态提示 {% endcomment %}
+      <div class="standard-container-empty">
+        <p>请在右侧设置中添加内容块</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "标准化容器",
+  "tag": "section",
+  "class": "standard-container-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "背景设置"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "背景颜色"
+    },
+    {
+      "type": "color_background",
+      "id": "background_gradient",
+      "label": "背景渐变"
+    },
+    {
+      "type": "header",
+      "content": "内边距设置"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "上内边距",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "下内边距",
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "content_block",
+      "name": "内容块",
+      "settings": [
+        {
+          "type": "header",
+          "content": "内容设置"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "标题"
+        },
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "副标题"
+        },
+        {
+          "type": "textarea",
+          "id": "content",
+          "label": "内容文本"
+        },
+        {
+          "type": "richtext",
+          "id": "richtext",
+          "label": "富文本内容"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "图片"
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "按钮文字"
+        },
+        {
+          "type": "url",
+          "id": "button_url",
+          "label": "按钮链接"
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "按钮样式",
+          "options": [
+            {
+              "value": "primary",
+              "label": "主要"
+            },
+            {
+              "value": "secondary",
+              "label": "次要"
+            },
+            {
+              "value": "outline",
+              "label": "轮廓"
+            }
+          ],
+          "default": "primary"
+        },
+        {
+          "type": "header",
+          "content": "布局设置"
+        },
+        {
+          "type": "select",
+          "id": "block_width",
+          "label": "内容块宽度",
+          "options": [
+            {
+              "value": "full",
+              "label": "全宽 (100%)"
+            },
+            {
+              "value": "large",
+              "label": "大 (90%)"
+            },
+            {
+              "value": "medium",
+              "label": "中 (80%)"
+            },
+            {
+              "value": "small",
+              "label": "小 (70%)"
+            },
+            {
+              "value": "narrow",
+              "label": "窄 (60%)"
+            }
+          ],
+          "default": "full",
+          "info": "在 1400px 容器内，内容块可以进一步限制宽度"
+        },
+        {
+          "type": "number",
+          "id": "block_max_width",
+          "label": "最大宽度 (px)",
+          "default": 0,
+          "info": "设置具体的最大宽度（像素），0 表示使用上述宽度选项"
+        },
+        {
+          "type": "select",
+          "id": "block_alignment",
+          "label": "对齐方式",
+          "options": [
+            {
+              "value": "left",
+              "label": "左对齐"
+            },
+            {
+              "value": "center",
+              "label": "居中"
+            },
+            {
+              "value": "right",
+              "label": "右对齐"
+            }
+          ],
+          "default": "left"
+        },
+        {
+          "type": "select",
+          "id": "block_padding",
+          "label": "内边距",
+          "options": [
+            {
+              "value": "none",
+              "label": "无"
+            },
+            {
+              "value": "small",
+              "label": "小"
+            },
+            {
+              "value": "medium",
+              "label": "中"
+            },
+            {
+              "value": "large",
+              "label": "大"
+            },
+            {
+              "value": "xlarge",
+              "label": "超大"
+            }
+          ],
+          "default": "medium"
+        }
+      ]
+    },
+    {
+      "type": "html_block",
+      "name": "HTML 块",
+      "settings": [
+        {
+          "type": "html",
+          "id": "html_content",
+          "label": "HTML 内容",
+          "info": "可以插入任意 HTML 代码，类似 Vue slot"
+        },
+        {
+          "type": "header",
+          "content": "布局设置"
+        },
+        {
+          "type": "select",
+          "id": "block_width",
+          "label": "内容块宽度",
+          "options": [
+            {
+              "value": "full",
+              "label": "全宽 (100%)"
+            },
+            {
+              "value": "large",
+              "label": "大 (90%)"
+            },
+            {
+              "value": "medium",
+              "label": "中 (80%)"
+            },
+            {
+              "value": "small",
+              "label": "小 (70%)"
+            },
+            {
+              "value": "narrow",
+              "label": "窄 (60%)"
+            }
+          ],
+          "default": "full"
+        },
+        {
+          "type": "number",
+          "id": "block_max_width",
+          "label": "最大宽度 (px)",
+          "default": 0,
+          "info": "设置具体的最大宽度（像素），0 表示使用上述宽度选项"
+        },
+        {
+          "type": "select",
+          "id": "block_alignment",
+          "label": "对齐方式",
+          "options": [
+            {
+              "value": "left",
+              "label": "左对齐"
+            },
+            {
+              "value": "center",
+              "label": "居中"
+            },
+            {
+              "value": "right",
+              "label": "右对齐"
+            }
+          ],
+          "default": "left"
+        },
+        {
+          "type": "select",
+          "id": "block_padding",
+          "label": "内边距",
+          "options": [
+            {
+              "value": "none",
+              "label": "无"
+            },
+            {
+              "value": "small",
+              "label": "小"
+            },
+            {
+              "value": "medium",
+              "label": "中"
+            },
+            {
+              "value": "large",
+              "label": "大"
+            },
+            {
+              "value": "xlarge",
+              "label": "超大"
+            }
+          ],
+          "default": "medium"
+        }
+      ]
+    },
+    {
+      "type": "spacer",
+      "name": "间距",
+      "settings": [
+        {
+          "type": "range",
+          "id": "height",
+          "min": 0,
+          "max": 200,
+          "step": 4,
+          "unit": "px",
+          "label": "间距高度",
+          "default": 40
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "标准化容器",
+      "blocks": [
+        {
+          "type": "content_block",
+          "settings": {
+            "title": "欢迎使用标准化容器",
+            "subtitle": "这是一个类似 Vue Slot 的容器组件",
+            "content": "您可以在这里添加任意内容，并且可以限制每个内容块的宽度。",
+            "block_width": "medium",
+            "block_alignment": "center"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
