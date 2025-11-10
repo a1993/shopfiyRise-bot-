@@ -50,13 +50,15 @@
     }
   {% endif %}
 
-  /* 自定义 CSS */
+  /* 自定义 CSS - 请在所有选择器前加上 #{{ section_id }} 以避免污染全局样式 */
+  /* 示例：#{{ section_id }} h1 { color: red; } */
+  /* 示例：#{{ section_id }} .my-class { font-size: 20px; } */
   {% if custom_css != blank %}
     {{ custom_css }}
   {% endif %}
 {%- endstyle -%}
 
-<div id="{{ section_id }}" class="custom-html-section" {{ section.shopify_attributes }}>
+<div id="{{ section_id }}" class="custom-html-section custom-scoped-section" {{ section.shopify_attributes }}>
   <div class="html-content-wrapper">
     {% if section.settings.section_title != blank %}
       <div class="section-title" style="text-align: {{ section.settings.title_alignment }}; margin-bottom: {{ section.settings.title_margin }}px;">
@@ -237,13 +239,13 @@
       "type": "html",
       "id": "custom_css",
       "label": "自定义 CSS",
-      "info": "在这里添加自定义 CSS 代码（不需要 style 标签）"
+      "info": "⚠️ 重要：为避免污染全局样式，请在所有选择器前加上当前 section 的 ID。例如：#custom-html-SECTION_ID h1 { color: red; } 或使用 .custom-scoped-section 作为父选择器"
     },
     {
       "type": "html",
       "id": "custom_js",
       "label": "自定义 JavaScript",
-      "info": "在这里添加自定义 JS 代码（不需要 script 标签）"
+      "info": "⚠️ 建议：使用 document.querySelector('.custom-scoped-section') 来限制 JS 操作范围到当前 section，避免影响全局"
     }
   ],
   "blocks": [
