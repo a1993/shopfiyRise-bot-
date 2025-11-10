@@ -22,13 +22,11 @@
   assign section_id = 'image-gallery-slider-' | append: section.id
 -%}
 
-{% comment %} Swiper CSS & JS - 可选使用本地文件或 CDN {% endcomment %}
+{% comment %} Swiper CSS {% endcomment %}
 {% if section.settings.use_cdn %}
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 {% else %}
   {{ 'swiper-bundle.min.css' | asset_url | stylesheet_tag }}
-  <script src="{{ 'swiper-bundle.min.js' | asset_url }}" defer></script>
 {% endif %}
 
 {%- style -%}
@@ -173,52 +171,91 @@
   </div>
 </div>
 
+{% comment %} Swiper JS - 加载并初始化 {% endcomment %}
+{% if section.settings.use_cdn %}
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+{% else %}
+  <script src="{{ 'swiper-bundle.min.js' | asset_url }}"></script>
+{% endif %}
+
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const swiper{{ section.id | remove: '-' }} = new Swiper('.gallery-swiper-{{ section.id }}', {
-      slidesPerView: {{ slides_per_view_mobile }},
-      spaceBetween: {{ space_between }},
-      {% if enable_loop %}
-      loop: true,
-      {% endif %}
-      {% if enable_autoplay %}
-      autoplay: {
-        delay: {{ autoplay_delay }},
-        disableOnInteraction: false,
-        pauseOnMouseEnter: true,
-      },
-      {% endif %}
-      {% if show_navigation %}
-      navigation: {
-        nextEl: '#{{ section_id }} .swiper-button-next',
-        prevEl: '#{{ section_id }} .swiper-button-prev',
-      },
-      {% endif %}
-      {% if show_pagination %}
-      pagination: {
-        el: '#{{ section_id }} .swiper-pagination',
-        clickable: true,
-      },
-      {% endif %}
-      breakpoints: {
-        768: {
-          slidesPerView: {{ slides_per_view_tablet }},
-          spaceBetween: {{ space_between }}
+(function() {
+  function initSwiper{{ section.id | replace: '-', '_' }}() {
+    // 检查 Swiper 是否已加载
+    if (typeof Swiper === 'undefined') {
+      console.error('Swiper library is not loaded');
+      return;
+    }
+
+    const swiperElement = document.querySelector('.gallery-swiper-{{ section.id }}');
+    if (!swiperElement) {
+      console.error('Swiper element not found');
+      return;
+    }
+
+    try {
+      const swiper = new Swiper('.gallery-swiper-{{ section.id }}', {
+        slidesPerView: {{ slides_per_view_mobile }},
+        spaceBetween: {{ space_between }},
+        {% if enable_loop %}
+        loop: true,
+        {% endif %}
+        {% if enable_autoplay %}
+        autoplay: {
+          delay: {{ autoplay_delay }},
+          disableOnInteraction: false,
+          pauseOnMouseEnter: true,
         },
-        1024: {
-          slidesPerView: {{ slides_per_view_desktop }},
-          spaceBetween: {{ space_between }}
+        {% endif %}
+        {% if show_navigation %}
+        navigation: {
+          nextEl: '#{{ section_id }} .swiper-button-next',
+          prevEl: '#{{ section_id }} .swiper-button-prev',
+        },
+        {% endif %}
+        {% if show_pagination %}
+        pagination: {
+          el: '#{{ section_id }} .swiper-pagination',
+          clickable: true,
+        },
+        {% endif %}
+        breakpoints: {
+          768: {
+            slidesPerView: {{ slides_per_view_tablet }},
+            spaceBetween: {{ space_between }}
+          },
+          1024: {
+            slidesPerView: {{ slides_per_view_desktop }},
+            spaceBetween: {{ space_between }}
+          }
+        },
+        on: {
+          init: function() {
+            console.log('Swiper initialized successfully');
+          }
         }
-      }
+      });
+    } catch (error) {
+      console.error('Error initializing Swiper:', error);
+    }
+  }
+
+  // 等待 DOM 和 Swiper 都加载完成
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(initSwiper{{ section.id | replace: '-', '_' }}, 100);
     });
-  });
+  } else {
+    setTimeout(initSwiper{{ section.id | replace: '-', '_' }}, 100);
+  }
+})();
 </script>
 
 {% schema %}
 {
   "name": "图片轮播画廊",
   "tag": "section",
-  "class": "image-gallery-slider",
+  "class": "section",
   "settings": [
     {
       "type": "header",
