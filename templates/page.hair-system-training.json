@@ -1,11 +1,11 @@
 {
   "sections": {
-    "training_section": {
+    "hair_training_content": {
       "type": "hair-system-training",
       "settings": {
         "hero_subtitle": "Grow Your Hair System Business with LaVivid Hair",
         "hero_title": "HAIR SYSTEM TRAINING",
-        "hero_description": "If you are a salon owner or an independent hair specialist who wants to expand your business; If you have clients who are looking for hair system services, check out LaVivid hair system training program and get yourself trained and qualified for providing hair replacement service and add a considerate amount of revenue to your business.\n\nLaVivid works with several hair system educators around the world and we are working on expanding our network of educators and hair replacement specialists.",
+        "hero_description": "If you are a salon owner or an independent hair specialist who wants to expand your business; If you have clients who are looking for hair system services, check out LaVivid hair system training program and get yourself trained and qualified for providing hair replacement service and add a considerate amount of revenue to your business.",
         "padding_top": 0,
         "padding_bottom": 0
       },
@@ -18,8 +18,7 @@
             "trainer_email": "jgselleck@icloud.com",
             "trainer_instagram": "https://www.instagram.com/elitebarbershopnj/",
             "trainer_instagram_url": "https://www.instagram.com/elitebarbershopnj/",
-            "video_url": "https://www.youtube.com/embed/ItdcZqrNEYY",
-            "trainer_description": "<p>I have been a barber for over 11 years I always push myself to learn more when I learned about Hair Replacement two years ago I dove in and never looked back. I'm current with all the styles I can do any hair type or texture. I know how sensitive it is to lose your hair and that's where I come in to help you regain your confidence! I will help you look your best!</p>"
+            "video_url": "https://www.youtube.com/embed/ItdcZqrNEYY"
           }
         },
         "trainer_2": {
@@ -30,8 +29,7 @@
             "trainer_email": "joshua.lucero91@gmail.com",
             "trainer_phone": "385-288-7609",
             "trainer_instagram": "https://www.instagram.com/lucerohairandwellness/",
-            "trainer_instagram_url": "https://www.instagram.com/lucerohairandwellness/",
-            "trainer_description": "<p>Our partnered hair stylist, Joshua Lucero will be hosting a Hair System Class on August 14th &amp; 15th in Salt Lake City, UT. The class will be limited to 12 people, so the first 12 who message him on his Instagram channel will be in, otherwise, you'll have to wait for the next class.<br>Cost is $1500 and can be split into 2 payments if needed. At least half ($750) must be paid by 7/22.<br>Requirements:<br>1) Must have professional license<br>2) Must provide a live model and know who by 7/25 at the latest!<br>3) Must pay at least half by 7/22!<br>4)Must be willing to learn and be excited!</p>"
+            "trainer_instagram_url": "https://www.instagram.com/lucerohairandwellness/"
           }
         },
         "trainer_3": {
@@ -43,8 +41,7 @@
             "trainer_phone": "0220459715",
             "trainer_instagram": "https://www.instagram.com/_arthurandrew_/",
             "trainer_instagram_url": "https://www.instagram.com/_arthurandrew_/",
-            "video_url": "https://www.youtube.com/embed/5sY2WyjM-P8",
-            "trainer_description": "<p>Advanced virtual education for existing hair system providers.<br>Dive into first-hand knowledge and experience delivered by Andy Alsop; CEO of Arthur Andrew, global educator for LaVivid Hair, brand ambassador for \"Pro labs\", and colorist with 16+ year global experience. As well as being a hair system wearer himself.<br>Andy Alsop has released his revolutionary 'Tape 101' E-course with a very fair price of $180. This comprehensive handbook is packed with knowledge and engaging videos to help you navigate different tapes, scenarios, application techniques, and more. Suitable for beginners, advanced learners, and providers looking to expand their skills. With a one-time purchase, you'll have unlimited access to this valuable resource. Don't miss out on becoming a true professional in hair system tape application - <a href=\"https://arthur-andrew.teachable.com/p/tape-101\" rel=\"nofollow\" target=\"_blank\">Purchase Tape 101 today!&rArr;</a></p>"
+            "video_url": "https://www.youtube.com/embed/5sY2WyjM-P8"
           }
         },
         "trainer_4": {
@@ -56,27 +53,79 @@
             "trainer_phone": "07475939386",
             "trainer_instagram": "https://www.instagram.com/rachiep_193/",
             "trainer_instagram_url": "https://www.instagram.com/rachiep_193/",
-            "video_url": "https://www.youtube.com/embed/oT2C2j5BKsA",
-            "trainer_description": "<p>Rachel, a multi award winning hair extensions specialist, offers a wide range of training courses including hair extensions training, Male hair loss (hair system/toupee) training, wig building and mesh integration. The training courses are fully accredited by the BIA and is certified. One to one or small group training sessions are available.<br>You will learn everything from the consultation process to ordering hair, fitting hair, blending the hair and styling plus much more!<br>The course covers everything you need to know to get you started! The course only ends when you feel comfortable and confident! After course advice is also available, so you'll never feel like you're on your own!</p>"
+            "video_url": "https://www.youtube.com/embed/oT2C2j5BKsA"
           }
-        },
-        "gallery": {
-          "type": "gallery",
-          "settings": {}
         }
       },
       "block_order": [
         "trainer_1",
         "trainer_2",
         "trainer_3",
-        "trainer_4",
-        "gallery"
+        "trainer_4"
+      ]
+    },
+    "training_gallery": {
+      "type": "image-gallery-slider",
+      "settings": {
+        "use_cdn": true,
+        "section_title": "",
+        "slides_per_view_desktop": 2,
+        "slides_per_view_tablet": 2,
+        "slides_per_view_mobile": 1,
+        "space_between": 20,
+        "enable_loop": true,
+        "enable_autoplay": false,
+        "show_navigation": true,
+        "navigation_color": "#ffffff",
+        "show_pagination": true,
+        "pagination_color": "#ffffff",
+        "pagination_active_color": "#ffffff",
+        "image_border_width": 5,
+        "image_border_color": "#ffffff",
+        "image_border_radius": 0,
+        "container_width": 1400,
+        "container_padding": 40,
+        "padding_top": 60,
+        "padding_bottom": 0
+      },
+      "blocks": {
+        "gallery_image_1": {
+          "type": "image",
+          "settings": {}
+        },
+        "gallery_image_2": {
+          "type": "image",
+          "settings": {}
+        },
+        "gallery_image_3": {
+          "type": "image",
+          "settings": {}
+        },
+        "gallery_image_4": {
+          "type": "image",
+          "settings": {}
+        },
+        "gallery_image_5": {
+          "type": "image",
+          "settings": {}
+        },
+        "gallery_image_6": {
+          "type": "image",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "gallery_image_1",
+        "gallery_image_2",
+        "gallery_image_3",
+        "gallery_image_4",
+        "gallery_image_5",
+        "gallery_image_6"
       ]
     }
   },
   "order": [
-    "training_section"
+    "hair_training_content",
+    "training_gallery"
   ]
 }
-
-

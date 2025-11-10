@@ -18,11 +18,6 @@
 
 {{ 'hair-system-training.css' | asset_url | stylesheet_tag }}
 
-{% comment %} Load UIkit if not already loaded {% endcomment %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.23.7/dist/css/uikit.min.css" />
-<script src="https://cdn.jsdelivr.net/npm/uikit@3.23.7/dist/js/uikit.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/uikit@3.23.7/dist/js/uikit-icons.min.js"></script>
-
 {%- style -%}
   .section-{{ section.id }}-padding {
     padding-top: calc({{ section.settings.padding_top }}px * 0.75);
@@ -150,31 +145,6 @@
             {% endif %}
           </div>
           
-        {% when 'gallery' %}
-          <div class="salon-swiper" uk-slider {{ block.shopify_attributes }}>
-            <div class="uk-position-relative">
-              <div class="uk-slider-container">
-                <ul class="uk-slider-items uk-child-width-1-2 uk-grid">
-                  {% for i in (1..10) %}
-                    {% assign image_key = 'image_' | append: i %}
-                    {% assign image = block.settings[image_key] %}
-                    {% if image != blank %}
-                      <li>
-                        <img 
-                          src="{{ image | image_url: width: 600 }}"
-                          alt="{{ image.alt | default: 'Salon' | escape }}"
-                          width="600"
-                          height="600"
-                          loading="lazy">
-                      </li>
-                    {% endif %}
-                  {% endfor %}
-                </ul>
-              </div>
-              <a class="uk-position-center-left-out uk-slidenav-large" href="#" uk-slider-item="previous" uk-slidenav-previous></a>
-              <a class="uk-position-center-right-out uk-slidenav-large" href="#" uk-slider-item="next" uk-slidenav-next></a>
-            </div>
-          </div>
       {% endcase %}
     {% endfor %}
   </div>
@@ -319,67 +289,6 @@
           "type": "richtext",
           "id": "trainer_description",
           "label": "培训师描述"
-        }
-      ]
-    },
-    {
-      "type": "gallery",
-      "name": "图片轮播",
-      "limit": 1,
-      "settings": [
-        {
-          "type": "header",
-          "content": "轮播图片（最多10张）"
-        },
-        {
-          "type": "image_picker",
-          "id": "image_1",
-          "label": "图片 1"
-        },
-        {
-          "type": "image_picker",
-          "id": "image_2",
-          "label": "图片 2"
-        },
-        {
-          "type": "image_picker",
-          "id": "image_3",
-          "label": "图片 3"
-        },
-        {
-          "type": "image_picker",
-          "id": "image_4",
-          "label": "图片 4"
-        },
-        {
-          "type": "image_picker",
-          "id": "image_5",
-          "label": "图片 5"
-        },
-        {
-          "type": "image_picker",
-          "id": "image_6",
-          "label": "图片 6"
-        },
-        {
-          "type": "image_picker",
-          "id": "image_7",
-          "label": "图片 7"
-        },
-        {
-          "type": "image_picker",
-          "id": "image_8",
-          "label": "图片 8"
-        },
-        {
-          "type": "image_picker",
-          "id": "image_9",
-          "label": "图片 9"
-        },
-        {
-          "type": "image_picker",
-          "id": "image_10",
-          "label": "图片 10"
         }
       ]
     }
