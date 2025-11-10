@@ -50,11 +50,13 @@
     }
   {% endif %}
 
-  /* 自定义 CSS - 请在所有选择器前加上 #{{ section_id }} 以避免污染全局样式 */
-  /* 示例：#{{ section_id }} h1 { color: red; } */
-  /* 示例：#{{ section_id }} .my-class { font-size: 20px; } */
+  /* 自定义 CSS - 自动隔离作用域 */
   {% if custom_css != blank %}
-    {{ custom_css }}
+    /* 将所有自定义样式自动限制在当前 section 内 */
+    /* 示例：用户写 h1 { color: red; } 会自动变成 #{{ section_id }} h1 { color: red; } */
+    #{{ section_id }} {
+      {{ custom_css }}
+    }
   {% endif %}
 {%- endstyle -%}
 
@@ -239,7 +241,7 @@
       "type": "html",
       "id": "custom_css",
       "label": "自定义 CSS",
-      "info": "⚠️ 重要：为避免污染全局样式，请在所有选择器前加上当前 section 的 ID。例如：#custom-html-SECTION_ID h1 { color: red; } 或使用 .custom-scoped-section 作为父选择器"
+      "info": "✅ 样式会自动隔离到当前 section，无需手动添加前缀。直接写：h1 { color: red; } 即可，不会影响其他区域"
     },
     {
       "type": "html",
