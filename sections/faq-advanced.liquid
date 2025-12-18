@@ -328,141 +328,94 @@
     'use strict';
     
     const sectionId = '{{ section.id }}';
-    const container = document.querySelector('[data-section-id="{{ section.id }}"]');
-    if (!container) return;
     
-    // 收集所有FAQ数据用于搜索
-    const faqData = [];
-    const panels = container.querySelectorAll('[data-faq-panel]');
-    
-    panels.forEach(panel => {
-      const categoryId = panel.dataset.faqPanel;
-      const categoryTitle = panel.dataset.categoryTitle;
-      const items = panel.querySelectorAll('[data-faq-item]');
-      
-      const categoryData = {
-        id: categoryId,
-        title: categoryTitle,
-        items: []
-      };
-      
-      items.forEach(item => {
-        categoryData.items.push({
-          element: item,
-          question: item.dataset.question,
-          answer: item.dataset.answer,
-          html: item.innerHTML
-        });
-      });
-      
-      if (categoryData.items.length > 0) {
-        faqData.push(categoryData);
+    function initFaqSection() {
+      const container = document.querySelector('[data-section-id="{{ section.id }}"]');
+      if (!container) {
+        console.warn('FAQ container not found');
+        return;
       }
-    });
-    
-    // 如果没有分类，收集所有FAQ项
-    if (faqData.length === 0) {
-      const allItems = container.querySelectorAll('[data-faq-item]');
-      const generalData = {
-        id: 'general',
-        title: 'FAQ',
-        items: []
-      };
       
-      allItems.forEach(item => {
-        generalData.items.push({
-          element: item,
-          question: item.dataset.question,
-          answer: item.dataset.answer,
-          html: item.innerHTML
-        });
-      });
+      // 收集所有FAQ数据用于搜索
+      const faqData = [];
+      const panels = container.querySelectorAll('[data-faq-panel]');
       
-      if (generalData.items.length > 0) {
-        faqData.push(generalData);
-      }
-    }
-    
-    // Tab切换功能
-    const tabs = container.querySelectorAll('[data-faq-tab]');
-    tabs.forEach(tab => {
-      tab.addEventListener('click', function() {
-        const panelId = this.dataset.faqTab;
+      panels.forEach(panel => {
+        const categoryId = panel.dataset.faqPanel;
+        const categoryTitle = panel.dataset.categoryTitle;
+        const items = panel.querySelectorAll('[data-faq-item]');
         
-        // 更新tab状态
-        tabs.forEach(t => {
-          t.classList.remove('faq-tab--active');
-          t.setAttribute('aria-selected', 'false');
-        });
-        this.classList.add('faq-tab--active');
-        this.setAttribute('aria-selected', 'true');
+        const categoryData = {
+          id: categoryId,
+          title: categoryTitle,
+          items: []
+        };
         
-        // 更新面板显示
-        panels.forEach(p => {
-          p.style.display = 'none';
-          p.classList.remove('faq-panel--active');
+        items.forEach(item => {
+          categoryData.items.push({
+            element: item,
+            question: item.dataset.question,
+            answer: item.dataset.answer,
+            html: item.innerHTML
+          });
         });
         
-        const targetPanel = container.querySelector(`[data-faq-panel="${panelId}"]`);
-        if (targetPanel) {
-          targetPanel.style.display = 'block';
-          targetPanel.classList.add('faq-panel--active');
+        if (categoryData.items.length > 0) {
+          faqData.push(categoryData);
         }
       });
-    });
-    
-    // FAQ展开/折叠功能
-    function initFaqToggles(scope) {
-      const toggles = scope.querySelectorAll('[data-faq-toggle]');
       
-      toggles.forEach(toggle => {
-        // 避免重复绑定
-        if (toggle.dataset.initialized) return;
-        toggle.dataset.initialized = 'true';
+      // 如果没有分类，收集所有FAQ项
+      if (faqData.length === 0) {
+        const allItems = container.querySelectorAll('[data-faq-item]');
+        const generalData = {
+          id: 'general',
+          title: 'FAQ',
+          items: []
+        };
         
-        toggle.addEventListener('click', function(e) {
-          e.preventDefault();
-          const faqId = this.dataset.faqToggle;
-          // 使用document.getElementById确保能找到元素
-          let answerWrapper = document.getElementById(`faq-answer-${faqId}`);
-          // 如果找不到，尝试在scope内查找
-          if (!answerWrapper) {
-            answerWrapper = scope.querySelector(`#faq-answer-${faqId}`);
-          }
-          if (!answerWrapper) return;
+        allItems.forEach(item => {
+          generalData.items.push({
+            element: item,
+            question: item.dataset.question,
+            answer: item.dataset.answer,
+            html: item.innerHTML
+          });
+        });
+        
+        if (generalData.items.length > 0) {
+          faqData.push(generalData);
+        }
+      }
+      
+      // Tab切换功能
+      const tabs = container.querySelectorAll('[data-faq-tab]');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          const panelId = this.dataset.faqTab;
           
-          const iconPlus = this.querySelector('.faq-icon-plus');
-          const iconMinus = this.querySelector('.faq-icon-minus');
-          const isExpanded = this.getAttribute('aria-expanded') === 'true';
+          // 更新tab状态
+          tabs.forEach(t => {
+            t.classList.remove('faq-tab--active');
+            t.setAttribute('aria-selected', 'false');
+          });
+          this.classList.add('faq-tab--active');
+          this.setAttribute('aria-selected', 'true');
           
-          if (isExpanded) {
-            // 关闭
-            answerWrapper.style.display = 'none';
-            this.setAttribute('aria-expanded', 'false');
-            if (iconPlus) iconPlus.style.display = 'block';
-            if (iconMinus) iconMinus.style.display = 'none';
-            this.closest('.faq-item')?.classList.remove('faq-item--open');
-          } else {
-            // 展开
-            answerWrapper.style.display = 'block';
-            this.setAttribute('aria-expanded', 'true');
-            if (iconPlus) iconPlus.style.display = 'none';
-            if (iconMinus) iconMinus.style.display = 'block';
-            this.closest('.faq-item')?.classList.add('faq-item--open');
+          // 更新面板显示
+          panels.forEach(p => {
+            p.style.display = 'none';
+            p.classList.remove('faq-panel--active');
+          });
+          
+          const targetPanel = container.querySelector(`[data-faq-panel="${panelId}"]`);
+          if (targetPanel) {
+            targetPanel.style.display = 'block';
+            targetPanel.classList.add('faq-panel--active');
           }
         });
       });
-    }
-    
-    // 初始化主内容区的FAQ切换
-    initFaqToggles(container);
-    
-    // 确保DOMContentLoaded后也初始化一次
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function() {
-        initFaqToggles(container);
-      });
-    }
+      
     
     // 搜索功能
     const searchInput = container.querySelector('[data-faq-search-input]');
@@ -610,8 +563,42 @@
         });
       });
       
-      // 初始化搜索结果中的FAQ切换
-      initFaqToggles(searchContent);
+      // 搜索结果中的FAQ切换 - 使用事件委托（搜索结果是动态生成的，需要JS处理）
+      if (!searchContent.dataset.faqInitialized) {
+        searchContent.dataset.faqInitialized = 'true';
+        
+        searchContent.addEventListener('click', function(e) {
+          const toggle = e.target.closest('[data-faq-toggle]');
+          if (!toggle) return;
+          
+          e.preventDefault();
+          e.stopPropagation();
+          
+          const faqId = toggle.dataset.faqToggle;
+          const answerWrapper = document.getElementById('faq-answer-' + faqId);
+          
+          if (!answerWrapper) return;
+          
+          const iconPlus = toggle.querySelector('.faq-icon-plus');
+          const iconMinus = toggle.querySelector('.faq-icon-minus');
+          const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+          const faqItem = toggle.closest('.faq-item');
+          
+          if (isExpanded) {
+            answerWrapper.style.display = 'none';
+            toggle.setAttribute('aria-expanded', 'false');
+            if (iconPlus) iconPlus.style.display = 'block';
+            if (iconMinus) iconMinus.style.display = 'none';
+            if (faqItem) faqItem.classList.remove('faq-item--open');
+          } else {
+            answerWrapper.style.display = 'block';
+            toggle.setAttribute('aria-expanded', 'true');
+            if (iconPlus) iconPlus.style.display = 'none';
+            if (iconMinus) iconMinus.style.display = 'block';
+            if (faqItem) faqItem.classList.add('faq-item--open');
+          }
+        });
+      }
       
       // 滚动到搜索结果
       searchResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -673,10 +660,19 @@
       backToAll.addEventListener('click', showMainContent);
     }
     
+    } // 结束 initFaqSection 函数
+    
+    // 确保DOM加载完成后初始化
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initFaqSection);
+    } else {
+      initFaqSection();
+    }
+    
     // 支持Shopify主题编辑器
     document.addEventListener('shopify:section:load', function(event) {
       if (event.detail.sectionId === sectionId) {
-        initFaqToggles(container);
+        initFaqSection();
       }
     });
     
