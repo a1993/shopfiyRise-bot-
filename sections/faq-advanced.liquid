@@ -20,6 +20,25 @@
   assign banner_image_mobile = section.settings.banner_image_mobile
   
   comment
+    Tabs样式设置
+  endcomment
+  assign tabs_alignment = section.settings.tabs_alignment
+  assign tabs_gap = section.settings.tabs_gap
+  assign tab_text_color = section.settings.tab_text_color
+  assign tab_border_color = section.settings.tab_border_color
+  assign tab_bg_color = section.settings.tab_bg_color
+  assign tab_active_text_color = section.settings.tab_active_text_color
+  assign tab_active_border_color = section.settings.tab_active_border_color
+  assign tab_active_bg_color = section.settings.tab_active_bg_color
+  assign tab_hover_text_color = section.settings.tab_hover_text_color
+  assign tab_hover_border_color = section.settings.tab_hover_border_color
+  assign tab_border_radius = section.settings.tab_border_radius
+  assign tab_padding_x = section.settings.tab_padding_x
+  assign tab_padding_y = section.settings.tab_padding_y
+  assign tab_font_size = section.settings.tab_font_size
+  assign tab_font_weight = section.settings.tab_font_weight
+  
+  comment
     收集所有分类和FAQ项
     按分类组织FAQ数据
   endcomment
@@ -35,7 +54,27 @@
   endfor
 -%}
 
-<div class="faq-advanced-container" {{ section.shopify_attributes }} data-section-id="{{ section.id }}">
+<style>
+  .faq-advanced-section-{{ section.id }} {
+    --faq-tabs-justify: {% case tabs_alignment %}{% when 'left' %}flex-start{% when 'center' %}center{% when 'right' %}flex-end{% endcase %};
+    --faq-tabs-gap: {{ tabs_gap }}px;
+    --faq-tab-text-color: {{ tab_text_color }};
+    --faq-tab-border-color: {{ tab_border_color }};
+    --faq-tab-bg-color: {{ tab_bg_color }};
+    --faq-tab-active-text-color: {{ tab_active_text_color }};
+    --faq-tab-active-border-color: {{ tab_active_border_color }};
+    --faq-tab-active-bg-color: {{ tab_active_bg_color }};
+    --faq-tab-hover-text-color: {{ tab_hover_text_color }};
+    --faq-tab-hover-border-color: {{ tab_hover_border_color }};
+    --faq-tab-border-radius: {{ tab_border_radius }}px;
+    --faq-tab-padding-x: {{ tab_padding_x }}px;
+    --faq-tab-padding-y: {{ tab_padding_y }}px;
+    --faq-tab-font-size: {{ tab_font_size }}px;
+    --faq-tab-font-weight: {{ tab_font_weight }};
+  }
+</style>
+
+<div class="faq-advanced-container faq-advanced-section-{{ section.id }}" {{ section.shopify_attributes }} data-section-id="{{ section.id }}">
   
   {%- comment -%} 搜索Banner区域 {%- endcomment -%}
   {% if enable_search %}
@@ -381,9 +420,15 @@
         if (toggle.dataset.initialized) return;
         toggle.dataset.initialized = 'true';
         
-        toggle.addEventListener('click', function() {
+        toggle.addEventListener('click', function(e) {
+          e.preventDefault();
           const faqId = this.dataset.faqToggle;
-          const answerWrapper = scope.querySelector(`#faq-answer-${faqId}`);
+          // 使用document.getElementById确保能找到元素
+          let answerWrapper = document.getElementById(`faq-answer-${faqId}`);
+          // 如果找不到，尝试在scope内查找
+          if (!answerWrapper) {
+            answerWrapper = scope.querySelector(`#faq-answer-${faqId}`);
+          }
           if (!answerWrapper) return;
           
           const iconPlus = this.querySelector('.faq-icon-plus');
@@ -396,12 +441,14 @@
             this.setAttribute('aria-expanded', 'false');
             if (iconPlus) iconPlus.style.display = 'block';
             if (iconMinus) iconMinus.style.display = 'none';
+            this.closest('.faq-item')?.classList.remove('faq-item--open');
           } else {
             // 展开
             answerWrapper.style.display = 'block';
             this.setAttribute('aria-expanded', 'true');
             if (iconPlus) iconPlus.style.display = 'none';
             if (iconMinus) iconMinus.style.display = 'block';
+            this.closest('.faq-item')?.classList.add('faq-item--open');
           }
         });
       });
@@ -409,6 +456,13 @@
     
     // 初始化主内容区的FAQ切换
     initFaqToggles(container);
+    
+    // 确保DOMContentLoaded后也初始化一次
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        initFaqToggles(container);
+      });
+    }
     
     // 搜索功能
     const searchInput = container.querySelector('[data-faq-search-input]');
@@ -691,6 +745,147 @@
       "type": "image_picker",
       "id": "banner_image_mobile",
       "label": "Banner Image (Mobile)"
+    },
+    {
+      "type": "header",
+      "content": "Tabs Style"
+    },
+    {
+      "type": "select",
+      "id": "tabs_alignment",
+      "label": "Tabs Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "tabs_gap",
+      "label": "Tabs Gap",
+      "min": 4,
+      "max": 32,
+      "step": 2,
+      "default": 12,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Tab Button - Default"
+    },
+    {
+      "type": "color",
+      "id": "tab_text_color",
+      "label": "Text Color",
+      "default": "#959595"
+    },
+    {
+      "type": "color",
+      "id": "tab_border_color",
+      "label": "Border Color",
+      "default": "#959595"
+    },
+    {
+      "type": "color",
+      "id": "tab_bg_color",
+      "label": "Background Color",
+      "default": "transparent"
+    },
+    {
+      "type": "header",
+      "content": "Tab Button - Active"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_text_color",
+      "label": "Active Text Color",
+      "default": "#2c9c9c"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_border_color",
+      "label": "Active Border Color",
+      "default": "#2c9c9c"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_bg_color",
+      "label": "Active Background",
+      "default": "#e2f3f3"
+    },
+    {
+      "type": "header",
+      "content": "Tab Button - Hover"
+    },
+    {
+      "type": "color",
+      "id": "tab_hover_text_color",
+      "label": "Hover Text Color",
+      "default": "#2c9c9c"
+    },
+    {
+      "type": "color",
+      "id": "tab_hover_border_color",
+      "label": "Hover Border Color",
+      "default": "#2c9c9c"
+    },
+    {
+      "type": "header",
+      "content": "Tab Button - Size"
+    },
+    {
+      "type": "range",
+      "id": "tab_border_radius",
+      "label": "Border Radius",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "default": 8,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "tab_padding_x",
+      "label": "Horizontal Padding",
+      "min": 8,
+      "max": 32,
+      "step": 2,
+      "default": 16,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "tab_padding_y",
+      "label": "Vertical Padding",
+      "min": 4,
+      "max": 20,
+      "step": 2,
+      "default": 8,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "tab_font_size",
+      "label": "Font Size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "default": 16,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "tab_font_weight",
+      "label": "Font Weight",
+      "options": [
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi Bold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "500"
     },
     {
       "type": "header",
