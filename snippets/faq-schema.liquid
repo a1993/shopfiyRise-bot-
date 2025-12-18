@@ -1,0 +1,77 @@
+{% comment %}
+  FAQ Schema Snippet
+  FAQ结构化数据片段 - 生成JSON-LD格式的FAQPage Schema
+  
+  用法 / Usage:
+  {% render 'faq-schema', faq_blocks: section.blocks %}
+  
+  或者传入自定义FAQ数组:
+  {% render 'faq-schema', faq_items: custom_faq_array %}
+  
+  参数 / Parameters:
+  - faq_blocks: section.blocks 数组，包含 faq_item 类型的blocks
+  - faq_items: 自定义FAQ数组，每项需要有 question 和 answer 属性
+  - enable_schema: 是否启用schema输出，默认true
+{% endcomment %}
+
+{%- liquid
+  assign should_render = enable_schema | default: true
+  unless should_render
+    break
+  endunless
+  
+  assign has_faq_items = false
+-%}
+
+{%- capture faq_schema_items -%}
+  {%- if faq_blocks != blank -%}
+    {%- comment -%} 从section blocks中提取FAQ项 {%- endcomment -%}
+    {%- assign item_index = 0 -%}
+    {%- for block in faq_blocks -%}
+      {%- if block.type == 'faq_item' and block.settings.question != blank -%}
+        {%- assign has_faq_items = true -%}
+        {%- if item_index > 0 -%},{%- endif -%}
+        {
+          "@type": "Question",
+          "name": {{ block.settings.question | json }},
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": {{ block.settings.answer | strip_html | json }}
+          }
+        }
+        {%- assign item_index = item_index | plus: 1 -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- elsif faq_items != blank -%}
+    {%- comment -%} 从自定义数组中提取FAQ项 {%- endcomment -%}
+    {%- assign item_index = 0 -%}
+    {%- for item in faq_items -%}
+      {%- if item.question != blank -%}
+        {%- assign has_faq_items = true -%}
+        {%- if item_index > 0 -%},{%- endif -%}
+        {
+          "@type": "Question",
+          "name": {{ item.question | json }},
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": {{ item.answer | strip_html | json }}
+          }
+        }
+        {%- assign item_index = item_index | plus: 1 -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- if has_faq_items -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {{ faq_schema_items }}
+  ]
+}
+</script>
+{%- endif -%}
+

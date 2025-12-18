@@ -2,6 +2,7 @@
   FAQ Section
   常见问题解答模块
   支持折叠/展开功能，类似 accordion
+  支持JSON-LD结构化数据
 {% endcomment %}
 
 {{ 'faq.css' | asset_url | stylesheet_tag }}
@@ -9,6 +10,7 @@
 {%- liquid
   assign faq_title = section.settings.faq_title
   assign faq_subtitle = section.settings.faq_subtitle
+  assign enable_schema = section.settings.enable_schema
   assign container_class = 'faq-container'
   if faq_title != blank or faq_subtitle != blank
     assign container_class = container_class | append: ' faq-container--with-title'
@@ -69,6 +71,9 @@
   </div>
 </div>
 
+{%- comment -%} JSON-LD 结构化数据 {%- endcomment -%}
+{% render 'faq-schema', faq_blocks: section.blocks, enable_schema: enable_schema %}
+
 <script>
   (function() {
     document.addEventListener('DOMContentLoaded', function() {
@@ -117,6 +122,17 @@
       "type": "text",
       "id": "faq_subtitle",
       "label": "FAQ Subtitle"
+    },
+    {
+      "type": "header",
+      "content": "SEO Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_schema",
+      "label": "Enable FAQ Schema (JSON-LD)",
+      "default": true,
+      "info": "Generates structured data for search engines to improve SEO"
     }
   ],
   "blocks": [

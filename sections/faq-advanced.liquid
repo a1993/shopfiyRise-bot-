@@ -1,0 +1,823 @@
+{% comment %}
+  FAQ Advanced Section
+  高级FAQ模块 - 支持多分类Tabs、搜索功能、结构化数据
+  Features:
+  - Multiple category tabs
+  - Real-time search filtering
+  - JSON-LD structured data for SEO
+  - Accordion expand/collapse
+{% endcomment %}
+
+{{ 'faq-advanced.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign faq_title = section.settings.faq_title
+  assign faq_subtitle = section.settings.faq_subtitle
+  assign enable_search = section.settings.enable_search
+  assign search_placeholder = section.settings.search_placeholder
+  assign enable_schema = section.settings.enable_schema
+  assign banner_image = section.settings.banner_image
+  assign banner_image_mobile = section.settings.banner_image_mobile
+  
+  comment
+    收集所有分类和FAQ项
+    按分类组织FAQ数据
+  endcomment
+  
+  assign categories = '' | split: ','
+  assign current_category = ''
+  assign category_count = 0
+  
+  for block in section.blocks
+    if block.type == 'category'
+      assign category_count = category_count | plus: 1
+    endif
+  endfor
+-%}
+
+<div class="faq-advanced-container" {{ section.shopify_attributes }} data-section-id="{{ section.id }}">
+  
+  {%- comment -%} 搜索Banner区域 {%- endcomment -%}
+  {% if enable_search %}
+    <div class="faq-search-banner{% if banner_image != blank %} faq-search-banner--has-image{% endif %}">
+      {% if banner_image != blank %}
+        <picture class="faq-search-banner__image">
+          {% if banner_image_mobile != blank %}
+            <source media="(max-width: 767px)" srcset="{{ banner_image_mobile | image_url: width: 768 }}">
+          {% endif %}
+          <img 
+            src="{{ banner_image | image_url: width: 1920 }}" 
+            alt="{{ faq_title | default: 'FAQ Search' }}"
+            loading="lazy"
+            width="{{ banner_image.width }}"
+            height="{{ banner_image.height }}"
+          >
+        </picture>
+      {% endif %}
+      <div class="faq-search-banner__content">
+        {% if faq_title != blank %}
+          <h1 class="faq-search-banner__title">{{ faq_title }}</h1>
+        {% endif %}
+        {% if faq_subtitle != blank %}
+          <p class="faq-search-banner__subtitle">{{ faq_subtitle }}</p>
+        {% endif %}
+        <div class="faq-search-box">
+          <input 
+            type="text" 
+            class="faq-search-input" 
+            placeholder="{{ search_placeholder | default: 'Search FAQ...' }}"
+            data-faq-search-input
+            aria-label="Search FAQ"
+          >
+          <button type="button" class="faq-search-btn" data-faq-search-btn aria-label="Search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+          <button type="button" class="faq-search-clear" data-faq-search-clear aria-label="Clear search" style="display: none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    {%- comment -%} 无搜索时的标题区域 {%- endcomment -%}
+    {% if faq_title != blank or faq_subtitle != blank %}
+      <div class="faq-header">
+        {% if faq_title != blank %}
+          <h1 class="faq-title">{{ faq_title }}</h1>
+        {% endif %}
+        {% if faq_subtitle != blank %}
+          <h2 class="faq-subtitle">{{ faq_subtitle }}</h2>
+        {% endif %}
+      </div>
+    {% endif %}
+  {% endif %}
+
+  {%- comment -%} 搜索结果区域 {%- endcomment -%}
+  {% if enable_search %}
+    <div class="faq-search-results" data-faq-search-results style="display: none;">
+      <div class="faq-search-results__header">
+        <span class="faq-search-results__count" data-faq-results-count></span>
+        <button type="button" class="faq-search-results__back" data-faq-back-to-all>
+          ← {{ section.settings.back_to_all_text | default: 'Back to all FAQs' }}
+        </button>
+      </div>
+      <div class="faq-tabs faq-tabs--search" role="tablist" data-faq-search-tabs></div>
+      <div class="faq-search-results__content" data-faq-search-content></div>
+      <div class="faq-search-empty" data-faq-search-empty style="display: none;">
+        <p>{{ section.settings.no_results_text | default: 'No relevant FAQs were found' }}</p>
+      </div>
+    </div>
+  {% endif %}
+
+  {%- comment -%} 主FAQ内容区域 {%- endcomment -%}
+  <div class="faq-main-content" data-faq-main-content>
+    {%- comment -%} 分类Tabs {%- endcomment -%}
+    {% if category_count > 0 %}
+      <div class="faq-tabs" role="tablist">
+        {% assign tab_index = 0 %}
+        {% for block in section.blocks %}
+          {% if block.type == 'category' %}
+            <button 
+              class="faq-tab{% if tab_index == 0 %} faq-tab--active{% endif %}" 
+              role="tab"
+              type="button"
+              aria-selected="{% if tab_index == 0 %}true{% else %}false{% endif %}"
+              aria-controls="faq-panel-{{ block.id }}"
+              data-faq-tab="{{ block.id }}"
+              data-tab-index="{{ tab_index }}"
+              {{ block.shopify_attributes }}
+            >
+              {{ block.settings.category_title }}
+            </button>
+            {% assign tab_index = tab_index | plus: 1 %}
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {%- comment -%} FAQ内容面板 {%- endcomment -%}
+    {% if section.blocks.size > 0 %}
+      {% assign panel_index = 0 %}
+      {% assign current_category_id = '' %}
+      {% assign in_category = false %}
+      
+      {% for block in section.blocks %}
+        {% if block.type == 'category' %}
+          {%- comment -%} 关闭前一个分类面板 {%- endcomment -%}
+          {% if in_category %}
+              </dl>
+            </div>
+          {% endif %}
+          
+          {%- comment -%} 开始新分类面板 {%- endcomment -%}
+          <div 
+            class="faq-panel{% if panel_index == 0 %} faq-panel--active{% endif %}" 
+            id="faq-panel-{{ block.id }}"
+            role="tabpanel"
+            data-faq-panel="{{ block.id }}"
+            data-category-title="{{ block.settings.category_title }}"
+            {% if panel_index != 0 %}style="display: none;"{% endif %}
+            {{ block.shopify_attributes }}
+          >
+            {% if block.settings.category_description != blank %}
+              <p class="faq-panel__description">{{ block.settings.category_description }}</p>
+            {% endif %}
+            <dl class="faq-list">
+          
+          {% assign current_category_id = block.id %}
+          {% assign in_category = true %}
+          {% assign panel_index = panel_index | plus: 1 %}
+          
+        {% elsif block.type == 'faq_item' %}
+          {%- comment -%} FAQ项 {%- endcomment -%}
+          <div 
+            class="faq-item" 
+            data-faq-item
+            data-question="{{ block.settings.question | escape }}"
+            data-answer="{{ block.settings.answer | strip_html | escape }}"
+            data-category="{{ current_category_id }}"
+            {{ block.shopify_attributes }}
+          >
+            <dt class="faq-question-wrapper">
+              <button 
+                class="faq-question" 
+                type="button"
+                aria-expanded="false"
+                aria-controls="faq-answer-{{ block.id }}"
+                data-faq-toggle="{{ block.id }}"
+              >
+                <span class="faq-question-text">{{ block.settings.question }}</span>
+                <span class="faq-icon">
+                  <svg class="faq-icon-plus" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  <svg class="faq-icon-minus" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                </span>
+              </button>
+            </dt>
+            <dd class="faq-answer-wrapper" id="faq-answer-{{ block.id }}" style="display: none;">
+              <div class="faq-answer">
+                {% if block.settings.is_html %}
+                  <div class="faq-answer-content faq-answer-content--html">
+                    {{ block.settings.answer }}
+                  </div>
+                {% else %}
+                  <p class="faq-answer-content">{{ block.settings.answer }}</p>
+                {% endif %}
+              </div>
+            </dd>
+          </div>
+        {% endif %}
+      {% endfor %}
+      
+      {%- comment -%} 关闭最后一个分类面板 {%- endcomment -%}
+      {% if in_category %}
+          </dl>
+        </div>
+      {% endif %}
+      
+      {%- comment -%} 如果没有分类，直接显示FAQ列表 {%- endcomment -%}
+      {% if category_count == 0 %}
+        <dl class="faq-list">
+          {% for block in section.blocks %}
+            {% if block.type == 'faq_item' %}
+              <div 
+                class="faq-item" 
+                data-faq-item
+                data-question="{{ block.settings.question | escape }}"
+                data-answer="{{ block.settings.answer | strip_html | escape }}"
+                {{ block.shopify_attributes }}
+              >
+                <dt class="faq-question-wrapper">
+                  <button 
+                    class="faq-question" 
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="faq-answer-{{ block.id }}"
+                    data-faq-toggle="{{ block.id }}"
+                  >
+                    <span class="faq-question-text">{{ block.settings.question }}</span>
+                    <span class="faq-icon">
+                      <svg class="faq-icon-plus" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                      </svg>
+                      <svg class="faq-icon-minus" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                      </svg>
+                    </span>
+                  </button>
+                </dt>
+                <dd class="faq-answer-wrapper" id="faq-answer-{{ block.id }}" style="display: none;">
+                  <div class="faq-answer">
+                    {% if block.settings.is_html %}
+                      <div class="faq-answer-content faq-answer-content--html">
+                        {{ block.settings.answer }}
+                      </div>
+                    {% else %}
+                      <p class="faq-answer-content">{{ block.settings.answer }}</p>
+                    {% endif %}
+                  </div>
+                </dd>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </dl>
+      {% endif %}
+      
+    {% else %}
+      <p class="faq-empty">{{ section.settings.empty_text | default: 'No FAQ items added yet. Please add FAQ items in the section settings.' }}</p>
+    {% endif %}
+  </div>
+</div>
+
+{%- comment -%} JSON-LD 结构化数据 - 使用公共snippet {%- endcomment -%}
+{% render 'faq-schema', faq_blocks: section.blocks, enable_schema: enable_schema %}
+
+{%- comment -%} JavaScript 功能 {%- endcomment -%}
+<script>
+  (function() {
+    'use strict';
+    
+    const sectionId = '{{ section.id }}';
+    const container = document.querySelector('[data-section-id="{{ section.id }}"]');
+    if (!container) return;
+    
+    // 收集所有FAQ数据用于搜索
+    const faqData = [];
+    const panels = container.querySelectorAll('[data-faq-panel]');
+    
+    panels.forEach(panel => {
+      const categoryId = panel.dataset.faqPanel;
+      const categoryTitle = panel.dataset.categoryTitle;
+      const items = panel.querySelectorAll('[data-faq-item]');
+      
+      const categoryData = {
+        id: categoryId,
+        title: categoryTitle,
+        items: []
+      };
+      
+      items.forEach(item => {
+        categoryData.items.push({
+          element: item,
+          question: item.dataset.question,
+          answer: item.dataset.answer,
+          html: item.innerHTML
+        });
+      });
+      
+      if (categoryData.items.length > 0) {
+        faqData.push(categoryData);
+      }
+    });
+    
+    // 如果没有分类，收集所有FAQ项
+    if (faqData.length === 0) {
+      const allItems = container.querySelectorAll('[data-faq-item]');
+      const generalData = {
+        id: 'general',
+        title: 'FAQ',
+        items: []
+      };
+      
+      allItems.forEach(item => {
+        generalData.items.push({
+          element: item,
+          question: item.dataset.question,
+          answer: item.dataset.answer,
+          html: item.innerHTML
+        });
+      });
+      
+      if (generalData.items.length > 0) {
+        faqData.push(generalData);
+      }
+    }
+    
+    // Tab切换功能
+    const tabs = container.querySelectorAll('[data-faq-tab]');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function() {
+        const panelId = this.dataset.faqTab;
+        
+        // 更新tab状态
+        tabs.forEach(t => {
+          t.classList.remove('faq-tab--active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        this.classList.add('faq-tab--active');
+        this.setAttribute('aria-selected', 'true');
+        
+        // 更新面板显示
+        panels.forEach(p => {
+          p.style.display = 'none';
+          p.classList.remove('faq-panel--active');
+        });
+        
+        const targetPanel = container.querySelector(`[data-faq-panel="${panelId}"]`);
+        if (targetPanel) {
+          targetPanel.style.display = 'block';
+          targetPanel.classList.add('faq-panel--active');
+        }
+      });
+    });
+    
+    // FAQ展开/折叠功能
+    function initFaqToggles(scope) {
+      const toggles = scope.querySelectorAll('[data-faq-toggle]');
+      
+      toggles.forEach(toggle => {
+        // 避免重复绑定
+        if (toggle.dataset.initialized) return;
+        toggle.dataset.initialized = 'true';
+        
+        toggle.addEventListener('click', function() {
+          const faqId = this.dataset.faqToggle;
+          const answerWrapper = scope.querySelector(`#faq-answer-${faqId}`);
+          if (!answerWrapper) return;
+          
+          const iconPlus = this.querySelector('.faq-icon-plus');
+          const iconMinus = this.querySelector('.faq-icon-minus');
+          const isExpanded = this.getAttribute('aria-expanded') === 'true';
+          
+          if (isExpanded) {
+            // 关闭
+            answerWrapper.style.display = 'none';
+            this.setAttribute('aria-expanded', 'false');
+            if (iconPlus) iconPlus.style.display = 'block';
+            if (iconMinus) iconMinus.style.display = 'none';
+          } else {
+            // 展开
+            answerWrapper.style.display = 'block';
+            this.setAttribute('aria-expanded', 'true');
+            if (iconPlus) iconPlus.style.display = 'none';
+            if (iconMinus) iconMinus.style.display = 'block';
+          }
+        });
+      });
+    }
+    
+    // 初始化主内容区的FAQ切换
+    initFaqToggles(container);
+    
+    // 搜索功能
+    const searchInput = container.querySelector('[data-faq-search-input]');
+    const searchBtn = container.querySelector('[data-faq-search-btn]');
+    const searchClear = container.querySelector('[data-faq-search-clear]');
+    const searchResults = container.querySelector('[data-faq-search-results]');
+    const mainContent = container.querySelector('[data-faq-main-content]');
+    const searchTabs = container.querySelector('[data-faq-search-tabs]');
+    const searchContent = container.querySelector('[data-faq-search-content]');
+    const searchEmpty = container.querySelector('[data-faq-search-empty]');
+    const resultsCount = container.querySelector('[data-faq-results-count]');
+    const backToAll = container.querySelector('[data-faq-back-to-all]');
+    
+    let currentSearchTab = 0;
+    
+    function performSearch(query) {
+      if (!query || !query.trim()) {
+        showMainContent();
+        return;
+      }
+      
+      const searchTerm = query.toUpperCase().trim();
+      const filteredData = [];
+      
+      faqData.forEach(category => {
+        const matchedItems = category.items.filter(item => 
+          item.question.toUpperCase().includes(searchTerm) ||
+          item.answer.toUpperCase().includes(searchTerm)
+        );
+        
+        if (matchedItems.length > 0) {
+          filteredData.push({
+            ...category,
+            items: matchedItems
+          });
+        }
+      });
+      
+      showSearchResults(filteredData, query);
+    }
+    
+    function showSearchResults(data, query) {
+      if (!searchResults || !mainContent) return;
+      
+      mainContent.style.display = 'none';
+      searchResults.style.display = 'block';
+      searchClear.style.display = 'block';
+      
+      if (data.length === 0) {
+        searchTabs.innerHTML = '';
+        searchContent.innerHTML = '';
+        searchEmpty.style.display = 'block';
+        resultsCount.textContent = '0 results found';
+        return;
+      }
+      
+      searchEmpty.style.display = 'none';
+      
+      // 计算总结果数
+      const totalResults = data.reduce((sum, cat) => sum + cat.items.length, 0);
+      resultsCount.textContent = `${totalResults} result${totalResults !== 1 ? 's' : ''} found for "${query}"`;
+      
+      // 生成搜索结果Tabs
+      searchTabs.innerHTML = data.map((category, index) => `
+        <button 
+          class="faq-tab${index === 0 ? ' faq-tab--active' : ''}" 
+          role="tab"
+          type="button"
+          aria-selected="${index === 0}"
+          data-search-tab="${index}"
+        >
+          ${category.title} (${category.items.length})
+        </button>
+      `).join('');
+      
+      // 生成搜索结果内容
+      searchContent.innerHTML = data.map((category, catIndex) => `
+        <div 
+          class="faq-search-panel${catIndex === 0 ? ' faq-search-panel--active' : ''}" 
+          data-search-panel="${catIndex}"
+          ${catIndex !== 0 ? 'style="display: none;"' : ''}
+        >
+          <dl class="faq-list">
+            ${category.items.map((item, itemIndex) => {
+              const uniqueId = `search-${catIndex}-${itemIndex}`;
+              return `
+                <div class="faq-item" data-faq-item>
+                  <dt class="faq-question-wrapper">
+                    <button 
+                      class="faq-question" 
+                      type="button"
+                      aria-expanded="false"
+                      aria-controls="faq-answer-${uniqueId}"
+                      data-faq-toggle="${uniqueId}"
+                    >
+                      <span class="faq-question-text">${highlightText(item.question, query)}</span>
+                      <span class="faq-icon">
+                        <svg class="faq-icon-plus" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <line x1="12" y1="5" x2="12" y2="19"></line>
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <svg class="faq-icon-minus" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                      </span>
+                    </button>
+                  </dt>
+                  <dd class="faq-answer-wrapper" id="faq-answer-${uniqueId}" style="display: none;">
+                    <div class="faq-answer">
+                      <div class="faq-answer-content">${item.element.querySelector('.faq-answer-content').innerHTML}</div>
+                    </div>
+                  </dd>
+                </div>
+              `;
+            }).join('')}
+          </dl>
+        </div>
+      `).join('');
+      
+      // 绑定搜索结果中的Tab切换
+      const newSearchTabs = searchTabs.querySelectorAll('[data-search-tab]');
+      const newSearchPanels = searchContent.querySelectorAll('[data-search-panel]');
+      
+      newSearchTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          const tabIndex = this.dataset.searchTab;
+          
+          newSearchTabs.forEach(t => {
+            t.classList.remove('faq-tab--active');
+            t.setAttribute('aria-selected', 'false');
+          });
+          this.classList.add('faq-tab--active');
+          this.setAttribute('aria-selected', 'true');
+          
+          newSearchPanels.forEach(p => {
+            p.style.display = 'none';
+            p.classList.remove('faq-search-panel--active');
+          });
+          
+          const targetPanel = searchContent.querySelector(`[data-search-panel="${tabIndex}"]`);
+          if (targetPanel) {
+            targetPanel.style.display = 'block';
+            targetPanel.classList.add('faq-search-panel--active');
+          }
+        });
+      });
+      
+      // 初始化搜索结果中的FAQ切换
+      initFaqToggles(searchContent);
+      
+      // 滚动到搜索结果
+      searchResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    function highlightText(text, query) {
+      if (!query) return text;
+      const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
+      return text.replace(regex, '<mark class="faq-highlight">$1</mark>');
+    }
+    
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+    
+    function showMainContent() {
+      if (searchResults) searchResults.style.display = 'none';
+      if (mainContent) mainContent.style.display = 'block';
+      if (searchClear) searchClear.style.display = 'none';
+      if (searchInput) searchInput.value = '';
+    }
+    
+    // 绑定搜索事件
+    if (searchInput) {
+      searchInput.addEventListener('keyup', function(e) {
+        if (e.key === 'Enter') {
+          performSearch(this.value);
+        }
+      });
+      
+      // 实时搜索（带防抖）
+      let searchTimeout;
+      searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const value = this.value;
+        
+        if (!value) {
+          showMainContent();
+          return;
+        }
+        
+        searchTimeout = setTimeout(() => {
+          performSearch(value);
+        }, 300);
+      });
+    }
+    
+    if (searchBtn) {
+      searchBtn.addEventListener('click', function() {
+        performSearch(searchInput.value);
+      });
+    }
+    
+    if (searchClear) {
+      searchClear.addEventListener('click', showMainContent);
+    }
+    
+    if (backToAll) {
+      backToAll.addEventListener('click', showMainContent);
+    }
+    
+    // 支持Shopify主题编辑器
+    document.addEventListener('shopify:section:load', function(event) {
+      if (event.detail.sectionId === sectionId) {
+        initFaqToggles(container);
+      }
+    });
+    
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "FAQ Advanced",
+  "tag": "section",
+  "class": "faq-advanced-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Header Settings"
+    },
+    {
+      "type": "text",
+      "id": "faq_title",
+      "label": "FAQ Title",
+      "default": "Frequently Asked Questions"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_subtitle",
+      "label": "FAQ Subtitle"
+    },
+    {
+      "type": "header",
+      "content": "Search Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_search",
+      "label": "Enable Search",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "search_placeholder",
+      "label": "Search Placeholder",
+      "default": "Search FAQ..."
+    },
+    {
+      "type": "text",
+      "id": "no_results_text",
+      "label": "No Results Text",
+      "default": "No relevant FAQs were found"
+    },
+    {
+      "type": "text",
+      "id": "back_to_all_text",
+      "label": "Back to All Button Text",
+      "default": "Back to all FAQs"
+    },
+    {
+      "type": "header",
+      "content": "Banner Settings"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_image",
+      "label": "Banner Image (Desktop)"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_image_mobile",
+      "label": "Banner Image (Mobile)"
+    },
+    {
+      "type": "header",
+      "content": "SEO Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_schema",
+      "label": "Enable FAQ Schema (JSON-LD)",
+      "default": true,
+      "info": "Generates structured data for search engines"
+    },
+    {
+      "type": "header",
+      "content": "Empty State"
+    },
+    {
+      "type": "text",
+      "id": "empty_text",
+      "label": "Empty State Text",
+      "default": "No FAQ items added yet. Please add FAQ items in the section settings."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "category",
+      "name": "FAQ Category",
+      "settings": [
+        {
+          "type": "text",
+          "id": "category_title",
+          "label": "Category Title",
+          "default": "General Questions"
+        },
+        {
+          "type": "textarea",
+          "id": "category_description",
+          "label": "Category Description"
+        }
+      ]
+    },
+    {
+      "type": "faq_item",
+      "name": "FAQ Item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "What is this FAQ about?"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer",
+          "default": "<p>This is the answer to the FAQ question.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "is_html",
+          "label": "Answer contains custom HTML",
+          "default": false,
+          "info": "Enable this if your answer contains custom HTML markup beyond rich text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ Advanced",
+      "blocks": [
+        {
+          "type": "category",
+          "settings": {
+            "category_title": "Getting Started"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "What is this product?",
+            "answer": "<p>This is a detailed answer about the product.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "How do I get started?",
+            "answer": "<p>Follow these steps to get started...</p>"
+          }
+        },
+        {
+          "type": "category",
+          "settings": {
+            "category_title": "Shipping & Returns"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "What is your shipping policy?",
+            "answer": "<p>We offer free shipping on orders over $50.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "How do I return an item?",
+            "answer": "<p>You can return items within 30 days of purchase.</p>"
+          }
+        },
+        {
+          "type": "category",
+          "settings": {
+            "category_title": "Payment & Orders"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "What payment methods do you accept?",
+            "answer": "<p>We accept all major credit cards, PayPal, and more.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
