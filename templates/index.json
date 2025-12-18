@@ -366,7 +366,8 @@
             "product": "zeo-mirage-antimicrobial-hair-replacement-system-for-men-in-610-color",
             "custom_title": "",
             "custom_description": "",
-            "custom_compare_price": ""
+            "custom_compare_price": "",
+            "custom_discount_percent": 0
           }
         },
         "product_item_GJPWHf": {
@@ -376,7 +377,8 @@
             "product": "1-order-balance-link-1",
             "custom_title": "",
             "custom_description": "",
-            "custom_compare_price": ""
+            "custom_compare_price": "",
+            "custom_discount_percent": 0
           }
         },
         "product_item_79xGzC": {
@@ -386,7 +388,8 @@
             "product": "15-base-cut",
             "custom_title": "",
             "custom_description": "",
-            "custom_compare_price": ""
+            "custom_compare_price": "",
+            "custom_discount_percent": 0
           }
         },
         "product_item_DmycBC": {
@@ -396,7 +399,8 @@
             "product": "15-base-cut",
             "custom_title": "",
             "custom_description": "",
-            "custom_compare_price": ""
+            "custom_compare_price": "",
+            "custom_discount_percent": 0
           }
         },
         "product_item_ijzhfD": {
@@ -406,7 +410,8 @@
             "product": "15-base-cut",
             "custom_title": "",
             "custom_description": "",
-            "custom_compare_price": ""
+            "custom_compare_price": "",
+            "custom_discount_percent": 0
           }
         },
         "product_item_CRqwaa": {
@@ -416,7 +421,8 @@
             "product": "15-base-cut",
             "custom_title": "",
             "custom_description": "",
-            "custom_compare_price": ""
+            "custom_compare_price": "",
+            "custom_discount_percent": 0
           }
         },
         "product_item_FNbCnK": {
@@ -426,7 +432,8 @@
             "product": "15-base-cut",
             "custom_title": "",
             "custom_description": "",
-            "custom_compare_price": ""
+            "custom_compare_price": "",
+            "custom_discount_percent": 0
           }
         },
         "product_tab_aDKAWc": {
@@ -494,7 +501,8 @@
             "button_text": "Shop Now",
             "custom_title": "",
             "custom_description": "",
-            "custom_compare_price": ""
+            "custom_compare_price": "",
+            "custom_discount_percent": 0
           }
         },
         "product_item_yAnHFK": {
@@ -505,7 +513,8 @@
             "button_text": "Shop Now",
             "custom_title": "",
             "custom_description": "",
-            "custom_compare_price": ""
+            "custom_compare_price": "",
+            "custom_discount_percent": 0
           }
         },
         "product_item_qVkn79": {
@@ -516,7 +525,8 @@
             "button_text": "Shop Now",
             "custom_title": "",
             "custom_description": "",
-            "custom_compare_price": ""
+            "custom_compare_price": "",
+            "custom_discount_percent": 0
           }
         },
         "product_item_qnPRKW": {
@@ -527,7 +537,8 @@
             "button_text": "Shop Now",
             "custom_title": "",
             "custom_description": "",
-            "custom_compare_price": ""
+            "custom_compare_price": "",
+            "custom_discount_percent": 0
           }
         }
       },
@@ -723,7 +734,8 @@
       "name": "FAQ",
       "settings": {
         "faq_title": "Frequently Asked Questions",
-        "faq_subtitle": ""
+        "faq_subtitle": "",
+        "enable_schema": true
       }
     },
     "story_block_rqg94q": {
@@ -735,6 +747,116 @@
         "mode": "floating",
         "player_placement": "bottom-right",
         "autoplay": true
+      }
+    },
+    "faq_search_DCw3KM": {
+      "type": "faq-search",
+      "name": "FAQ Search",
+      "settings": {
+        "search_title": "How can we help you?",
+        "search_subtitle": "",
+        "search_placeholder": "Search FAQ...",
+        "no_results_text": "No relevant FAQs were found",
+        "back_to_all_text": "Back to all FAQs",
+        "target_section_id": "",
+        "banner_bg_color": "#f8f9fa",
+        "banner_overlay_opacity": 30,
+        "title_color": "#1a1a1a",
+        "subtitle_color": "#666666",
+        "input_bg_color": "#ffffff",
+        "input_border_color": "#e0e0e0",
+        "input_focus_color": "#2c9c9c",
+        "button_bg_color": "#2c9c9c",
+        "button_hover_color": "#248585",
+        "content_bg_color": "#ffffff",
+        "border_radius": 16
+      }
+    },
+    "faq_advanced_iRqeFn": {
+      "type": "faq-advanced",
+      "blocks": {
+        "category_7TUNDp": {
+          "type": "category",
+          "settings": {
+            "category_title": "Getting Started",
+            "category_description": ""
+          }
+        },
+        "faq_item_cWqH63": {
+          "type": "faq_item",
+          "settings": {
+            "question": "What is this product?",
+            "answer": "<p>This is a detailed answer about the product.</p>",
+            "is_html": false
+          }
+        },
+        "faq_item_HzGpCa": {
+          "type": "faq_item",
+          "settings": {
+            "question": "How do I get started?",
+            "answer": "<p>Follow these steps to get started...</p>",
+            "is_html": false
+          }
+        },
+        "category_9LgTzw": {
+          "type": "category",
+          "settings": {
+            "category_title": "Shipping & Returns",
+            "category_description": ""
+          }
+        },
+        "faq_item_ETGCWe": {
+          "type": "faq_item",
+          "settings": {
+            "question": "What is your shipping policy?",
+            "answer": "<p>We offer free shipping on orders over $50.</p>",
+            "is_html": false
+          }
+        },
+        "faq_item_JFGCVc": {
+          "type": "faq_item",
+          "settings": {
+            "question": "How do I return an item?",
+            "answer": "<p>You can return items within 30 days of purchase.</p>",
+            "is_html": false
+          }
+        },
+        "category_bknyAE": {
+          "type": "category",
+          "settings": {
+            "category_title": "Payment & Orders",
+            "category_description": ""
+          }
+        },
+        "faq_item_ycce8r": {
+          "type": "faq_item",
+          "settings": {
+            "question": "What payment methods do you accept?",
+            "answer": "<p>We accept all major credit cards, PayPal, and more.</p>",
+            "is_html": false
+          }
+        }
+      },
+      "block_order": [
+        "category_7TUNDp",
+        "faq_item_cWqH63",
+        "faq_item_HzGpCa",
+        "category_9LgTzw",
+        "faq_item_ETGCWe",
+        "faq_item_JFGCVc",
+        "category_bknyAE",
+        "faq_item_ycce8r"
+      ],
+      "name": "FAQ Advanced",
+      "settings": {
+        "faq_title": "Frequently Asked Questions",
+        "faq_subtitle": "",
+        "enable_search": false,
+        "search_placeholder": "Search FAQ...",
+        "no_results_text": "No relevant FAQs were found",
+        "back_to_all_text": "Back to all FAQs",
+        "enable_schema": true,
+        "empty_text": "No FAQ items added yet. Please add FAQ items in the section settings."
       }
     }
   },
@@ -754,6 +876,8 @@
     "product_with_video_KLtUYJ",
     "video_tips_list_MxzP6W",
     "faq_4gmnMN",
-    "story_block_rqg94q"
+    "story_block_rqg94q",
+    "faq_search_DCw3KM",
+    "faq_advanced_iRqeFn"
   ]
 }
