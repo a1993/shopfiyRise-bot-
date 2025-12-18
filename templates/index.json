@@ -851,7 +851,7 @@
       "settings": {
         "faq_title": "Frequently Asked Questions",
         "faq_subtitle": "",
-        "enable_search": false,
+        "enable_search": true,
         "search_placeholder": "Search FAQ...",
         "no_results_text": "No relevant FAQs were found",
         "back_to_all_text": "Back to all FAQs",
