@@ -1,0 +1,334 @@
+/* FAQ Tabs Section Styles */
+/* FAQ分类标签区域样式 - 支持完全自定义 */
+
+.faq-tabs-section {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* ==================== Header ==================== */
+.faq-tabs-header {
+  text-align: center;
+  padding: 2rem 0;
+  margin-bottom: 1rem;
+}
+
+.faq-tabs-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.2;
+}
+
+.faq-tabs-subtitle {
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ==================== Tabs Container ==================== */
+.faq-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--faq-tabs-gap, 12px);
+  margin-bottom: 2rem;
+  padding: 0;
+  background: var(--faq-tabs-bg, transparent);
+  justify-content: var(--faq-tabs-justify, flex-start);
+}
+
+/* ==================== Tab Button ==================== */
+.faq-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: var(--faq-tab-padding-y, 8px) var(--faq-tab-padding-x, 16px);
+  font-size: var(--faq-tab-font-size, 16px);
+  font-weight: var(--faq-tab-font-weight, 500);
+  color: var(--faq-tab-text, #959595);
+  background: transparent;
+  border: 1px solid var(--faq-tab-border, #959595);
+  border-radius: var(--faq-tab-radius, 8px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.faq-tab:hover {
+  color: var(--faq-tab-hover-text, #2c9c9c);
+  border-color: var(--faq-tab-hover-border, #2c9c9c);
+}
+
+.faq-tab--active {
+  color: var(--faq-tab-active-text, #2c9c9c);
+  background: var(--faq-tab-active-bg, #e2f3f3);
+  border-color: var(--faq-tab-active-border, #2c9c9c);
+}
+
+.faq-tab__icon {
+  font-size: 1.125em;
+  line-height: 1;
+}
+
+.faq-tab__text {
+  line-height: 1.2;
+}
+
+/* ==================== Panel ==================== */
+.faq-tabs-main {
+  background: var(--faq-content-bg, #ffffff);
+  padding: var(--faq-content-padding, 0);
+  border-radius: 8px;
+}
+
+.faq-panel {
+  animation: faqFadeIn 0.3s ease;
+}
+
+.faq-panel__description {
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--faq-divider-color, rgba(17, 17, 17, 0.1));
+}
+
+@keyframes faqFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==================== FAQ List ==================== */
+.faq-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media screen and (min-width: 768px) {
+  .faq-list {
+    display: flex;
+    flex-wrap: wrap;
+  }
+}
+
+/* ==================== FAQ Item ==================== */
+.faq-item {
+  margin: 0;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--faq-divider-color, rgba(17, 17, 17, 0.1));
+}
+
+@media screen and (min-width: 768px) {
+  .faq-item {
+    width: 47%;
+    margin-right: 6%;
+  }
+  
+  .faq-item:nth-child(even) {
+    margin-right: 0;
+  }
+}
+
+.faq-question-wrapper {
+  margin: 0;
+}
+
+.faq-question {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  justify-content: space-between;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  gap: 1rem;
+}
+
+.faq-question:hover .faq-question-text {
+  color: var(--faq-question-hover, #2c9c9c);
+}
+
+.faq-question:hover .faq-icon {
+  color: var(--faq-question-hover, #2c9c9c);
+}
+
+.faq-question-text {
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.5;
+  flex: 1;
+  color: var(--faq-question-color, #1a1a1a);
+  transition: color 0.2s ease;
+}
+
+@media screen and (min-width: 768px) {
+  .faq-question-text {
+    font-size: 1.25rem;
+  }
+}
+
+.faq-icon {
+  display: flex;
+  height: 1.75rem;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--faq-icon-color, #959595);
+  transition: color 0.2s ease;
+}
+
+.faq-icon svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+}
+
+/* ==================== FAQ Answer ==================== */
+.faq-answer-wrapper {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.faq-answer {
+  margin-top: 0.75rem;
+  padding-right: 2.5rem;
+}
+
+.faq-answer-content {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--faq-answer-color, #4a4a4a);
+  white-space: pre-line;
+}
+
+.faq-answer-content--html {
+  white-space: normal;
+}
+
+.faq-answer-content--html p {
+  margin: 0 0 1rem 0;
+}
+
+.faq-answer-content--html p:last-child {
+  margin-bottom: 0;
+}
+
+.faq-answer-content--html a {
+  color: var(--faq-question-hover, #2c9c9c);
+  text-decoration: none;
+}
+
+.faq-answer-content--html a:hover {
+  text-decoration: underline;
+}
+
+.faq-answer-content--html ul,
+.faq-answer-content--html ol {
+  margin: 0.5rem 0 1rem 1.5rem;
+  padding: 0;
+}
+
+.faq-answer-content--html li {
+  margin-bottom: 0.5rem;
+}
+
+/* ==================== Empty State ==================== */
+.faq-empty {
+  text-align: center;
+  color: #666;
+  padding: 3rem 2rem;
+  background: #f8f9fa;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+}
+
+/* ==================== Responsive ==================== */
+@media screen and (max-width: 767px) {
+  .faq-tabs-section {
+    padding: 0 1rem;
+  }
+  
+  .faq-tabs-header {
+    padding: 1.5rem 0;
+  }
+  
+  .faq-tabs-title {
+    font-size: 1.5rem;
+  }
+  
+  .faq-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    justify-content: flex-start;
+  }
+  
+  .faq-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .faq-tab {
+    flex: 0 0 auto;
+  }
+  
+  .faq-item {
+    padding: 1rem 0;
+  }
+  
+  .faq-question-text {
+    font-size: 1rem;
+  }
+  
+  .faq-answer {
+    padding-right: 1rem;
+  }
+  
+  .faq-answer-content {
+    font-size: 0.9375rem;
+  }
+}
+
+/* ==================== Print Styles ==================== */
+@media print {
+  .faq-tabs {
+    display: none !important;
+  }
+  
+  .faq-panel {
+    display: block !important;
+  }
+  
+  .faq-answer-wrapper {
+    display: block !important;
+  }
+  
+  .faq-icon {
+    display: none !important;
+  }
+  
+  .faq-item {
+    page-break-inside: avoid;
+    width: 100% !important;
+    margin-right: 0 !important;
+  }
+}
+

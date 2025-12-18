@@ -1,0 +1,590 @@
+{% comment %}
+  FAQ Search Section
+  FAQ搜索模块 - 独立的搜索区域
+  可与 faq-advanced 或 faq-tabs 配合使用
+{% endcomment %}
+
+{{ 'faq-search.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign search_title = section.settings.search_title
+  assign search_subtitle = section.settings.search_subtitle
+  assign search_placeholder = section.settings.search_placeholder
+  assign banner_image = section.settings.banner_image
+  assign banner_image_mobile = section.settings.banner_image_mobile
+  assign target_section_id = section.settings.target_section_id
+  
+  comment
+    样式变量
+  endcomment
+  assign banner_bg_color = section.settings.banner_bg_color
+  assign banner_overlay_opacity = section.settings.banner_overlay_opacity
+  assign title_color = section.settings.title_color
+  assign subtitle_color = section.settings.subtitle_color
+  assign input_bg_color = section.settings.input_bg_color
+  assign input_border_color = section.settings.input_border_color
+  assign input_focus_color = section.settings.input_focus_color
+  assign button_bg_color = section.settings.button_bg_color
+  assign button_hover_color = section.settings.button_hover_color
+  assign content_bg_color = section.settings.content_bg_color
+  assign border_radius = section.settings.border_radius
+-%}
+
+<style>
+  .faq-search-section-{{ section.id }} {
+    --faq-search-banner-bg: {{ banner_bg_color }};
+    --faq-search-overlay-opacity: {{ banner_overlay_opacity | divided_by: 100.0 }};
+    --faq-search-title-color: {{ title_color }};
+    --faq-search-subtitle-color: {{ subtitle_color }};
+    --faq-search-input-bg: {{ input_bg_color }};
+    --faq-search-input-border: {{ input_border_color }};
+    --faq-search-input-focus: {{ input_focus_color }};
+    --faq-search-btn-bg: {{ button_bg_color }};
+    --faq-search-btn-hover: {{ button_hover_color }};
+    --faq-search-content-bg: {{ content_bg_color }};
+    --faq-search-border-radius: {{ border_radius }}px;
+  }
+</style>
+
+<div 
+  class="faq-search-section faq-search-section-{{ section.id }}" 
+  {{ section.shopify_attributes }}
+  data-faq-search-section
+  data-target-section="{{ target_section_id }}"
+>
+  <div class="faq-search-banner{% if banner_image != blank %} faq-search-banner--has-image{% endif %}">
+    {% if banner_image != blank %}
+      <picture class="faq-search-banner__image">
+        {% if banner_image_mobile != blank %}
+          <source media="(max-width: 767px)" srcset="{{ banner_image_mobile | image_url: width: 768 }}">
+        {% endif %}
+        <img 
+          src="{{ banner_image | image_url: width: 1920 }}" 
+          alt="{{ search_title | default: 'FAQ Search' }}"
+          loading="lazy"
+          width="{{ banner_image.width }}"
+          height="{{ banner_image.height }}"
+        >
+      </picture>
+      <div class="faq-search-banner__overlay"></div>
+    {% endif %}
+    
+    <div class="faq-search-banner__content">
+      {% if search_title != blank %}
+        <h1 class="faq-search-banner__title">{{ search_title }}</h1>
+      {% endif %}
+      {% if search_subtitle != blank %}
+        <p class="faq-search-banner__subtitle">{{ search_subtitle }}</p>
+      {% endif %}
+      
+      <div class="faq-search-box">
+        <input 
+          type="text" 
+          class="faq-search-input" 
+          placeholder="{{ search_placeholder | default: 'Search FAQ...' }}"
+          data-faq-search-input
+          aria-label="Search FAQ"
+        >
+        <button type="button" class="faq-search-btn" data-faq-search-btn aria-label="Search">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
+        <button type="button" class="faq-search-clear" data-faq-search-clear aria-label="Clear search" style="display: none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  {%- comment -%} 搜索结果区域 {%- endcomment -%}
+  <div class="faq-search-results" data-faq-search-results style="display: none;">
+    <div class="faq-search-results__header">
+      <span class="faq-search-results__count" data-faq-results-count></span>
+      <button type="button" class="faq-search-results__back" data-faq-back-to-all>
+        ← {{ section.settings.back_to_all_text | default: 'Back to all FAQs' }}
+      </button>
+    </div>
+    <div class="faq-search-tabs" role="tablist" data-faq-search-tabs></div>
+    <div class="faq-search-results__content" data-faq-search-content></div>
+    <div class="faq-search-empty" data-faq-search-empty style="display: none;">
+      <p>{{ section.settings.no_results_text | default: 'No relevant FAQs were found' }}</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    'use strict';
+    
+    const searchSection = document.querySelector('[data-faq-search-section]');
+    if (!searchSection) return;
+    
+    const targetSectionId = searchSection.dataset.targetSection;
+    const searchInput = searchSection.querySelector('[data-faq-search-input]');
+    const searchBtn = searchSection.querySelector('[data-faq-search-btn]');
+    const searchClear = searchSection.querySelector('[data-faq-search-clear]');
+    const searchResults = searchSection.querySelector('[data-faq-search-results]');
+    const searchTabs = searchSection.querySelector('[data-faq-search-tabs]');
+    const searchContent = searchSection.querySelector('[data-faq-search-content]');
+    const searchEmpty = searchSection.querySelector('[data-faq-search-empty]');
+    const resultsCount = searchSection.querySelector('[data-faq-results-count]');
+    const backToAll = searchSection.querySelector('[data-faq-back-to-all]');
+    
+    // 获取目标FAQ section的数据
+    function getFaqData() {
+      const targetSection = targetSectionId 
+        ? document.querySelector(`[data-section-id="${targetSectionId}"]`)
+        : document.querySelector('[data-faq-tabs-section]');
+      
+      if (!targetSection) return [];
+      
+      const faqData = [];
+      const panels = targetSection.querySelectorAll('[data-faq-panel]');
+      
+      panels.forEach(panel => {
+        const categoryId = panel.dataset.faqPanel;
+        const categoryTitle = panel.dataset.categoryTitle || 'FAQ';
+        const items = panel.querySelectorAll('[data-faq-item]');
+        
+        const categoryData = {
+          id: categoryId,
+          title: categoryTitle,
+          items: []
+        };
+        
+        items.forEach(item => {
+          categoryData.items.push({
+            element: item,
+            question: item.dataset.question,
+            answer: item.dataset.answer
+          });
+        });
+        
+        if (categoryData.items.length > 0) {
+          faqData.push(categoryData);
+        }
+      });
+      
+      // 如果没有分类panel，收集所有FAQ项
+      if (faqData.length === 0) {
+        const allItems = targetSection.querySelectorAll('[data-faq-item]');
+        const generalData = { id: 'general', title: 'FAQ', items: [] };
+        
+        allItems.forEach(item => {
+          generalData.items.push({
+            element: item,
+            question: item.dataset.question,
+            answer: item.dataset.answer
+          });
+        });
+        
+        if (generalData.items.length > 0) {
+          faqData.push(generalData);
+        }
+      }
+      
+      return faqData;
+    }
+    
+    function performSearch(query) {
+      if (!query || !query.trim()) {
+        showMainContent();
+        return;
+      }
+      
+      const faqData = getFaqData();
+      const searchTerm = query.toUpperCase().trim();
+      const filteredData = [];
+      
+      faqData.forEach(category => {
+        const matchedItems = category.items.filter(item => 
+          item.question.toUpperCase().includes(searchTerm) ||
+          item.answer.toUpperCase().includes(searchTerm)
+        );
+        
+        if (matchedItems.length > 0) {
+          filteredData.push({ ...category, items: matchedItems });
+        }
+      });
+      
+      showSearchResults(filteredData, query);
+    }
+    
+    function showSearchResults(data, query) {
+      // 隐藏目标FAQ section的主内容
+      const targetSection = targetSectionId 
+        ? document.querySelector(`[data-section-id="${targetSectionId}"]`)
+        : document.querySelector('[data-faq-tabs-section]');
+      
+      if (targetSection) {
+        const mainContent = targetSection.querySelector('[data-faq-main-content]');
+        if (mainContent) mainContent.style.display = 'none';
+      }
+      
+      searchResults.style.display = 'block';
+      searchClear.style.display = 'block';
+      
+      if (data.length === 0) {
+        searchTabs.innerHTML = '';
+        searchContent.innerHTML = '';
+        searchEmpty.style.display = 'block';
+        resultsCount.textContent = '0 results found';
+        return;
+      }
+      
+      searchEmpty.style.display = 'none';
+      
+      const totalResults = data.reduce((sum, cat) => sum + cat.items.length, 0);
+      resultsCount.textContent = `${totalResults} result${totalResults !== 1 ? 's' : ''} found for "${query}"`;
+      
+      // 生成搜索结果Tabs
+      searchTabs.innerHTML = data.map((category, index) => `
+        <button 
+          class="faq-search-tab${index === 0 ? ' faq-search-tab--active' : ''}" 
+          role="tab"
+          type="button"
+          aria-selected="${index === 0}"
+          data-search-tab="${index}"
+        >
+          ${category.title} (${category.items.length})
+        </button>
+      `).join('');
+      
+      // 生成搜索结果内容
+      searchContent.innerHTML = data.map((category, catIndex) => `
+        <div 
+          class="faq-search-panel${catIndex === 0 ? ' faq-search-panel--active' : ''}" 
+          data-search-panel="${catIndex}"
+          ${catIndex !== 0 ? 'style="display: none;"' : ''}
+        >
+          <dl class="faq-list">
+            ${category.items.map((item, itemIndex) => {
+              const uniqueId = `search-${catIndex}-${itemIndex}`;
+              const answerContent = item.element.querySelector('.faq-answer-content');
+              return `
+                <div class="faq-item" data-faq-item>
+                  <dt class="faq-question-wrapper">
+                    <button 
+                      class="faq-question" 
+                      type="button"
+                      aria-expanded="false"
+                      aria-controls="faq-answer-${uniqueId}"
+                      data-faq-toggle="${uniqueId}"
+                    >
+                      <span class="faq-question-text">${highlightText(item.question, query)}</span>
+                      <span class="faq-icon">
+                        <svg class="faq-icon-plus" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <line x1="12" y1="5" x2="12" y2="19"></line>
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <svg class="faq-icon-minus" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                      </span>
+                    </button>
+                  </dt>
+                  <dd class="faq-answer-wrapper" id="faq-answer-${uniqueId}" style="display: none;">
+                    <div class="faq-answer">
+                      <div class="faq-answer-content">${answerContent ? answerContent.innerHTML : item.answer}</div>
+                    </div>
+                  </dd>
+                </div>
+              `;
+            }).join('')}
+          </dl>
+        </div>
+      `).join('');
+      
+      // 绑定搜索结果Tab切换
+      bindSearchTabs();
+      // 绑定FAQ切换
+      bindFaqToggles(searchContent);
+      // 滚动到搜索结果
+      searchResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    function bindSearchTabs() {
+      const tabs = searchTabs.querySelectorAll('[data-search-tab]');
+      const panels = searchContent.querySelectorAll('[data-search-panel]');
+      
+      tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          const tabIndex = this.dataset.searchTab;
+          
+          tabs.forEach(t => {
+            t.classList.remove('faq-search-tab--active');
+            t.setAttribute('aria-selected', 'false');
+          });
+          this.classList.add('faq-search-tab--active');
+          this.setAttribute('aria-selected', 'true');
+          
+          panels.forEach(p => {
+            p.style.display = 'none';
+            p.classList.remove('faq-search-panel--active');
+          });
+          
+          const targetPanel = searchContent.querySelector(`[data-search-panel="${tabIndex}"]`);
+          if (targetPanel) {
+            targetPanel.style.display = 'block';
+            targetPanel.classList.add('faq-search-panel--active');
+          }
+        });
+      });
+    }
+    
+    function bindFaqToggles(scope) {
+      const toggles = scope.querySelectorAll('[data-faq-toggle]');
+      
+      toggles.forEach(toggle => {
+        if (toggle.dataset.initialized) return;
+        toggle.dataset.initialized = 'true';
+        
+        toggle.addEventListener('click', function() {
+          const faqId = this.dataset.faqToggle;
+          const answerWrapper = scope.querySelector(`#faq-answer-${faqId}`);
+          if (!answerWrapper) return;
+          
+          const iconPlus = this.querySelector('.faq-icon-plus');
+          const iconMinus = this.querySelector('.faq-icon-minus');
+          const isExpanded = this.getAttribute('aria-expanded') === 'true';
+          
+          if (isExpanded) {
+            answerWrapper.style.display = 'none';
+            this.setAttribute('aria-expanded', 'false');
+            if (iconPlus) iconPlus.style.display = 'block';
+            if (iconMinus) iconMinus.style.display = 'none';
+          } else {
+            answerWrapper.style.display = 'block';
+            this.setAttribute('aria-expanded', 'true');
+            if (iconPlus) iconPlus.style.display = 'none';
+            if (iconMinus) iconMinus.style.display = 'block';
+          }
+        });
+      });
+    }
+    
+    function highlightText(text, query) {
+      if (!query) return text;
+      const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
+      return text.replace(regex, '<mark class="faq-highlight">$1</mark>');
+    }
+    
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+    
+    function showMainContent() {
+      searchResults.style.display = 'none';
+      searchClear.style.display = 'none';
+      if (searchInput) searchInput.value = '';
+      
+      // 显示目标FAQ section的主内容
+      const targetSection = targetSectionId 
+        ? document.querySelector(`[data-section-id="${targetSectionId}"]`)
+        : document.querySelector('[data-faq-tabs-section]');
+      
+      if (targetSection) {
+        const mainContent = targetSection.querySelector('[data-faq-main-content]');
+        if (mainContent) mainContent.style.display = 'block';
+      }
+    }
+    
+    // 绑定搜索事件
+    if (searchInput) {
+      searchInput.addEventListener('keyup', function(e) {
+        if (e.key === 'Enter') {
+          performSearch(this.value);
+        }
+      });
+      
+      let searchTimeout;
+      searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const value = this.value;
+        
+        if (!value) {
+          showMainContent();
+          return;
+        }
+        
+        searchTimeout = setTimeout(() => {
+          performSearch(value);
+        }, 300);
+      });
+    }
+    
+    if (searchBtn) {
+      searchBtn.addEventListener('click', function() {
+        performSearch(searchInput.value);
+      });
+    }
+    
+    if (searchClear) {
+      searchClear.addEventListener('click', showMainContent);
+    }
+    
+    if (backToAll) {
+      backToAll.addEventListener('click', showMainContent);
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "FAQ Search",
+  "tag": "section",
+  "class": "faq-search-section-wrapper",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "search_title",
+      "label": "Title",
+      "default": "How can we help you?"
+    },
+    {
+      "type": "textarea",
+      "id": "search_subtitle",
+      "label": "Subtitle"
+    },
+    {
+      "type": "text",
+      "id": "search_placeholder",
+      "label": "Search Placeholder",
+      "default": "Search FAQ..."
+    },
+    {
+      "type": "text",
+      "id": "no_results_text",
+      "label": "No Results Text",
+      "default": "No relevant FAQs were found"
+    },
+    {
+      "type": "text",
+      "id": "back_to_all_text",
+      "label": "Back Button Text",
+      "default": "Back to all FAQs"
+    },
+    {
+      "type": "text",
+      "id": "target_section_id",
+      "label": "Target FAQ Section ID",
+      "info": "Leave empty to auto-detect FAQ Tabs section"
+    },
+    {
+      "type": "header",
+      "content": "Banner Images"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_image",
+      "label": "Banner Image (Desktop)"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner_image_mobile",
+      "label": "Banner Image (Mobile)"
+    },
+    {
+      "type": "header",
+      "content": "Banner Style"
+    },
+    {
+      "type": "color",
+      "id": "banner_bg_color",
+      "label": "Banner Background Color",
+      "default": "#f8f9fa"
+    },
+    {
+      "type": "range",
+      "id": "banner_overlay_opacity",
+      "label": "Image Overlay Opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 30,
+      "unit": "%"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Subtitle Color",
+      "default": "#666666"
+    },
+    {
+      "type": "header",
+      "content": "Search Box Style"
+    },
+    {
+      "type": "color",
+      "id": "input_bg_color",
+      "label": "Input Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "input_border_color",
+      "label": "Input Border Color",
+      "default": "#e0e0e0"
+    },
+    {
+      "type": "color",
+      "id": "input_focus_color",
+      "label": "Input Focus Color",
+      "default": "#2c9c9c"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Button Background",
+      "default": "#2c9c9c"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_color",
+      "label": "Button Hover Color",
+      "default": "#248585"
+    },
+    {
+      "type": "header",
+      "content": "Content Box Style"
+    },
+    {
+      "type": "color",
+      "id": "content_bg_color",
+      "label": "Content Box Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "label": "Border Radius",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "default": 16,
+      "unit": "px"
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ Search"
+    }
+  ]
+}
+{% endschema %}
+

@@ -1,0 +1,660 @@
+{% comment %}
+  FAQ Tabs Section
+  FAQ分类标签模块 - 支持多分类Tabs和自定义样式
+  可与 faq-search 配合使用
+{% endcomment %}
+
+{{ 'faq-tabs.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign faq_title = section.settings.faq_title
+  assign faq_subtitle = section.settings.faq_subtitle
+  assign enable_schema = section.settings.enable_schema
+  
+  comment
+    Tabs样式变量
+  endcomment
+  assign tabs_bg_color = section.settings.tabs_bg_color
+  assign tab_text_color = section.settings.tab_text_color
+  assign tab_border_color = section.settings.tab_border_color
+  assign tab_active_text_color = section.settings.tab_active_text_color
+  assign tab_active_bg_color = section.settings.tab_active_bg_color
+  assign tab_active_border_color = section.settings.tab_active_border_color
+  assign tab_hover_text_color = section.settings.tab_hover_text_color
+  assign tab_hover_border_color = section.settings.tab_hover_border_color
+  assign tab_border_radius = section.settings.tab_border_radius
+  assign tab_padding_x = section.settings.tab_padding_x
+  assign tab_padding_y = section.settings.tab_padding_y
+  assign tab_font_size = section.settings.tab_font_size
+  assign tab_font_weight = section.settings.tab_font_weight
+  assign tabs_gap = section.settings.tabs_gap
+  assign tabs_alignment = section.settings.tabs_alignment
+  
+  comment
+    内容样式变量
+  endcomment
+  assign content_bg_color = section.settings.content_bg_color
+  assign question_color = section.settings.question_color
+  assign question_hover_color = section.settings.question_hover_color
+  assign answer_color = section.settings.answer_color
+  assign icon_color = section.settings.icon_color
+  assign divider_color = section.settings.divider_color
+  assign content_padding = section.settings.content_padding
+  
+  comment
+    统计分类数量
+  endcomment
+  assign category_count = 0
+  for block in section.blocks
+    if block.type == 'category'
+      assign category_count = category_count | plus: 1
+    endif
+  endfor
+-%}
+
+<style>
+  .faq-tabs-section-{{ section.id }} {
+    /* Tabs样式变量 */
+    --faq-tabs-bg: {{ tabs_bg_color }};
+    --faq-tab-text: {{ tab_text_color }};
+    --faq-tab-border: {{ tab_border_color }};
+    --faq-tab-active-text: {{ tab_active_text_color }};
+    --faq-tab-active-bg: {{ tab_active_bg_color }};
+    --faq-tab-active-border: {{ tab_active_border_color }};
+    --faq-tab-hover-text: {{ tab_hover_text_color }};
+    --faq-tab-hover-border: {{ tab_hover_border_color }};
+    --faq-tab-radius: {{ tab_border_radius }}px;
+    --faq-tab-padding-x: {{ tab_padding_x }}px;
+    --faq-tab-padding-y: {{ tab_padding_y }}px;
+    --faq-tab-font-size: {{ tab_font_size }}px;
+    --faq-tab-font-weight: {{ tab_font_weight }};
+    --faq-tabs-gap: {{ tabs_gap }}px;
+    --faq-tabs-justify: {% case tabs_alignment %}{% when 'left' %}flex-start{% when 'center' %}center{% when 'right' %}flex-end{% endcase %};
+    
+    /* 内容样式变量 */
+    --faq-content-bg: {{ content_bg_color }};
+    --faq-question-color: {{ question_color }};
+    --faq-question-hover: {{ question_hover_color }};
+    --faq-answer-color: {{ answer_color }};
+    --faq-icon-color: {{ icon_color }};
+    --faq-divider-color: {{ divider_color }};
+    --faq-content-padding: {{ content_padding }}px;
+  }
+</style>
+
+<div 
+  class="faq-tabs-section faq-tabs-section-{{ section.id }}" 
+  {{ section.shopify_attributes }}
+  data-faq-tabs-section
+  data-section-id="{{ section.id }}"
+>
+  {%- comment -%} 标题区域 {%- endcomment -%}
+  {% if faq_title != blank or faq_subtitle != blank %}
+    <div class="faq-tabs-header">
+      {% if faq_title != blank %}
+        <h2 class="faq-tabs-title">{{ faq_title }}</h2>
+      {% endif %}
+      {% if faq_subtitle != blank %}
+        <p class="faq-tabs-subtitle">{{ faq_subtitle }}</p>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {%- comment -%} 主内容区域 {%- endcomment -%}
+  <div class="faq-tabs-main" data-faq-main-content>
+    {%- comment -%} 分类Tabs {%- endcomment -%}
+    {% if category_count > 0 %}
+      <div class="faq-tabs" role="tablist">
+        {% assign tab_index = 0 %}
+        {% for block in section.blocks %}
+          {% if block.type == 'category' %}
+            <button 
+              class="faq-tab{% if tab_index == 0 %} faq-tab--active{% endif %}" 
+              role="tab"
+              type="button"
+              aria-selected="{% if tab_index == 0 %}true{% else %}false{% endif %}"
+              aria-controls="faq-panel-{{ block.id }}"
+              data-faq-tab="{{ block.id }}"
+              data-tab-index="{{ tab_index }}"
+              {{ block.shopify_attributes }}
+            >
+              {% if block.settings.category_icon != blank %}
+                <span class="faq-tab__icon">{{ block.settings.category_icon }}</span>
+              {% endif %}
+              <span class="faq-tab__text">{{ block.settings.category_title }}</span>
+            </button>
+            {% assign tab_index = tab_index | plus: 1 %}
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {%- comment -%} FAQ内容面板 {%- endcomment -%}
+    {% if section.blocks.size > 0 %}
+      {% assign panel_index = 0 %}
+      {% assign current_category_id = '' %}
+      {% assign in_category = false %}
+      
+      {% for block in section.blocks %}
+        {% if block.type == 'category' %}
+          {%- comment -%} 关闭前一个分类面板 {%- endcomment -%}
+          {% if in_category %}
+              </dl>
+            </div>
+          {% endif %}
+          
+          {%- comment -%} 开始新分类面板 {%- endcomment -%}
+          <div 
+            class="faq-panel{% if panel_index == 0 %} faq-panel--active{% endif %}" 
+            id="faq-panel-{{ block.id }}"
+            role="tabpanel"
+            data-faq-panel="{{ block.id }}"
+            data-category-title="{{ block.settings.category_title }}"
+            {% if panel_index != 0 %}style="display: none;"{% endif %}
+            {{ block.shopify_attributes }}
+          >
+            {% if block.settings.category_description != blank %}
+              <p class="faq-panel__description">{{ block.settings.category_description }}</p>
+            {% endif %}
+            <dl class="faq-list">
+          
+          {% assign current_category_id = block.id %}
+          {% assign in_category = true %}
+          {% assign panel_index = panel_index | plus: 1 %}
+          
+        {% elsif block.type == 'faq_item' %}
+          {%- comment -%} FAQ项 {%- endcomment -%}
+          <div 
+            class="faq-item" 
+            data-faq-item
+            data-question="{{ block.settings.question | escape }}"
+            data-answer="{{ block.settings.answer | strip_html | escape }}"
+            data-category="{{ current_category_id }}"
+            {{ block.shopify_attributes }}
+          >
+            <dt class="faq-question-wrapper">
+              <button 
+                class="faq-question" 
+                type="button"
+                aria-expanded="false"
+                aria-controls="faq-answer-{{ block.id }}"
+                data-faq-toggle="{{ block.id }}"
+              >
+                <span class="faq-question-text">{{ block.settings.question }}</span>
+                <span class="faq-icon">
+                  <svg class="faq-icon-plus" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  <svg class="faq-icon-minus" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                </span>
+              </button>
+            </dt>
+            <dd class="faq-answer-wrapper" id="faq-answer-{{ block.id }}" style="display: none;">
+              <div class="faq-answer">
+                {% if block.settings.is_html %}
+                  <div class="faq-answer-content faq-answer-content--html">
+                    {{ block.settings.answer }}
+                  </div>
+                {% else %}
+                  <p class="faq-answer-content">{{ block.settings.answer }}</p>
+                {% endif %}
+              </div>
+            </dd>
+          </div>
+        {% endif %}
+      {% endfor %}
+      
+      {%- comment -%} 关闭最后一个分类面板 {%- endcomment -%}
+      {% if in_category %}
+          </dl>
+        </div>
+      {% endif %}
+      
+      {%- comment -%} 如果没有分类，直接显示FAQ列表 {%- endcomment -%}
+      {% if category_count == 0 %}
+        <div class="faq-panel faq-panel--active" data-faq-panel="default" data-category-title="FAQ">
+          <dl class="faq-list">
+            {% for block in section.blocks %}
+              {% if block.type == 'faq_item' %}
+                <div 
+                  class="faq-item" 
+                  data-faq-item
+                  data-question="{{ block.settings.question | escape }}"
+                  data-answer="{{ block.settings.answer | strip_html | escape }}"
+                  {{ block.shopify_attributes }}
+                >
+                  <dt class="faq-question-wrapper">
+                    <button 
+                      class="faq-question" 
+                      type="button"
+                      aria-expanded="false"
+                      aria-controls="faq-answer-{{ block.id }}"
+                      data-faq-toggle="{{ block.id }}"
+                    >
+                      <span class="faq-question-text">{{ block.settings.question }}</span>
+                      <span class="faq-icon">
+                        <svg class="faq-icon-plus" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <line x1="12" y1="5" x2="12" y2="19"></line>
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        <svg class="faq-icon-minus" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                          <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                      </span>
+                    </button>
+                  </dt>
+                  <dd class="faq-answer-wrapper" id="faq-answer-{{ block.id }}" style="display: none;">
+                    <div class="faq-answer">
+                      {% if block.settings.is_html %}
+                        <div class="faq-answer-content faq-answer-content--html">
+                          {{ block.settings.answer }}
+                        </div>
+                      {% else %}
+                        <p class="faq-answer-content">{{ block.settings.answer }}</p>
+                      {% endif %}
+                    </div>
+                  </dd>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </dl>
+        </div>
+      {% endif %}
+      
+    {% else %}
+      <p class="faq-empty">{{ section.settings.empty_text | default: 'No FAQ items added yet.' }}</p>
+    {% endif %}
+  </div>
+</div>
+
+{%- comment -%} JSON-LD 结构化数据 {%- endcomment -%}
+{% render 'faq-schema', faq_blocks: section.blocks, enable_schema: enable_schema %}
+
+<script>
+  (function() {
+    'use strict';
+    
+    const container = document.querySelector('.faq-tabs-section-{{ section.id }}');
+    if (!container) return;
+    
+    // Tab切换功能
+    const tabs = container.querySelectorAll('[data-faq-tab]');
+    const panels = container.querySelectorAll('[data-faq-panel]');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function() {
+        const panelId = this.dataset.faqTab;
+        
+        tabs.forEach(t => {
+          t.classList.remove('faq-tab--active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        this.classList.add('faq-tab--active');
+        this.setAttribute('aria-selected', 'true');
+        
+        panels.forEach(p => {
+          p.style.display = 'none';
+          p.classList.remove('faq-panel--active');
+        });
+        
+        const targetPanel = container.querySelector(`[data-faq-panel="${panelId}"]`);
+        if (targetPanel) {
+          targetPanel.style.display = 'block';
+          targetPanel.classList.add('faq-panel--active');
+        }
+      });
+    });
+    
+    // FAQ展开/折叠功能
+    const toggles = container.querySelectorAll('[data-faq-toggle]');
+    
+    toggles.forEach(toggle => {
+      toggle.addEventListener('click', function() {
+        const faqId = this.dataset.faqToggle;
+        const answerWrapper = container.querySelector(`#faq-answer-${faqId}`);
+        if (!answerWrapper) return;
+        
+        const iconPlus = this.querySelector('.faq-icon-plus');
+        const iconMinus = this.querySelector('.faq-icon-minus');
+        const isExpanded = this.getAttribute('aria-expanded') === 'true';
+        
+        if (isExpanded) {
+          answerWrapper.style.display = 'none';
+          this.setAttribute('aria-expanded', 'false');
+          if (iconPlus) iconPlus.style.display = 'block';
+          if (iconMinus) iconMinus.style.display = 'none';
+        } else {
+          answerWrapper.style.display = 'block';
+          this.setAttribute('aria-expanded', 'true');
+          if (iconPlus) iconPlus.style.display = 'none';
+          if (iconMinus) iconMinus.style.display = 'block';
+        }
+      });
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "FAQ Tabs",
+  "tag": "section",
+  "class": "faq-tabs-section-wrapper",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Header"
+    },
+    {
+      "type": "text",
+      "id": "faq_title",
+      "label": "Title"
+    },
+    {
+      "type": "textarea",
+      "id": "faq_subtitle",
+      "label": "Subtitle"
+    },
+    {
+      "type": "header",
+      "content": "Tabs Style"
+    },
+    {
+      "type": "color",
+      "id": "tabs_bg_color",
+      "label": "Tabs Container Background",
+      "default": "transparent"
+    },
+    {
+      "type": "select",
+      "id": "tabs_alignment",
+      "label": "Tabs Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "tabs_gap",
+      "label": "Tabs Gap",
+      "min": 4,
+      "max": 32,
+      "step": 2,
+      "default": 12,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Tab Button - Default State"
+    },
+    {
+      "type": "color",
+      "id": "tab_text_color",
+      "label": "Text Color",
+      "default": "#959595"
+    },
+    {
+      "type": "color",
+      "id": "tab_border_color",
+      "label": "Border Color",
+      "default": "#959595"
+    },
+    {
+      "type": "header",
+      "content": "Tab Button - Active State"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_text_color",
+      "label": "Active Text Color",
+      "default": "#2c9c9c"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_bg_color",
+      "label": "Active Background",
+      "default": "#e2f3f3"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_border_color",
+      "label": "Active Border Color",
+      "default": "#2c9c9c"
+    },
+    {
+      "type": "header",
+      "content": "Tab Button - Hover State"
+    },
+    {
+      "type": "color",
+      "id": "tab_hover_text_color",
+      "label": "Hover Text Color",
+      "default": "#2c9c9c"
+    },
+    {
+      "type": "color",
+      "id": "tab_hover_border_color",
+      "label": "Hover Border Color",
+      "default": "#2c9c9c"
+    },
+    {
+      "type": "header",
+      "content": "Tab Button - Size"
+    },
+    {
+      "type": "range",
+      "id": "tab_border_radius",
+      "label": "Border Radius",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "default": 8,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "tab_padding_x",
+      "label": "Horizontal Padding",
+      "min": 8,
+      "max": 32,
+      "step": 2,
+      "default": 16,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "tab_padding_y",
+      "label": "Vertical Padding",
+      "min": 4,
+      "max": 20,
+      "step": 2,
+      "default": 8,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "tab_font_size",
+      "label": "Font Size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "default": 16,
+      "unit": "px"
+    },
+    {
+      "type": "select",
+      "id": "tab_font_weight",
+      "label": "Font Weight",
+      "options": [
+        { "value": "400", "label": "Normal" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi Bold" },
+        { "value": "700", "label": "Bold" }
+      ],
+      "default": "500"
+    },
+    {
+      "type": "header",
+      "content": "Content Style"
+    },
+    {
+      "type": "color",
+      "id": "content_bg_color",
+      "label": "Content Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "content_padding",
+      "label": "Content Padding",
+      "min": 0,
+      "max": 48,
+      "step": 4,
+      "default": 0,
+      "unit": "px"
+    },
+    {
+      "type": "color",
+      "id": "question_color",
+      "label": "Question Text Color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "color",
+      "id": "question_hover_color",
+      "label": "Question Hover Color",
+      "default": "#2c9c9c"
+    },
+    {
+      "type": "color",
+      "id": "answer_color",
+      "label": "Answer Text Color",
+      "default": "#4a4a4a"
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Icon Color",
+      "default": "#959595"
+    },
+    {
+      "type": "color",
+      "id": "divider_color",
+      "label": "Divider Color",
+      "default": "rgba(17, 17, 17, 0.1)"
+    },
+    {
+      "type": "header",
+      "content": "SEO"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_schema",
+      "label": "Enable FAQ Schema (JSON-LD)",
+      "default": true,
+      "info": "Generates structured data for search engines"
+    },
+    {
+      "type": "header",
+      "content": "Empty State"
+    },
+    {
+      "type": "text",
+      "id": "empty_text",
+      "label": "Empty State Text",
+      "default": "No FAQ items added yet."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "category",
+      "name": "FAQ Category",
+      "settings": [
+        {
+          "type": "text",
+          "id": "category_title",
+          "label": "Category Title",
+          "default": "General"
+        },
+        {
+          "type": "text",
+          "id": "category_icon",
+          "label": "Category Icon (emoji or text)",
+          "info": "Optional: Add an emoji or short text as icon"
+        },
+        {
+          "type": "textarea",
+          "id": "category_description",
+          "label": "Category Description"
+        }
+      ]
+    },
+    {
+      "type": "faq_item",
+      "name": "FAQ Item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question",
+          "default": "What is this FAQ about?"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer",
+          "default": "<p>This is the answer to the FAQ question.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "is_html",
+          "label": "Answer contains custom HTML",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ Tabs",
+      "blocks": [
+        {
+          "type": "category",
+          "settings": { "category_title": "Getting Started" }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "What is this product?",
+            "answer": "<p>This is a detailed answer about the product.</p>"
+          }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "How do I get started?",
+            "answer": "<p>Follow these steps to get started...</p>"
+          }
+        },
+        {
+          "type": "category",
+          "settings": { "category_title": "Shipping & Returns" }
+        },
+        {
+          "type": "faq_item",
+          "settings": {
+            "question": "What is your shipping policy?",
+            "answer": "<p>We offer free shipping on orders over $50.</p>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
