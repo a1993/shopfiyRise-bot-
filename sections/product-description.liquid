@@ -1,0 +1,368 @@
+{% comment %}
+  Product Description Section
+  产品描述展示组件 - 支持左侧标签区域和右侧产品网格
+  
+  特点：
+  - 左侧标签区域（带图片、产品图、标签标题）
+  - 右侧产品网格（响应式布局）
+  - 丰富的样式配置
+  - 支持多个描述卡片
+{% endcomment %}
+
+{{ 'product-description.css' | asset_url | stylesheet_tag }}
+
+<div class="product-description-section lv-container">
+  
+  <!-- Description Boxes -->
+  {% assign group_index = 0 %}
+  {% for block in section.blocks %}
+    {% if block.type == 'description_box' %}
+      {% assign group_index = group_index | plus: 1 %}
+      
+      {% render 'product-description-box',
+        tag_img: block.settings.tag_img,
+        tag_img_width: block.settings.tag_img_width,
+        tag_img_height: block.settings.tag_img_height,
+        product_image: block.settings.product_image,
+        product_image_width: block.settings.product_image_width,
+        product_image_height: block.settings.product_image_height,
+        tag_title: block.settings.tag_title,
+        tag_title_bg_color: block.settings.tag_title_bg_color,
+        tag_title_color: block.settings.tag_title_color,
+        title: block.settings.title,
+        title_img_left: block.settings.title_img_left,
+        title_img_left_width: block.settings.title_img_left_width,
+        title_img_left_height: block.settings.title_img_left_height,
+        title_img_right: block.settings.title_img_right,
+        title_img_right_width: block.settings.title_img_right_width,
+        title_img_right_height: block.settings.title_img_right_height,
+        description: block.settings.description,
+        desc_position: block.settings.desc_position,
+        bg_color: block.settings.bg_color,
+        order_image: block.settings.order_image,
+        mobile_columns: section.settings.mobile_columns,
+        desktop_columns: section.settings.desktop_columns,
+        section_blocks: section.blocks,
+        group_index: group_index,
+        btn_text: section.settings.btn_text,
+        currency_symbol: section.settings.currency_symbol,
+        shopify_attributes: block.shopify_attributes
+      %}
+    {% endif %}
+  {% endfor %}
+  
+</div>
+
+{% schema %}
+{
+  "name": "Product Description",
+  "tag": "section",
+  "class": "product-description-section-wrapper",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout Settings"
+    },
+    {
+      "type": "range",
+      "id": "mobile_columns",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "label": "Mobile Columns",
+      "default": 2,
+      "info": "Number of product columns on mobile devices"
+    },
+    {
+      "type": "range",
+      "id": "desktop_columns",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "label": "Desktop Columns",
+      "default": 3,
+      "info": "Number of product columns on desktop devices"
+    },
+    {
+      "type": "header",
+      "content": "Product Card Settings"
+    },
+    {
+      "type": "text",
+      "id": "btn_text",
+      "label": "Button Text",
+      "default": "Shop Now >"
+    },
+    {
+      "type": "text",
+      "id": "currency_symbol",
+      "label": "Currency Symbol",
+      "default": "$",
+      "info": "Used for custom prices"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "description_box",
+      "name": "Description Box",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Left Side Settings"
+        },
+        {
+          "type": "image_picker",
+          "id": "tag_img",
+          "label": "Tag Image",
+          "info": "Image displayed above the product card"
+        },
+        {
+          "type": "number",
+          "id": "tag_img_width",
+          "label": "Tag Image Width",
+          "default": 151
+        },
+        {
+          "type": "number",
+          "id": "tag_img_height",
+          "label": "Tag Image Height",
+          "default": 76
+        },
+        {
+          "type": "image_picker",
+          "id": "product_image",
+          "label": "Product Image (Left Side)"
+        },
+        {
+          "type": "number",
+          "id": "product_image_width",
+          "label": "Product Image Width",
+          "default": 348
+        },
+        {
+          "type": "number",
+          "id": "product_image_height",
+          "label": "Product Image Height",
+          "default": 354
+        },
+        {
+          "type": "text",
+          "id": "tag_title",
+          "label": "Tag Title",
+          "info": "Title displayed on the product card"
+        },
+        {
+          "type": "color",
+          "id": "tag_title_bg_color",
+          "label": "Tag Title Background Color",
+          "default": "#023248"
+        },
+        {
+          "type": "color",
+          "id": "tag_title_color",
+          "label": "Tag Title Text Color",
+          "default": "#FFFFFF"
+        },
+        {
+          "type": "header",
+          "content": "Right Side Settings"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Main Title"
+        },
+        {
+          "type": "image_picker",
+          "id": "title_img_left",
+          "label": "Title Left Icon",
+          "info": "Icon displayed on the left of the title"
+        },
+        {
+          "type": "number",
+          "id": "title_img_left_width",
+          "label": "Title Left Icon Width",
+          "default": 32
+        },
+        {
+          "type": "number",
+          "id": "title_img_left_height",
+          "label": "Title Left Icon Height",
+          "default": 32
+        },
+        {
+          "type": "image_picker",
+          "id": "title_img_right",
+          "label": "Title Right Icon",
+          "info": "Icon displayed on the right of the title"
+        },
+        {
+          "type": "number",
+          "id": "title_img_right_width",
+          "label": "Title Right Icon Width",
+          "default": 32
+        },
+        {
+          "type": "number",
+          "id": "title_img_right_height",
+          "label": "Title Right Icon Height",
+          "default": 32
+        },
+        {
+          "type": "header",
+          "content": "Description Settings"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description Text",
+          "info": "Optional description text"
+        },
+        {
+          "type": "select",
+          "id": "desc_position",
+          "label": "Description Position",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left Side"
+            },
+            {
+              "value": "right",
+              "label": "Right Side"
+            }
+          ],
+          "default": "right"
+        },
+        {
+          "type": "header",
+          "content": "Style Settings"
+        },
+        {
+          "type": "color",
+          "id": "bg_color",
+          "label": "Background Color",
+          "default": "#EFF5F5"
+        },
+        {
+          "type": "checkbox",
+          "id": "order_image",
+          "label": "Reverse Image Order",
+          "default": false,
+          "info": "Show image on the right side (desktop only)"
+        }
+      ]
+    },
+    {
+      "type": "product_item",
+      "name": "Product Item",
+      "settings": [
+        {
+          "type": "number",
+          "id": "parent_group_number",
+          "label": "Belongs to Box Number",
+          "default": 1,
+          "info": "Enter 1 for first box, 2 for second box, etc."
+        },
+        {
+          "type": "header",
+          "content": "Product Source"
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Select Product",
+          "info": "Optional: Leave blank to use fully custom content"
+        },
+        {
+          "type": "header",
+          "content": "Custom Content (Overrides Product Data)"
+        },
+        {
+          "type": "image_picker",
+          "id": "custom_image",
+          "label": "Custom Product Image",
+          "info": "Leave blank to use product's featured image"
+        },
+        {
+          "type": "text",
+          "id": "custom_title",
+          "label": "Custom Title",
+          "info": "Leave blank to use product title"
+        },
+        {
+          "type": "url",
+          "id": "custom_url",
+          "label": "Custom Link URL",
+          "info": "Leave blank to use product URL"
+        },
+        {
+          "type": "header",
+          "content": "Price Settings"
+        },
+        {
+          "type": "text",
+          "id": "custom_price",
+          "label": "Custom Sale Price",
+          "info": "Example: 279.65 (without currency symbol)"
+        },
+        {
+          "type": "text",
+          "id": "custom_compare_price",
+          "label": "Custom Compare Price (Original)",
+          "info": "Example: 329.00 (displayed as strikethrough)"
+        },
+        {
+          "type": "header",
+          "content": "Image Settings"
+        },
+        {
+          "type": "number",
+          "id": "image_width",
+          "label": "Image Width",
+          "default": 220
+        },
+        {
+          "type": "number",
+          "id": "image_height",
+          "label": "Image Height",
+          "default": 188
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Description",
+      "blocks": [
+        {
+          "type": "description_box",
+          "settings": {
+            "tag_title": "Featured Style",
+            "title": "Popular Hairstyles"
+          }
+        },
+        {
+          "type": "product_item",
+          "settings": {
+            "parent_group_number": 1
+          }
+        },
+        {
+          "type": "product_item",
+          "settings": {
+            "parent_group_number": 1
+          }
+        },
+        {
+          "type": "product_item",
+          "settings": {
+            "parent_group_number": 1
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+

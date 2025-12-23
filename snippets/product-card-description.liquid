@@ -1,0 +1,126 @@
+{% comment %}
+  Product Description 产品卡片组件
+  垂直布局：标题、图片、价格、按钮
+  
+  参数:
+  - product: Shopify 产品对象 (可选)
+  - custom_image: 自定义商品图片 (可选)
+  - custom_title: 自定义标题 (可选)
+  - custom_url: 自定义链接 (可选)
+  - custom_price: 自定义现价 (可选)
+  - custom_compare_price: 自定义原价 (可选)
+  - btn_text: 按钮文字 (可选，默认 "Shop Now >")
+  - currency_symbol: 货币符号 (可选，默认 "$")
+  - image_width: 图片宽度 (可选，默认 220)
+  - image_height: 图片高度 (可选，默认 188)
+  - shopify_attributes: Shopify 属性
+{% endcomment %}
+
+{%- liquid
+  # 优先使用自定义内容，如果没有则使用系统商品数据
+  
+  # 图片：自定义优先，否则使用系统商品
+  if custom_image != blank
+    assign display_image = custom_image
+  elsif product and product.featured_image
+    assign display_image = product.featured_image
+  endif
+  
+  # 标题：自定义优先，否则使用系统商品
+  if custom_title != blank
+    assign display_title = custom_title
+  elsif product and product.title != blank
+    assign display_title = product.title
+  else
+    assign display_title = "Product Title"
+  endif
+  
+  # 链接：自定义优先，否则使用系统商品
+  if custom_url != blank
+    assign display_url = custom_url
+  elsif product and product.url != blank
+    assign display_url = product.url
+  else
+    assign display_url = "#"
+  endif
+  
+  # 价格：自定义优先，否则使用系统商品
+  assign show_compare_price = false
+  assign final_price = 0
+  assign final_compare_price = 0
+  assign use_custom_price = false
+  
+  if custom_price != blank
+    assign final_price = custom_price | times: 100
+    assign use_custom_price = true
+  elsif product and product.price
+    assign final_price = product.price
+  endif
+  
+  if custom_compare_price != blank
+    assign final_compare_price = custom_compare_price | times: 100
+    assign use_custom_price = true
+    if final_compare_price > final_price
+      assign show_compare_price = true
+    endif
+  elsif product and product.compare_at_price > product.price
+    assign final_compare_price = product.compare_at_price
+    assign show_compare_price = true
+  endif
+  
+  # 默认值
+  assign final_btn_text = btn_text | default: "Shop Now >"
+  assign final_currency = currency_symbol | default: "$"
+  assign final_img_width = image_width | default: 220
+  assign final_img_height = image_height | default: 188
+-%}
+
+<a href="{{ display_url }}" class="product-card-description" {{ shopify_attributes }} target="_blank">
+  <!-- Product Title -->
+  <h3 class="product-card-description__title">{{ display_title }}</h3>
+  
+  <!-- Product Image -->
+  <div class="product-card-description__image-wrapper">
+    {% if display_image %}
+      <img 
+        src="{{ display_image | image_url: width: 400 }}"
+        srcset="{{ display_image | image_url: width: 200 }} 200w,
+                {{ display_image | image_url: width: 300 }} 300w,
+                {{ display_image | image_url: width: 400 }} 400w"
+        sizes="(max-width: 768px) 50vw, 25vw"
+        alt="{{ display_title | escape }}"
+        width="{{ final_img_width }}"
+        height="{{ final_img_height }}"
+        loading="lazy"
+        class="product-card-description__image">
+    {% else %}
+      <div class="product-card-description__image product-card-description__image--placeholder">
+        {{ 'product-1' | placeholder_svg_tag }}
+      </div>
+    {% endif %}
+  </div>
+  
+  <!-- Price -->
+  <div class="product-card-description__price">
+    {% if show_compare_price %}
+      <span class="product-card-description__price-old">
+        {% if use_custom_price and custom_compare_price != blank %}
+          {{ final_currency }}{{ custom_compare_price }}
+        {% else %}
+          {{ final_compare_price | money }}
+        {% endif %}
+      </span>
+    {% endif %}
+    <span class="product-card-description__price-new">
+      {% if use_custom_price and custom_price != blank %}
+        {{ final_currency }}{{ custom_price }}
+      {% else %}
+        {{ final_price | money }}
+      {% endif %}
+    </span>
+  </div>
+  
+  <!-- Shop Button -->
+  <button class="product-card-description__btn">{{ final_btn_text }}</button>
+</a>
+

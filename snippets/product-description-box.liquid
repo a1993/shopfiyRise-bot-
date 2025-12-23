@@ -1,0 +1,152 @@
+{% comment %}
+  Product Description Box 组件
+  单个产品描述卡片容器
+  
+  参数:
+  - tag_img: 标签图片
+  - tag_img_width: 标签图片宽度 (可选，默认 151)
+  - tag_img_height: 标签图片高度 (可选，默认 76)
+  - product_image: 左侧产品图片
+  - product_image_width: 产品图片宽度 (可选，默认 348)
+  - product_image_height: 产品图片高度 (可选，默认 354)
+  - tag_title: 标签标题
+  - tag_title_bg_color: 标签标题背景色 (可选，默认 #023248)
+  - tag_title_color: 标签标题文字颜色 (可选，默认 #FFFFFF)
+  - title: 主标题
+  - title_img_left: 标题左侧图标 (可选)
+  - title_img_left_width: 标题左侧图标宽度 (可选，默认 32)
+  - title_img_left_height: 标题左侧图标高度 (可选，默认 32)
+  - title_img_right: 标题右侧图标 (可选)
+  - title_img_right_width: 标题右侧图标宽度 (可选，默认 32)
+  - title_img_right_height: 标题右侧图标高度 (可选，默认 32)
+  - description: 描述文字 (可选)
+  - desc_position: 描述位置 (可选，left/right，默认 right)
+  - bg_color: 背景色 (可选，默认 #EFF5F5)
+  - order_image: 是否反转图片顺序 (可选，默认 false)
+  - mobile_columns: 移动端列数 (可选，默认 2)
+  - desktop_columns: PC端列数 (可选，默认 3)
+  - section_blocks: section.blocks 数组
+  - group_index: 当前分组索引
+  - btn_text: 按钮文字 (可选)
+  - currency_symbol: 货币符号 (可选)
+  - shopify_attributes: Shopify 属性
+{% endcomment %}
+
+<div class="product-description-box" 
+     style="background-color: {{ bg_color | default: '#EFF5F5' }};"
+     {{ shopify_attributes }}>
+  
+  <!-- Left Side: Tag & Product Image -->
+  <div class="product-description-box__left" 
+       style="{% if order_image %}order: 1;{% endif %}">
+    
+    <!-- Tag Image -->
+    {% if tag_img != blank %}
+      <img 
+        src="{{ tag_img | image_url: width: 300 }}"
+        alt=""
+        width="{{ tag_img_width | default: 151 }}"
+        height="{{ tag_img_height | default: 76 }}"
+        loading="lazy"
+        class="product-description-box__tag-img">
+    {% endif %}
+    
+    <!-- Product Image with Tag Title -->
+    <div class="product-description-box__product-card"
+         style="background-color: {{ tag_title_bg_color | default: '#023248' }}; color: {{ tag_title_color | default: '#FFFFFF' }};">
+      
+      {% if product_image != blank %}
+        <img 
+          src="{{ product_image | image_url: width: 600 }}"
+          alt="{{ title | escape }}"
+          width="{{ product_image_width | default: 348 }}"
+          height="{{ product_image_height | default: 354 }}"
+          loading="lazy"
+          class="product-description-box__product-image">
+      {% endif %}
+      
+      {% if tag_title != blank %}
+        <div class="product-description-box__tag-title">{{ tag_title }}</div>
+      {% endif %}
+      
+      <!-- Description on Mobile (inside card) -->
+      {% if description != blank %}
+        <div class="product-description-box__description product-description-box__description--mobile">
+          {{ description }}
+        </div>
+      {% endif %}
+    </div>
+    
+    <!-- Description on Desktop (left position) -->
+    {% if description != blank and desc_position == 'left' %}
+      <div class="product-description-box__description product-description-box__description--desktop">
+        {{ description }}
+      </div>
+    {% endif %}
+  </div>
+  
+  <!-- Right Side: Title & Products Grid -->
+  <div class="product-description-box__right">
+    
+    <!-- Main Title -->
+    {% if title != blank %}
+      <h3 class="product-description-box__title">
+        {% if title_img_left != blank %}
+          <img 
+            src="{{ title_img_left | image_url: width: 64 }}"
+            alt=""
+            width="{{ title_img_left_width | default: 32 }}"
+            height="{{ title_img_left_height | default: 32 }}"
+            loading="lazy"
+            class="product-description-box__title-icon">
+        {% endif %}
+        {{ title }}
+        {% if title_img_right != blank %}
+          <img 
+            src="{{ title_img_right | image_url: width: 64 }}"
+            alt=""
+            width="{{ title_img_right_width | default: 32 }}"
+            height="{{ title_img_right_height | default: 32 }}"
+            loading="lazy"
+            class="product-description-box__title-icon">
+        {% endif %}
+      </h3>
+    {% endif %}
+    
+    <!-- Products Grid -->
+    <div class="product-description-box__grid" 
+         style="--mobile-cols: {{ mobile_columns | default: 2 }}; --desktop-cols: {{ desktop_columns | default: 3 }};">
+      {% if section_blocks %}
+        {% for block in section_blocks %}
+          {% if block.type == 'product_item' %}
+            {% assign parent_group = block.settings.parent_group_number | plus: 0 %}
+            
+            {% if parent_group == group_index %}
+              {% render 'product-card-description',
+                product: block.settings.product,
+                custom_image: block.settings.custom_image,
+                custom_title: block.settings.custom_title,
+                custom_url: block.settings.custom_url,
+                custom_price: block.settings.custom_price,
+                custom_compare_price: block.settings.custom_compare_price,
+                btn_text: btn_text,
+                currency_symbol: currency_symbol,
+                image_width: block.settings.image_width,
+                image_height: block.settings.image_height,
+                shopify_attributes: block.shopify_attributes
+              %}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    </div>
+    
+    <!-- Description on Desktop (right position) -->
+    {% if description != blank and desc_position == 'right' %}
+      <div class="product-description-box__description product-description-box__description--desktop">
+        {{ description }}
+      </div>
+    {% endif %}
+  </div>
+</div>
+

@@ -45,6 +45,7 @@
                   image_width: product_block.settings.image_width,
                   image_height: product_block.settings.image_height,
                   sku: product_block.settings.sku,
+                  show_sku: section.settings.show_sku,
                   shopify_attributes: product_block.shopify_attributes
                 %}
               {% endif %}
@@ -112,6 +113,17 @@
       "id": "currency_symbol",
       "label": "Currency Symbol",
       "default": "$"
+    },
+    {
+      "type": "header",
+      "content": "Display Settings"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sku",
+      "label": "Show Product SKU",
+      "default": false,
+      "info": "Display product SKU below description"
     }
   ],
   "blocks": [
