@@ -22,57 +22,86 @@
 {% endcomment %}
 
 {%- liquid
-  # 确定显示的图片
-  if custom_image != blank
-    assign display_image = custom_image
-  elsif product and product.featured_image
-    assign display_image = product.featured_image
-  endif
-  
-  # 确定显示的标题
-  if custom_title != blank
-    assign display_title = custom_title
-  elsif product
+  # 如果选择了系统商品，优先使用系统商品数据
+  if product and product.id != blank
+    # 系统商品优先：图片
+    if product.featured_image
+      assign display_image = product.featured_image
+    elsif custom_image != blank
+      assign display_image = custom_image
+    endif
+    
+    # 系统商品优先：标题（完全使用系统商品标题）
     assign display_title = product.title
-  else
-    assign display_title = "Product Title"
-  endif
-  
-  # 确定显示的描述
-  if custom_description != blank
-    assign display_description = custom_description
-  elsif product and product.description != blank
-    assign display_description = product.description | strip_html | truncate: 100
-  endif
-  
-  # 确定显示的链接
-  if custom_url != blank
-    assign display_url = custom_url
-  elsif product
+    
+    # 系统商品优先：描述
+    if product.description != blank
+      assign display_description = product.description | strip_html | truncate: 100
+    elsif custom_description != blank
+      assign display_description = custom_description
+    endif
+    
+    # 系统商品优先：链接
     assign display_url = product.url
-  else
-    assign display_url = "#"
-  endif
-  
-  # 确定价格
-  assign show_compare_price = false
-  assign final_price = 0
-  assign final_compare_price = 0
-  
-  if custom_price != blank
-    assign final_price = custom_price | times: 100
-  elsif product
+    
+    # 系统商品优先：价格
     assign final_price = product.price
-  endif
-  
-  if custom_compare_price != blank
-    assign final_compare_price = custom_compare_price | times: 100
-    if final_compare_price > final_price
+    assign show_compare_price = false
+    if product.compare_at_price > product.price
+      assign final_compare_price = product.compare_at_price
       assign show_compare_price = true
     endif
-  elsif product and product.compare_at_price > product.price
-    assign final_compare_price = product.compare_at_price
-    assign show_compare_price = true
+    
+    # 系统商品优先：SKU
+    if product.selected_or_first_available_variant.sku != blank
+      assign display_sku = product.selected_or_first_available_variant.sku
+    elsif product.variants.first.sku != blank
+      assign display_sku = product.variants.first.sku
+    elsif sku != blank
+      assign display_sku = sku
+    endif
+    
+  else
+    # 没有系统商品，使用自定义内容
+    if custom_image != blank
+      assign display_image = custom_image
+    endif
+    
+    if custom_title != blank
+      assign display_title = custom_title
+    else
+      assign display_title = "Product Title"
+    endif
+    
+    if custom_description != blank
+      assign display_description = custom_description
+    endif
+    
+    if custom_url != blank
+      assign display_url = custom_url
+    else
+      assign display_url = "#"
+    endif
+    
+    # 自定义价格
+    assign show_compare_price = false
+    assign final_price = 0
+    assign final_compare_price = 0
+    
+    if custom_price != blank
+      assign final_price = custom_price | times: 100
+    endif
+    
+    if custom_compare_price != blank
+      assign final_compare_price = custom_compare_price | times: 100
+      if final_compare_price > final_price
+        assign show_compare_price = true
+      endif
+    endif
+    
+    if sku != blank
+      assign display_sku = sku
+    endif
   endif
   
   # 默认值
@@ -128,15 +157,17 @@
     {% endif %}
     
     <!-- SKU (Optional) -->
-    {% if sku != blank %}
-      <p class="product-card-inline__sku">{{ sku }}</p>
+    {% if display_sku != blank %}
+      <p class="product-card-inline__sku">{{ display_sku }}</p>
     {% endif %}
     
     <!-- Price -->
     <div class="product-card-inline__price">
       {% if show_compare_price %}
         <span class="product-card-inline__price-old">
-          {% if custom_compare_price != blank %}
+          {% if product and product.id != blank %}
+            {{ final_compare_price | money }}
+          {% elsif custom_compare_price != blank %}
             {{ final_currency }}{{ custom_compare_price }}
           {% else %}
             {{ final_compare_price | money }}
@@ -144,7 +175,9 @@
         </span>
       {% endif %}
       <span class="product-card-inline__price-new">
-        {% if custom_price != blank %}
+        {% if product and product.id != blank %}
+          {{ final_price | money }}
+        {% elsif custom_price != blank %}
           {{ final_currency }}{{ custom_price }}
         {% else %}
           {{ final_price | money }}
