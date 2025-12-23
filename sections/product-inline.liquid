@@ -1,0 +1,304 @@
+{% comment %}
+  Product Inline Section
+  横向产品展示组件 - 支持分组标题和自定义内容
+  
+  特点：
+  - 支持多个产品分组
+  - 每个产品卡片横向布局（图片左侧，内容右侧）
+  - 支持自定义图片、标题、描述、价格、链接等
+  - 支持标题 Logo 图片
+  - 完全响应式设计
+{% endcomment %}
+
+{{ 'product-inline.css' | asset_url | stylesheet_tag }}
+
+<div class="product-inline-section lv-container" style="{% if section.settings.background_color != blank %}background-color: {{ section.settings.background_color }};{% endif %}{% if section.settings.padding_top > 0 %}padding-top: {{ section.settings.padding_top }}px;{% endif %}{% if section.settings.padding_bottom > 0 %}padding-bottom: {{ section.settings.padding_bottom }}px;{% endif %}">
+  
+  <!-- Section Title (Optional) -->
+  {% if section.settings.section_title != blank %}
+    <h2 class="product-inline-section__title">{{ section.settings.section_title }}</h2>
+  {% endif %}
+  
+  <!-- Section Description (Optional) -->
+  {% if section.settings.section_description != blank %}
+    <p class="product-inline-section__description">{{ section.settings.section_description }}</p>
+  {% endif %}
+  
+  <!-- Product Groups -->
+  {% assign group_index = 0 %}
+  {% for block in section.blocks %}
+    {% if block.type == 'product_group' %}
+      {% assign group_index = group_index | plus: 1 %}
+      
+      {% render 'product-inline-group',
+        group_title: block.settings.group_title,
+        section_blocks: section.blocks,
+        group_index: group_index,
+        show_sku: section.settings.show_sku,
+        btn_text: section.settings.btn_text,
+        currency_symbol: section.settings.currency_symbol
+      %}
+    {% endif %}
+  {% endfor %}
+  
+  <!-- Fallback: Single Group without Product Groups -->
+  {% if group_index == 0 %}
+    <div class="product-inline-group">
+      <div class="product-inline-group__row">
+        {% for block in section.blocks %}
+          {% if block.type == 'product_item' %}
+            {% render 'product-card-inline',
+              product: block.settings.product,
+              custom_image: block.settings.custom_image,
+              custom_title: block.settings.custom_title,
+              custom_description: block.settings.custom_description,
+              custom_url: block.settings.custom_url,
+              custom_price: block.settings.custom_price,
+              custom_compare_price: block.settings.custom_compare_price,
+              title_image: block.settings.title_image,
+              title_image_width: block.settings.title_image_width,
+              title_image_height: block.settings.title_image_height,
+              btn_text: section.settings.btn_text,
+              currency_symbol: section.settings.currency_symbol,
+              image_width: block.settings.image_width,
+              image_height: block.settings.image_height,
+              sku: block.settings.sku,
+              shopify_attributes: block.shopify_attributes
+            %}
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+  
+</div>
+
+{% schema %}
+{
+  "name": "Product Inline",
+  "tag": "section",
+  "class": "product-inline-section-wrapper",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Settings"
+    },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section Title",
+      "info": "Optional main title for the entire section"
+    },
+    {
+      "type": "textarea",
+      "id": "section_description",
+      "label": "Section Description",
+      "info": "Optional description below the section title"
+    },
+    {
+      "type": "header",
+      "content": "Style Settings"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#F5F5F5"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 32
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 32
+    },
+    {
+      "type": "header",
+      "content": "Product Card Settings"
+    },
+    {
+      "type": "text",
+      "id": "btn_text",
+      "label": "Button Text",
+      "default": "Shop Now >"
+    },
+    {
+      "type": "text",
+      "id": "currency_symbol",
+      "label": "Currency Symbol",
+      "default": "$",
+      "info": "Used for custom prices"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sku",
+      "label": "Show SKU",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product_group",
+      "name": "Product Group",
+      "settings": [
+        {
+          "type": "text",
+          "id": "group_title",
+          "label": "Group Title",
+          "default": "Product Group"
+        }
+      ]
+    },
+    {
+      "type": "product_item",
+      "name": "Product Item",
+      "settings": [
+        {
+          "type": "number",
+          "id": "parent_group_number",
+          "label": "Belongs to Group Number",
+          "default": 1,
+          "info": "Enter 1 for first group, 2 for second group, etc."
+        },
+        {
+          "type": "header",
+          "content": "Product Source"
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Select Product",
+          "info": "Optional: Leave blank to use fully custom content"
+        },
+        {
+          "type": "header",
+          "content": "Custom Content (Overrides Product Data)"
+        },
+        {
+          "type": "image_picker",
+          "id": "custom_image",
+          "label": "Custom Product Image",
+          "info": "Leave blank to use product's featured image"
+        },
+        {
+          "type": "text",
+          "id": "custom_title",
+          "label": "Custom Title",
+          "info": "Leave blank to use product title"
+        },
+        {
+          "type": "textarea",
+          "id": "custom_description",
+          "label": "Custom Description",
+          "info": "Short description displayed below title"
+        },
+        {
+          "type": "text",
+          "id": "custom_url",
+          "label": "Custom Link URL",
+          "info": "Leave blank to use product URL. Use full URL for external links"
+        },
+        {
+          "type": "header",
+          "content": "Title Logo/Badge"
+        },
+        {
+          "type": "image_picker",
+          "id": "title_image",
+          "label": "Title Logo Image",
+          "info": "Optional logo/badge displayed above the title"
+        },
+        {
+          "type": "number",
+          "id": "title_image_width",
+          "label": "Title Image Width",
+          "default": 124
+        },
+        {
+          "type": "number",
+          "id": "title_image_height",
+          "label": "Title Image Height",
+          "default": 47
+        },
+        {
+          "type": "header",
+          "content": "Price Settings"
+        },
+        {
+          "type": "text",
+          "id": "custom_price",
+          "label": "Custom Sale Price",
+          "info": "Example: 279.65 (without currency symbol)"
+        },
+        {
+          "type": "text",
+          "id": "custom_compare_price",
+          "label": "Custom Compare Price (Original)",
+          "info": "Example: 329.00 (displayed as strikethrough)"
+        },
+        {
+          "type": "header",
+          "content": "Additional Settings"
+        },
+        {
+          "type": "text",
+          "id": "sku",
+          "label": "Product SKU",
+          "info": "Optional: Displayed as secondary description"
+        },
+        {
+          "type": "number",
+          "id": "image_width",
+          "label": "Image Width",
+          "default": 356
+        },
+        {
+          "type": "number",
+          "id": "image_height",
+          "label": "Image Height",
+          "default": 291
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Inline",
+      "blocks": [
+        {
+          "type": "product_group",
+          "settings": {
+            "group_title": "Full Lace Design: Soft & Breathable"
+          }
+        },
+        {
+          "type": "product_item",
+          "settings": {
+            "parent_group_number": 1
+          }
+        },
+        {
+          "type": "product_item",
+          "settings": {
+            "parent_group_number": 1
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+

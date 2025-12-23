@@ -1,0 +1,52 @@
+{% comment %}
+  Inline 产品组组件
+  用于展示一组产品，包含分组标题
+  
+  参数:
+  - group_title: 分组标题
+  - section_blocks: section.blocks 数组
+  - group_index: 当前分组索引 (用于过滤)
+  - show_sku: 是否显示 SKU (可选)
+  - btn_text: 按钮文字 (可选)
+  - currency_symbol: 货币符号 (可选)
+{% endcomment %}
+
+<div class="product-inline-group">
+  <!-- Group Title -->
+  {% if group_title != blank %}
+    <h2 class="product-inline-group__title lv-title">{{ group_title }}</h2>
+  {% endif %}
+  
+  <!-- Products Row -->
+  <div class="product-inline-group__row">
+    {% if section_blocks %}
+      {% for block in section_blocks %}
+        {% if block.type == 'product_item' %}
+          {% assign parent_group = block.settings.parent_group_number | plus: 0 %}
+          
+          {% if parent_group == group_index %}
+            {% render 'product-card-inline',
+              product: block.settings.product,
+              custom_image: block.settings.custom_image,
+              custom_title: block.settings.custom_title,
+              custom_description: block.settings.custom_description,
+              custom_url: block.settings.custom_url,
+              custom_price: block.settings.custom_price,
+              custom_compare_price: block.settings.custom_compare_price,
+              title_image: block.settings.title_image,
+              title_image_width: block.settings.title_image_width,
+              title_image_height: block.settings.title_image_height,
+              btn_text: btn_text,
+              currency_symbol: currency_symbol,
+              image_width: block.settings.image_width,
+              image_height: block.settings.image_height,
+              sku: block.settings.sku,
+              shopify_attributes: block.shopify_attributes
+            %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+</div>
+
