@@ -6,12 +6,10 @@
 
 {{ 'product-inline.css' | asset_url | stylesheet_tag }}
 
-<div class="product-inline-section lv-container" style="background-color: {{ section.settings.background_color | default: '#F5F5F5' }}; padding-bottom: 2rem; border-radius: 15px;">
-  
-  <!-- Section Title -->
-  {% if section.settings.section_title != blank %}
-    <h2 class="product-inline-section__title life-style-title">{{ section.settings.section_title }}</h2>
-  {% endif %}
+<div class="product-inline-section lv-container" 
+     style="background-color: {{ section.settings.background_color | default: '#F5F5F5' }}; padding-bottom: 2rem; border-radius: 15px;"
+     data-mobile-cols="{{ section.settings.mobile_columns | default: 1 }}"
+     data-desktop-cols="{{ section.settings.desktop_columns | default: 2 }}">
   
   <!-- Product Groups -->
   {% assign group_index = 0 %}
@@ -24,7 +22,8 @@
           <h2 class="product-inline-group__title lv-title">{{ block.settings.group_title }}</h2>
         {% endif %}
         
-        <div class="product-inline-group__row">
+        <div class="product-inline-group__grid" 
+             style="--mobile-cols: {{ section.settings.mobile_columns | default: 1 }}; --desktop-cols: {{ section.settings.desktop_columns | default: 2 }};">
           {% for product_block in section.blocks %}
             {% if product_block.type == 'product_item' %}
               {% assign parent_group = product_block.settings.parent_group_number | plus: 0 %}
@@ -66,13 +65,27 @@
   "settings": [
     {
       "type": "header",
-      "content": "Section Settings"
+      "content": "Layout Settings"
     },
     {
-      "type": "text",
-      "id": "section_title",
-      "label": "Section Title",
-      "default": "Top Picks for Breathability"
+      "type": "range",
+      "id": "mobile_columns",
+      "min": 1,
+      "max": 3,
+      "step": 1,
+      "label": "Mobile Columns",
+      "default": 1,
+      "info": "Number of columns on mobile devices"
+    },
+    {
+      "type": "range",
+      "id": "desktop_columns",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "label": "Desktop Columns",
+      "default": 2,
+      "info": "Number of columns on desktop devices"
     },
     {
       "type": "header",
@@ -226,7 +239,8 @@
     {
       "name": "Product Inline Demo",
       "settings": {
-        "section_title": "Top Picks for Breathability"
+        "mobile_columns": 1,
+        "desktop_columns": 2
       },
       "blocks": [
         {

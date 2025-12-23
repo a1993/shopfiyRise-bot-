@@ -9,6 +9,8 @@
   - show_sku: 是否显示 SKU (可选)
   - btn_text: 按钮文字 (可选)
   - currency_symbol: 货币符号 (可选)
+  - mobile_columns: 移动端列数 (可选，默认 1)
+  - desktop_columns: PC端列数 (可选，默认 2)
 {% endcomment %}
 
 <div class="product-inline-group">
@@ -17,8 +19,9 @@
     <h2 class="product-inline-group__title lv-title">{{ group_title }}</h2>
   {% endif %}
   
-  <!-- Products Row -->
-  <div class="product-inline-group__row">
+  <!-- Products Grid -->
+  <div class="product-inline-group__grid" 
+       style="--mobile-cols: {{ mobile_columns | default: 1 }}; --desktop-cols: {{ desktop_columns | default: 2 }};">
     {% if section_blocks %}
       {% for block in section_blocks %}
         {% if block.type == 'product_item' %}
