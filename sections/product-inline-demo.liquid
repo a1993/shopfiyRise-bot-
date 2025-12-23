@@ -1,0 +1,371 @@
+{% comment %}
+  Product Inline Demo Section
+  展示如何使用 Product Inline 组件的示例
+  预配置的活动生活方式产品展示
+{% endcomment %}
+
+{{ 'product-inline.css' | asset_url | stylesheet_tag }}
+
+<div class="product-inline-section lv-container" style="background-color: {{ section.settings.background_color | default: '#F5F5F5' }}; padding-bottom: 2rem; border-radius: 15px;">
+  
+  <!-- Section Title -->
+  {% if section.settings.section_title != blank %}
+    <h2 class="product-inline-section__title life-style-title">{{ section.settings.section_title }}</h2>
+  {% endif %}
+  
+  <!-- Product Groups -->
+  {% assign group_index = 0 %}
+  {% for block in section.blocks %}
+    {% if block.type == 'product_group' %}
+      {% assign group_index = group_index | plus: 1 %}
+      
+      <div class="product-inline-group" {{ block.shopify_attributes }}>
+        {% if block.settings.group_title != blank %}
+          <h2 class="product-inline-group__title lv-title">{{ block.settings.group_title }}</h2>
+        {% endif %}
+        
+        <div class="product-inline-group__row">
+          {% for product_block in section.blocks %}
+            {% if product_block.type == 'product_item' %}
+              {% assign parent_group = product_block.settings.parent_group_number | plus: 0 %}
+              
+              {% if parent_group == group_index %}
+                {% render 'product-card-inline',
+                  product: product_block.settings.product,
+                  custom_image: product_block.settings.custom_image,
+                  custom_title: product_block.settings.custom_title,
+                  custom_description: product_block.settings.custom_description,
+                  custom_url: product_block.settings.custom_url,
+                  custom_price: product_block.settings.custom_price,
+                  custom_compare_price: product_block.settings.custom_compare_price,
+                  title_image: product_block.settings.title_image,
+                  title_image_width: product_block.settings.title_image_width,
+                  title_image_height: product_block.settings.title_image_height,
+                  btn_text: section.settings.btn_text,
+                  currency_symbol: section.settings.currency_symbol,
+                  image_width: product_block.settings.image_width,
+                  image_height: product_block.settings.image_height,
+                  sku: product_block.settings.sku,
+                  shopify_attributes: product_block.shopify_attributes
+                %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+  
+</div>
+
+{% schema %}
+{
+  "name": "Product Inline Demo",
+  "tag": "section",
+  "class": "product-inline-demo-section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Settings"
+    },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section Title",
+      "default": "Top Picks for Breathability"
+    },
+    {
+      "type": "header",
+      "content": "Style Settings"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#F5F5F5"
+    },
+    {
+      "type": "header",
+      "content": "Button Settings"
+    },
+    {
+      "type": "text",
+      "id": "btn_text",
+      "label": "Button Text",
+      "default": "Shop Now >"
+    },
+    {
+      "type": "text",
+      "id": "currency_symbol",
+      "label": "Currency Symbol",
+      "default": "$"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product_group",
+      "name": "Product Group",
+      "settings": [
+        {
+          "type": "text",
+          "id": "group_title",
+          "label": "Group Title",
+          "default": "Product Group"
+        }
+      ]
+    },
+    {
+      "type": "product_item",
+      "name": "Product Item",
+      "settings": [
+        {
+          "type": "number",
+          "id": "parent_group_number",
+          "label": "Belongs to Group Number",
+          "default": 1,
+          "info": "Enter 1 for first group, 2 for second group, etc."
+        },
+        {
+          "type": "header",
+          "content": "Product Source"
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Select Product",
+          "info": "Optional: Leave blank to use fully custom content"
+        },
+        {
+          "type": "header",
+          "content": "Custom Content"
+        },
+        {
+          "type": "image_picker",
+          "id": "custom_image",
+          "label": "Custom Product Image"
+        },
+        {
+          "type": "text",
+          "id": "custom_title",
+          "label": "Custom Title"
+        },
+        {
+          "type": "textarea",
+          "id": "custom_description",
+          "label": "Custom Description",
+          "info": "Short description (e.g., 'Swiss Lace 90% Density')"
+        },
+        {
+          "type": "url",
+          "id": "custom_url",
+          "label": "Custom Link URL"
+        },
+        {
+          "type": "header",
+          "content": "Title Logo/Badge"
+        },
+        {
+          "type": "image_picker",
+          "id": "title_image",
+          "label": "Title Logo Image",
+          "info": "Optional logo displayed above the title"
+        },
+        {
+          "type": "number",
+          "id": "title_image_width",
+          "label": "Title Image Width",
+          "default": 124
+        },
+        {
+          "type": "number",
+          "id": "title_image_height",
+          "label": "Title Image Height",
+          "default": 47
+        },
+        {
+          "type": "header",
+          "content": "Price Settings"
+        },
+        {
+          "type": "text",
+          "id": "custom_price",
+          "label": "Sale Price",
+          "info": "Example: 279.65"
+        },
+        {
+          "type": "text",
+          "id": "custom_compare_price",
+          "label": "Original Price",
+          "info": "Example: 329.00 (strikethrough)"
+        },
+        {
+          "type": "header",
+          "content": "Additional"
+        },
+        {
+          "type": "text",
+          "id": "sku",
+          "label": "Product SKU"
+        },
+        {
+          "type": "number",
+          "id": "image_width",
+          "label": "Image Width",
+          "default": 356
+        },
+        {
+          "type": "number",
+          "id": "image_height",
+          "label": "Image Height",
+          "default": 291
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Inline Demo",
+      "settings": {
+        "section_title": "Top Picks for Breathability"
+      },
+      "blocks": [
+        {
+          "type": "product_group",
+          "settings": {
+            "group_title": "Full Lace Design: Soft & Breathable"
+          }
+        },
+        {
+          "type": "product_item",
+          "settings": {
+            "parent_group_number": 1,
+            "custom_title": "Helios-TP1805",
+            "custom_description": "Swiss Lace 90% Density",
+            "custom_price": "279.65",
+            "custom_compare_price": "329.00",
+            "sku": "TP1805"
+          }
+        },
+        {
+          "type": "product_item",
+          "settings": {
+            "parent_group_number": 1,
+            "custom_title": "Thor-TP1803",
+            "custom_description": "French Lace 105% Density",
+            "custom_price": "271.15",
+            "custom_compare_price": "319.00",
+            "sku": "TP1803"
+          }
+        },
+        {
+          "type": "product_group",
+          "settings": {
+            "group_title": "Long Lasting for at Least 6 Months"
+          }
+        },
+        {
+          "type": "product_item",
+          "settings": {
+            "parent_group_number": 2,
+            "custom_title": "Tyler-TU2308",
+            "custom_price": "330.65",
+            "custom_compare_price": "389.00",
+            "sku": "TU2308"
+          }
+        },
+        {
+          "type": "product_item",
+          "settings": {
+            "parent_group_number": 2,
+            "custom_title": "Nicolas-TU2401",
+            "custom_price": "296.65",
+            "custom_compare_price": "349.00",
+            "sku": "TU2401"
+          }
+        },
+        {
+          "type": "product_group",
+          "settings": {
+            "group_title": "Airy Comfort Meets Secure Fit"
+          }
+        },
+        {
+          "type": "product_item",
+          "settings": {
+            "parent_group_number": 3,
+            "custom_title": "Ares-TP1806",
+            "custom_description": "Best for Daily Wear",
+            "custom_price": "279.65",
+            "custom_compare_price": "329.00",
+            "sku": "TP1806"
+          }
+        },
+        {
+          "type": "product_item",
+          "settings": {
+            "parent_group_number": 3,
+            "custom_title": "Simois-TP1906",
+            "custom_description": "Hollywood Style",
+            "custom_price": "279.65",
+            "custom_compare_price": "329.00",
+            "sku": "TP1906"
+          }
+        },
+        {
+          "type": "product_group",
+          "settings": {
+            "group_title": "Antimicrobial Collection"
+          }
+        },
+        {
+          "type": "product_item",
+          "settings": {
+            "parent_group_number": 4,
+            "custom_title": "Zeo-Helios",
+            "custom_description": "TU2417",
+            "custom_price": "279.65",
+            "custom_compare_price": "329.00"
+          }
+        },
+        {
+          "type": "product_item",
+          "settings": {
+            "parent_group_number": 4,
+            "custom_title": "Zeo-Crius",
+            "custom_description": "TU2420",
+            "custom_price": "279.65",
+            "custom_compare_price": "329.00"
+          }
+        },
+        {
+          "type": "product_group",
+          "settings": {
+            "group_title": "Accessories"
+          }
+        },
+        {
+          "type": "product_item",
+          "settings": {
+            "parent_group_number": 5,
+            "custom_title": "Lace Front Men's Tape for Hair Pieces",
+            "custom_price": "10.96",
+            "custom_compare_price": "12.90",
+            "sku": "AC1937"
+          }
+        },
+        {
+          "type": "product_item",
+          "settings": {
+            "parent_group_number": 5,
+            "custom_title": "Walker Ultra Hold Contour and Minis",
+            "custom_price": "14.19",
+            "custom_compare_price": "16.70",
+            "sku": "AC2301"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
+
